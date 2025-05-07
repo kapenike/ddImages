@@ -1,33 +1,30 @@
+<?php
+// $APP stores loaded classes as an instance of app({$class})
+$APP = (object)[];
+
+// app() is an instance and an initializer
+function app($app, ...$params) {
+	global $APP;
+	if (!isset($APP->$app)) {
+		require('./php_apps/'.$app.'.php');
+		$APP->$app = new $app(...$params);
+	}
+	return $APP->$app;
+}
+?>
+
 <html>
 <head>
-<!-- external scripts -->
-<script src="jsui.min.js" type="text/javascript"></script>
-
-<!-- application scripts -->
 <?php
-function getImportList($list, $dir) {
-	$files = scandir($dir);
-	forEach($files as $file) {
-		if ($file != '.' && $file != '..') {
-			if (is_dir($dir.'/'.$file)) {
-				$list = array_merge(getImportList($list, $dir.'/'.$file));
-			} else {
-				$list[] = $dir.'/'.$file;
-			}
-		}
-	}
-	return $list;
-}
-
 // import all scripts from "ui_scripts"
-forEach(getImportList([], './ui_scripts') as $file) {
+forEach(app('directoryFileList')->grab([], './js_scripts') as $file) {
 	echo '<script src="'.$file.'" type="text/javascript"></script>'."\r\n";
 }
 ?>
 
 <script>
-// init application (./ui_scripts/main.js)
-document.addEventListener("DOMContentLoaded", function() {
+// init application (./js_scripts/main.js)
+document.addEventListener('DOMContentLoaded', function() {
 	initStreamOverlay();
 });
 </script>
