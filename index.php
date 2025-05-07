@@ -1,23 +1,12 @@
 <?php
-// $APP stores loaded classes as an instance of app({$class})
-$APP = (object)[];
-
-// app() is an instance and an initializer
-function app($app, ...$params) {
-	global $APP;
-	if (!isset($APP->$app)) {
-		require('./php_apps/'.$app.'.php');
-		$APP->$app = new $app(...$params);
-	}
-	return $APP->$app;
-}
+require 'app.php';
 ?>
 
 <html>
 <head>
 <?php
 // import all scripts from "ui_scripts"
-forEach(app('directoryFileList')->grab([], './js_scripts') as $file) {
+forEach(app('directoryFileList')->get([], './js_scripts') as $file) {
 	echo '<script src="'.$file.'" type="text/javascript"></script>'."\r\n";
 }
 ?>

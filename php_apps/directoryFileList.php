@@ -3,7 +3,7 @@
 class directoryFileList {
 	
 	// $list(array) - array to append file path list to, $dir(string) - starting directory
-	function grab($list, $dir) {
+	function get($list, $dir) {
 		$files = scandir($dir);
 		forEach($files as $file) {
 			if ($file != '.' && $file != '..') {
