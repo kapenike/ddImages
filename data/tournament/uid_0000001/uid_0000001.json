@@ -1,1 +1,48 @@
-{"uid":"uid_0000001","name":"CoD Double Tap","settings":{"team_size":6,"venue_fee":"10","entry_fee":"10"},"overlays":[]}
+{
+	"uid": "uid_0000001",
+	"game": "Call of Duty: Black Ops 6",
+	"title": "Double Tap",
+	"settings": {
+		"team_size": 6,
+		"venue_fee": "10",
+		"entry_fee": "10"
+	},
+	"overlays": [
+		{
+			"sources": [
+				"settings"
+			],
+			"title": "Tournament Details",
+			"slug": "tournament_details",
+			"layers": [
+				{
+					"type": "text",
+					"value": "Double Tap",
+					"font": "JuanCock",
+					"font_size": "22px",
+					"offset": {
+						"x": 1134,
+						"y": 382
+					},
+					"dimensions": {
+						"width": 556,
+						"height": 106
+					},
+					"align": "center"
+				},
+				{
+					"type": "image",
+					"source": "tournament_details.png",
+					"offset": {
+						"x": 0,
+						"y": 0
+					},
+					"dimensions": {
+						"width": 1920,
+						"height": 1080
+					}
+				}
+			]
+		}
+	]
+}

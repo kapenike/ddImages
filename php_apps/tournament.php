@@ -28,10 +28,17 @@ class tournament {
 		// create tournament directory
 		mkdir('./data/tournament/'.$uid);
 		
+		// create tournament overlay directory
+		mkdir('./overlay_output/'.$uid);
+		
+		// create tournament sources directory
+		mkdir('./data/tournament/'.$uid.'/sources');
+		
 		// create tournament skeleton json file
 		file_put_contents('./data/tournament/'.$uid.'/'.$uid.'.json', json_encode((object)[
 			'uid' => $uid,
-			'name' => $tournament_name,
+			'game' => '',
+			'title' => $tournament_name,
 			'settings' => [
 				'team_size' => 6,
 				'venue_fee' => '10',
