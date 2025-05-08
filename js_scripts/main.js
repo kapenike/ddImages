@@ -1,6 +1,7 @@
 // global variable for overlay and tournament data
 var GLOBAL = {
-	useVRAM: true
+	use_vram: true, // generate Bitmaps for faster overlay creation at the cost of the GPU
+	generate_sources: true // flag used by generateStreamOverlays(null) when passed null to update overlay sources (defines what UI value updates will proc a stream overlay image export)
 };
 
 function initStreamOverlay() {
@@ -12,10 +13,8 @@ function initStreamOverlay() {
 
 	
 	### TODO ###
-	- create proof of concept generic overlay using tournament settings information
 	- create UI editor for tournament settings
 	- tag overlays with "sources" to prompt javascript to generate specific overlays on the change of data
-	- front end application to generate overlay and export through PHP
 	- create player and teams data structures along with UI (logo, name, colors, etc)
 	- create bracket system
 	- create UI for filling bracket with team data
@@ -84,7 +83,7 @@ function loadOverlayDependencies() {
 				// !! - this could potentially cause issues to low spec computers if the user has too many assets/layers and need those specs for gaming... offer base RAM loaded image option
 				// !! - bitmaps generate overlays significantly faster
 				
-				if (GLOBAL.useVRAM) {
+				if (GLOBAL.use_vram) {
 					
 					// replace source with bitmap (additional async action): VRAM
 					createImageBitmap(image).then(bitmap => {
