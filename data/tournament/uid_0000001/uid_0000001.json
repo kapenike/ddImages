@@ -10,7 +10,8 @@
 	"overlays": [
 		{
 			"sources": [
-				"settings"
+				"settings",
+				"title"
 			],
 			"title": "Tournament Details",
 			"slug": "tournament_details",
@@ -19,7 +20,7 @@
 					"type": "text",
 					"value": "Double Tap",
 					"font": "JuanCock",
-					"font_size": "22px",
+					"font_size": "200px",
 					"offset": {
 						"x": 1134,
 						"y": 382

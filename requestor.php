@@ -14,6 +14,15 @@ switch($_POST['application']) {
 		echo json_encode(app('tournament')->load($_POST['uid']));
 		break;
 	
+	case 'export_overlays':
+		// uses client side data, no need to re-pull server-side tournament data
+		foreach ($_POST['changed'] as $slug) {
+			// file_get_contents auto converts base64 png to image, write to overlay_output/uid/slug path
+			file_put_contents('./overlay_output/'.$_POST['uid'].'/'.$slug.'.png', file_get_contents($_POST[$slug]));
+		}
+		echo json_encode((object)['msg' => 'Overlay export successful.']);
+		break;
+	
 	default:
 		echo json_encode((object)['error_msg' => 'No application defined.']);
 		break;

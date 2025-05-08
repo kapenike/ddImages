@@ -49,7 +49,7 @@ function streamDataLoaded(status, data) {
 		loadOverlayDependencies();
 		
 	} else {
-		alert('whoops');
+		alert('whoops, check your console');
 	}
 	
 }
@@ -94,7 +94,7 @@ function loadOverlayDependencies() {
 						
 							// once all assets are loaded, callback to initial overlay generation
 							// (./js_scripts/overlays.js)
-							generateStreamOverlays(null);
+							generateStreamOverlays(null, dependenciesLoaded);
 							
 						}
 					});
@@ -107,7 +107,7 @@ function loadOverlayDependencies() {
 						
 						// once all assets are loaded, callback to initial overlay generation
 						// (./js_scripts/overlays.js)
-						generateStreamOverlays(null);
+						generateStreamOverlays(null, dependenciesLoaded);
 						
 					}
 				}
@@ -115,4 +115,8 @@ function loadOverlayDependencies() {
 		});
 	}
 	
+}
+
+function dependenciesLoaded(status, data) {
+	console.log(data);
 }

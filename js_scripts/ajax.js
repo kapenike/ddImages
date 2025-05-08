@@ -23,7 +23,8 @@ function ajax(method, url, obj, callback, loader_id = null) {
 			// if array, append all values separately to the same "name[]"
 			if (Array.isArray(obj[obj_keys[i]])) {
 				obj[obj_keys[i]].forEach(v => {
-					form_data.append(obj_keys[i], v);
+					// ternary appends PHP expected [] to object name for arrays if not present
+					form_data.append(obj_keys[i].slice(-2) == '[]' ? obj_keys[i] : obj_keys[i]+'[]', v);
 				});
 			} else {
 				// simple append
@@ -52,31 +53,36 @@ function ajax(method, url, obj, callback, loader_id = null) {
 	
 	// if loader id identified, add class and insert loader
 	if (loader_id !== null) {
-		
-		// ensure loader_id exists as an element, then append the required class name
-		let to_elem = Select('#'+loader_id);
-		if (to_elem) {
-			if (to_elem && to_elem.className.indexOf('contains_loader') === -1) {
-				to_elem.className += ' contains_loader';
-			}
-			
-			// insert loader
-			to_elem.appendChild(
-				Create('div', {
-					id: 'ajax_loader',
-					children: [
-						Create('img', {
-							src: '/loader.php'
-						})
-					]
-				})
-			);
-		}
-		
+		ajaxInitLoader(loader_id);
 	}
 	
 	// ship
 	xhttp.send(form_data);
+}
+
+// allow ajax loader to init before form post (incase of preprocessing)
+function ajaxInitLoader(id) {
+
+	// ensure id exists as an element, then append the required class name
+	let to_elem = Select('#'+id);
+	if (to_elem) {
+		if (to_elem && to_elem.className.indexOf('contains_loader') === -1) {
+			to_elem.className += ' contains_loader';
+		}
+		
+		// insert loader
+		to_elem.appendChild(
+			Create('div', {
+				id: 'ajax_loader',
+				children: [
+					Create('img', {
+						src: '/loader.php'
+					})
+				]
+			})
+		);
+	}
+
 }
 
 // grab form input elements and convert their name->data pair to an object
