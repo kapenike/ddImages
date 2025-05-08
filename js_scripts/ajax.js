@@ -68,19 +68,19 @@ function ajaxInitLoader(id) {
 	if (to_elem) {
 		if (to_elem && to_elem.className.indexOf('contains_loader') === -1) {
 			to_elem.className += ' contains_loader';
+			
+			// insert loader
+			to_elem.appendChild(
+				Create('div', {
+					id: 'ajax_loader',
+					children: [
+						Create('img', {
+							src: '/loader.php'
+						})
+					]
+				})
+			);
 		}
-		
-		// insert loader
-		to_elem.appendChild(
-			Create('div', {
-				id: 'ajax_loader',
-				children: [
-					Create('img', {
-						src: '/loader.php'
-					})
-				]
-			})
-		);
 	}
 
 }
