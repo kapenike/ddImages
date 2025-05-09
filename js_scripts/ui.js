@@ -31,7 +31,7 @@ function generateUI() {
 							return Create('input', {
 								disabled: true,
 								type: 'text',
-								value: GLOBAL.active_tournament.cwd+'/'+overlay.slug+'.png'
+								value: GLOBAL.active_tournament.cwd+'/overlay_output/'+GLOBAL.active_tournament.uid+'/'+overlay.slug+'.png'
 							})
 						})
 					})
