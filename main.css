@@ -18,7 +18,7 @@ html, body {
 }
 
 /* form styles */
-input[type="text"], textarea, select {
+input[type="text"], input[type="number"], textarea, select {
 	width: 100%;
 	padding: 12px 20px;
 	display: inline-block;

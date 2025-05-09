@@ -45,17 +45,49 @@ function generateUI() {
 							innerHTML: '<h3>'+section.section+'</h3>',
 							className: 'block',
 							children: section.fields.map(field => {
-								if (field.type == 'text') {
+								let depth_value = getDepthComparisonValue(field);
+								if (field.type == 'text' || field.type == 'number') {
 									return Create('label', {
 										innerHTML: field.title,
 										children: [
 											Create('input', {
-												type: 'text',
+												type: field.type,
 												name: field.source,
 												onkeydown: function () { logSourceChange(this); },
-												value: getRealValue(field.source)
+												value: depth_value
 											})
 										]
+									});
+								} else if (field.type == 'select') {
+									return Create('select', {
+										name: field.source,
+										onchange: function () { logSourceChange(this); },
+										children: field.values.map(option => {
+											return Create('option', {
+												innerHTML: option.display,
+												value: option.value,
+												selected: option.value == depth_value
+											})
+										})
+									});
+								} else if (field.type == 'radio') {
+									return Create('div', {
+										children: field.values.map(radio => {
+											return Create('label', {
+												children: [
+													Create('input', {
+														type: 'radio',
+														onclick: function () { logSourceChange(this); },
+														name: field.source,
+														value: radio.value,
+														checked: radio.value == depth_value
+													}),
+													Create('span', {
+														innerHTML: radio.display+'&nbsp;'
+													})
+												]
+											});
+										})
 									});
 								} else {
 									return Create('div');
@@ -80,6 +112,11 @@ function generateUI() {
 		]
 	});
 	
+}
+
+// not all comparisons are similar, allow ui setup to determine value depth to compare
+function getDepthComparisonValue(field) {
+	return getRealValue(field.source, (typeof field.value_depth === 'undefined' ? null : field.value_depth));
 }
 
 function logSourceChange(field) {

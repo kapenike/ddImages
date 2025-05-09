@@ -21,6 +21,8 @@ function initStreamOverlay() {
 	
 	- complete BRB / Caster screen
 	
+	- potential restructure and comments on ui.js
+	
 	- create player and teams data structures along with UI (logo, name, colors, etc)
 	- create bracket system
 	- create UI for filling bracket with team data

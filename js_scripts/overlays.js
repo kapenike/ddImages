@@ -101,7 +101,7 @@ function isPathVariable(value) {
 	return typeof value === 'string' && value[0] == '$' && value.slice(-1) == '$';
 }
 
-function getRealValue(value) {
+function getRealValue(value, depth = null) {
 	
 	// detect if value is a path variable
 	if (isPathVariable(value)) {
@@ -128,8 +128,16 @@ function getRealValue(value) {
 			
 		}
 		
+		// if depth is not null, reduce depth until it is 0, then return the reference path rather than chaining to final real value
+		if (depth != null) {
+			depth -= 1;
+			if (depth == 0) {
+				return reference_path;
+			}
+		}
+		
 		// run final reference path value through getRealValue until a real value is spit out (variable chaining)
-		return getRealValue(reference_path);
+		return getRealValue(reference_path, depth);
 	}
 	
 	// if not a variable, return value
