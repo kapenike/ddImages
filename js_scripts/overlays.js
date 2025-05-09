@@ -56,6 +56,11 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 		}
 		
 	});
+	
+	// reset generate sources global flag
+	if (GLOBAL.generate_sources == true) {
+		GLOBAL.generate_sources = false;
+	}
 
 	// if nothing to change, remove loader
 	if (output_overlays.changed.length == 0) {
