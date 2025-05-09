@@ -13,13 +13,14 @@ function initStreamOverlay() {
 
 	
 	### TODO ###
-	- create UI editor for tournament settings
-	- tag overlays with "sources" to prompt javascript to generate specific overlays on the change of data
+	- create UI editor for tournament settings / tag overlays with "sources" to prompt javascript to generate specific overlays on the change of data
+	- current asset dependecy system doesnt account for overlay variable sources ... 
+	- create UI for copying overlay sources for use in OBS
+	
 	- create player and teams data structures along with UI (logo, name, colors, etc)
 	- create bracket system
 	- create UI for filling bracket with team data
 	- create overlays tagged to bracket data and auto-source updates to overlay
-	- create UI for copying overlay sources for use in OBS
 	- create UI for marking current match for use in overlay
 		- this will also include pick / ban / score entry UI
 		

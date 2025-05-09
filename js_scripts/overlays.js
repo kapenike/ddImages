@@ -43,7 +43,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 			output_overlays.changed.push(overlay.slug);
 			
 			// generate overlay
-			generateOverlay(ctx, output_overlays, overlay);
+			generateOverlay(ctx, output_overlays, overlay, overlay_index);
 			
 			// save generated overlay as base64 encoded string, referenced by its slug for lookup using $_POST[slug] and array log of changed slugs
 			// !!ISSUE[1]: base 64 png is ~30% larger than a binary png ... find a way to convert and append as a file to form object to save on write time
@@ -59,7 +59,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	
 }
 
-function generateOverlay(ctx, output_overlays, overlay) {
+function generateOverlay(ctx, output_overlays, overlay, overlay_index) {
 	
 	// reset canvas
 	ctx.clearRect(0, 0, 1920, 1080);
@@ -73,7 +73,7 @@ function generateOverlay(ctx, output_overlays, overlay) {
 		if (layer.type == 'image') {
 			printImage(ctx, layer);
 		} else if (layer.type == 'text') {
-			printText(ctx, layer, i);
+			printText(ctx, layer, overlay_index);
 		}
 		
 	}
@@ -89,7 +89,7 @@ function printImage(ctx, layer) {
 }
 
 function printText(ctx, layer, parent_index) {
-	ctx.font = layer.style.font_size+' '+layer.style.font;
+	ctx.font = layer.style.font;
 	ctx.fillStyle = layer.style.color;
 	
 	// default align left

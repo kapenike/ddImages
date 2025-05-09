@@ -5,8 +5,14 @@
 		"title": "DOUBLE TAP",
 		"settings": {
 			"team_size": 6,
-			"venue_fee": "10",
-			"entry_fee": "10"
+			"venue_fee": 10,
+			"entry_fee": 10
+		},
+		"custom": {
+			"date": {
+				"day": "FRIDAYS",
+				"time": "6pm - 10pm"
+			}
 		}
 	},
 	"overlays": [
@@ -19,8 +25,8 @@
 					"type": "text",
 					"value": "$title$",
 					"style": {
-						"font": "JuanCock",
-						"font_size": "150.31px",
+						"font": "150.31px JuanCock",
+						"font_size": "",
 						"color": "#ffffff",
 						"align": "left"
 					},
@@ -29,8 +35,23 @@
 						"y": 370
 					},
 					"dimensions": {
-						"width": 556,
-						"height": 106
+						"width": 556
+					}
+				},
+				{
+					"type": "text",
+					"value": "$custom/date/day$",
+					"style": {
+						"font": "normal 700 55px 'Proxima Nova'",
+						"color": "#000000",
+						"align": "center"
+					},
+					"offset": {
+						"x": 1108,
+						"y": 618
+					},
+					"dimensions": {
+						"width": 294
 					}
 				},
 				{
