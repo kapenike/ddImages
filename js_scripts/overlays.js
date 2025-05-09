@@ -30,9 +30,9 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	
 	// loop currents overlays and detect which to update based on sources change
 	GLOBAL.active_tournament.overlays.forEach((overlay, overlay_index) => {
-		
+
 		// if overlay contains an updated source, or sources is null
-		if (sources == null || overlay.sources.filter(x => sources.includes(x)).length > 0) {
+		if (sources == null || overlay.sources.some(x => sources.includes(x))) {
 			
 			// if global flag, reset overlay sources
 			if (GLOBAL.generate_sources == true) {
@@ -57,8 +57,17 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 		
 	});
 
-	// pass output_overlays object to PHP for file write
-	ajax('POST', '/requestor.php', output_overlays, callback, 'body');
+	// if nothing to change, remove loader
+	if (output_overlays.changed.length == 0) {
+		
+		ajaxRemoveLoader('body');
+		
+	} else {
+
+		// pass output_overlays object to PHP for file write
+		ajax('POST', '/requestor.php', output_overlays, callback, 'body');
+		
+	}
 	
 }
 
@@ -95,9 +104,9 @@ function getRealValue(value) {
 		// remove path delimiters
 		let path = value.slice(1, -1);
 		
-		// if global flag, add path to overlay sources
+		// if global flag, add variable path to overlay sources
 		if (GLOBAL.generate_sources == true) {
-			GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_index].sources.push(path);
+			GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_index].sources.push(value);
 		}
 		
 		// split path

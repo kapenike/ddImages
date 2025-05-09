@@ -14,9 +14,13 @@ function initStreamOverlay() {
 
 	
 	### TODO ###
-	- create UI editor for tournament settings / tag overlays with "sources" to prompt javascript to generate specific overlays on the change of data
-	- current asset dependecy system doesnt account for overlay variable sources ... 
+
+	- gitignore file
+
 	- create UI for copying overlay sources for use in OBS
+	- finish match overview overlay
+	- create UI method for all form field types (-file)
+	- complete BRB / Caster screen
 	
 	- create player and teams data structures along with UI (logo, name, colors, etc)
 	- create bracket system

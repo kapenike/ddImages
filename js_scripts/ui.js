@@ -85,7 +85,7 @@ function updateSourceChanges() {
 			});
 			
 			// generate new overlays with updated sources, once complete, reset updated sources
-			generateStreamOverlays(null, () => {
+			generateStreamOverlays(GLOBAL.source_changes, () => {
 				GLOBAL.source_changes = [];
 			});
 		

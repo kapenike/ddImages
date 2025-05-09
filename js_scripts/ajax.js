@@ -43,8 +43,7 @@ function ajax(method, url, obj, callback, loader_id = null) {
 		
 		// if contained a loader, remove loading state
 		if (loader_id !== null) {
-			document.getElementById(loader_id).className = document.getElementById(loader_id).className.replace(' contains_loader', '');
-			document.getElementById('ajax_loader').remove();
+			ajaxRemoveLoader(loader_id);
 		}
 
 		// callback with: status(bool), response(object)
@@ -83,6 +82,12 @@ function ajaxInitLoader(id) {
 		}
 	}
 
+}
+
+// remove loader from id
+function ajaxRemoveLoader(id) {
+	document.getElementById(id).className = document.getElementById(id).className.replace(' contains_loader', '');
+	document.getElementById('ajax_loader').remove();
 }
 
 // grab form input elements and convert their name->data pair to an object
