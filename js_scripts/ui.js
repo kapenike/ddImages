@@ -4,6 +4,39 @@ function generateUI() {
 	Select('#body', {
 		innerHTML: '',
 		children: [
+			Create('div', {
+				className: 'block',
+				children: [
+					Create('h3', {
+						innerHTML: 'Overlay Output Image Sources'
+					}),
+					Create('button', {
+						innerHTML: 'Show Sources',
+						onclick: function() {
+							if (this.innerHTML == 'Show Sources') {
+								this.innerHTML = 'Hide Sources';
+								Select('#overlay_output_sources').style.display = 'block';
+							} else {
+								this.innerHTML = 'Show Sources';
+								Select('#overlay_output_sources').style.display = 'none';
+							}
+						}
+					}),
+					Create('div', {
+						id: 'overlay_output_sources',
+						style: {
+							display: 'none'
+						},
+						children: GLOBAL.active_tournament.overlays.map(overlay => {
+							return Create('input', {
+								disabled: true,
+								type: 'text',
+								value: GLOBAL.active_tournament.cwd+'/'+overlay.slug+'.png'
+							})
+						})
+					})
+				]
+			}),
 			Create('form', {
 				id: 'form_capture',
 				children: [

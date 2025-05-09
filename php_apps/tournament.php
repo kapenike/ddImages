@@ -64,8 +64,12 @@ class tournament {
 			// ensure tournament data file exists
 			if (file_exists($data_path)) {
 				
+				// get tournament data and append cwd for overlay output sources dialog
+				$tournament_data = json_decode(file_get_contents($data_path));
+				$tournament_data->cwd = getcwd();
+				
 				// return tournament data
-				return json_decode(file_get_contents($data_path));
+				return $tournament_data;
 				
 			}
 			

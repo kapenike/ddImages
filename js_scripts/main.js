@@ -15,11 +15,10 @@ function initStreamOverlay() {
 	
 	### TODO ###
 
-	- gitignore file
 
-	- create UI for copying overlay sources for use in OBS
 	- finish match overview overlay
 	- create UI method for all form field types (-file)
+	
 	- complete BRB / Caster screen
 	
 	- create player and teams data structures along with UI (logo, name, colors, etc)
