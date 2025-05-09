@@ -90,7 +90,9 @@ function generateOverlay(ctx, output_overlays, overlay, overlay_index) {
 		if (layer.type == 'image') {
 			printImage(ctx, layer);
 		} else if (layer.type == 'text') {
-			printText(ctx, layer, overlay_index);
+			printText(ctx, layer);
+		} else if (layer.type == 'clip_path') {
+			manageClipPath(ctx, layer);
 		}
 		
 	}
@@ -168,6 +170,31 @@ function setRealValue(string_path, value) {
 
 }
 
+function manageClipPath(ctx, layer) {
+	
+	// set or remove a clip path
+	if (layer.action == 'end') {
+		ctx.restore();
+	} else if (layer.action == 'start') {
+		ctx.beginPath();
+		let next = 0;
+		for (let i=0; i<layer.path.length; i++) {
+			next = i+1;
+			if (next == layer.path.length) {
+				next = 0;
+			}
+			if (i == 0) {
+				ctx.moveTo(layer.path[i].x, layer.path[i].y);
+			}
+			ctx.lineTo(layer.path[next].x, layer.path[next].y);
+		}
+		ctx.closePath();		
+		ctx.save();
+		ctx.clip();
+	}
+	
+}
+
 function printImage(ctx, layer) {
 	// get real source
 	let value = getRealValue(layer.source);
@@ -193,8 +220,13 @@ function printText(ctx, layer) {
 	// get real value
 	let value = getRealValue(layer.value);
 	
-	// if value not falsey, draw text
-	if (value) {
+	// caps
+	if (layer.style.caps) {
+		value = value.toUpperCase();
+	}
+	
+	// if value not falsey (exluding 0), draw text
+	if (value || value === 0 || value === '0') {
 		ctx.fillText(
 			value,
 			layer.offset.x,

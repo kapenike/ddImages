@@ -59,16 +59,21 @@ function generateUI() {
 										]
 									});
 								} else if (field.type == 'select') {
-									return Create('select', {
-										name: field.source,
-										onchange: function () { logSourceChange(this); },
-										children: field.values.map(option => {
-											return Create('option', {
-												innerHTML: option.display,
-												value: option.value,
-												selected: option.value == depth_value
+									return Create('label', {
+										innerHTML: field.title,
+										children: [
+											Create('select', {
+												name: field.source,
+												onchange: function () { logSourceChange(this); },
+												children: field.values.map(option => {
+													return Create('option', {
+														innerHTML: option.display,
+														value: option.value,
+														selected: option.value == depth_value
+													});
+												})
 											})
-										})
+										]
 									});
 								} else if (field.type == 'radio') {
 									return Create('div', {
