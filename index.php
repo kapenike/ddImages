@@ -14,7 +14,9 @@ forEach(app('directoryFileList')->get([], './js_scripts') as $file) {
 <script>
 // init application (./js_scripts/main.js)
 document.addEventListener('DOMContentLoaded', function() {
-	initStreamOverlay();
+	document.fonts.ready.then(function () {
+		initStreamOverlay();
+	});
 });
 </script>
 

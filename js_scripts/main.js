@@ -1,7 +1,8 @@
 // global variable for overlay and tournament data
 var GLOBAL = {
 	use_vram: true, // generate Bitmaps for faster overlay creation at the cost of the GPU
-	generate_sources: true // flag used by generateStreamOverlays(null) when passed null to update overlay sources (defines what UI value updates will proc a stream overlay image export)
+	generate_sources: true, // flag used by generateStreamOverlays(null) when passed null to update overlay sources (defines what UI value updates will proc a stream overlay image export)
+	source_changes: [] // where to store source changes before an update
 };
 
 function initStreamOverlay() {
@@ -59,16 +60,9 @@ function loadOverlayDependencies() {
 	// dependency sources
 	let sources = [];
 	
-	// sift through global tournament layers for dependency sources
-	GLOBAL.active_tournament.overlays.forEach((overlay, overlay_index) => {
-		
-		// loop layers and insert type=image source as a direct parent reference
-		overlay.layers.forEach((layer, layer_index) => {
-			if (layer.type == 'image') {
-				sources.push(GLOBAL.active_tournament.overlays[overlay_index].layers[layer_index]);
-			}
-		})
-		
+	// store dependency asset keys
+	Object.keys(GLOBAL.active_tournament.data.assets).forEach(asset_key => {
+		sources.push(asset_key);
 	});
 	
 	// replace those sources with image objects by using the parent reference to source (sources.source)
@@ -77,7 +71,7 @@ function loadOverlayDependencies() {
 	if (to_load > 0) {
 		sources.forEach(source => {
 			let image = new Image();
-			image.src = '/data/tournament/'+GLOBAL.active_tournament.uid+'/sources/'+source.source;
+			image.src = '/data/tournament/'+GLOBAL.active_tournament.uid+'/sources/'+GLOBAL.active_tournament.data.assets[source];
 			image.onload = () => {
 				
 				// on image load, convert to bitmap for loading assets into VRAM
@@ -89,7 +83,7 @@ function loadOverlayDependencies() {
 					// replace source with bitmap (additional async action): VRAM
 					createImageBitmap(image).then(bitmap => {
 						loaded++;
-						source.source = bitmap;
+						GLOBAL.active_tournament.data.assets[source] = bitmap;
 						if (loaded == to_load) {
 						
 							// once all assets are loaded, callback to initial overlay generation
@@ -102,7 +96,7 @@ function loadOverlayDependencies() {
 					
 					// replace source with image object: RAM
 					loaded++;
-					source.source = image;
+					GLOBAL.active_tournament.data.assets[source] = image;
 					if (loaded == to_load) {
 						
 						// once all assets are loaded, callback to initial overlay generation
@@ -118,5 +112,6 @@ function loadOverlayDependencies() {
 }
 
 function dependenciesLoaded(status, data) {
-	console.log(data);
+	// (./js_scripts/ui.js)
+	generateUI();
 }

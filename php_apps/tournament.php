@@ -75,6 +75,12 @@ class tournament {
 		
 	}
 	
+	// $tournament_uid(string) - tournament uid, $save - object
+	function save($tournament_uid, $save) {
+		file_put_contents('./data/tournament/'.$tournament_uid.'/'.$tournament_uid.'.json', json_encode($save));
+		return true;
+	}
+	
 }
 
 ?>

@@ -37,13 +37,16 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 			// if global flag, reset overlay sources
 			if (GLOBAL.generate_sources == true) {
 				GLOBAL.active_tournament.overlays[overlay_index].sources = [];
+				
+				// also stash overlay index for when layer inserts new sources
+				GLOBAL.active_overlay_index = overlay_index;
 			}
 		
 			// log overlay slug for capture with PHP
 			output_overlays.changed.push(overlay.slug);
 			
 			// generate overlay
-			generateOverlay(ctx, output_overlays, overlay, overlay_index);
+			generateOverlay(ctx, output_overlays, overlay);
 			
 			// save generated overlay as base64 encoded string, referenced by its slug for lookup using $_POST[slug] and array log of changed slugs
 			// !!ISSUE[1]: base 64 png is ~30% larger than a binary png ... find a way to convert and append as a file to form object to save on write time
@@ -80,34 +83,21 @@ function generateOverlay(ctx, output_overlays, overlay, overlay_index) {
 	
 }
 
-function printImage(ctx, layer) {
-	ctx.drawImage(
-		layer.source,
-		layer.offset.x,
-		layer.offset.y
-	);
+function isPathVariable(value) {
+	return typeof value === 'string' && value[0] == '$' && value.slice(-1) == '$';
 }
 
-function printText(ctx, layer, parent_index) {
-	ctx.font = layer.style.font;
-	ctx.fillStyle = layer.style.color;
+function getRealValue(value) {
 	
-	// default align left
-	let align_type = layer.style.align ?? 'left';
-	ctx.textAlign = align_type;
-	
-	// text value output
-	let value = layer.value;
-	
-	// detect if path variable
-	if (value[0] == '$' && value.slice(-1) == '$') {
+	// detect if value is a path variable
+	if (isPathVariable(value)) {
 		
 		// remove path delimiters
 		let path = value.slice(1, -1);
 		
 		// if global flag, add path to overlay sources
 		if (GLOBAL.generate_sources == true) {
-			GLOBAL.active_tournament.overlays[parent_index].sources.push(path);
+			GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_index].sources.push(path);
 		}
 		
 		// split path
@@ -124,15 +114,70 @@ function printText(ctx, layer, parent_index) {
 			
 		}
 		
-		// set value from final reference path
-		value = reference_path;
+		// run final reference path value through getRealValue until a real value is spit out (variable chaining)
+		return getRealValue(reference_path);
 	}
 	
-	// draw text
-  ctx.fillText(
-		value,
-		layer.offset.x,
-		layer.offset.y,
-		layer.dimensions.width
-	);
+	// if not a variable, return value
+	return value;
+}
+
+function setRealValue(string_path, value) {
+	
+	// remove path delimiters
+	let path = string_path.slice(1, -1);
+	
+	// split path
+	path = path.split('/');
+	
+	// path base reference
+	let reference_path = GLOBAL.active_tournament.data;
+	
+	// pull from use path until only one path directory is left
+	while (path.length > 1) {
+		
+		// shift from use path into reference path
+		reference_path = reference_path[path.shift()];
+		
+	}
+
+	// set passed value as reference path value using last available parent (js reference things)
+	reference_path[path.shift()] = value;
+
+}
+
+function printImage(ctx, layer) {
+	// get real source
+	let value = getRealValue(layer.source);
+	
+	// if source not falsey, draw image
+	if (value) {
+		ctx.drawImage(
+			value,
+			layer.offset.x,
+			layer.offset.y
+		);
+	}
+}
+
+function printText(ctx, layer) {
+	ctx.font = layer.style.font;
+	ctx.fillStyle = layer.style.color;
+	
+	// default align left
+	let align_type = layer.style.align ?? 'left';
+	ctx.textAlign = align_type;
+	
+	// get real value
+	let value = getRealValue(layer.value);
+	
+	// if value not falsey, draw text
+	if (value) {
+		ctx.fillText(
+			value,
+			layer.offset.x,
+			layer.offset.y,
+			layer.dimensions.width
+		);
+	}
 }

@@ -22,6 +22,27 @@ switch($_POST['application']) {
 		}
 		echo json_encode((object)['msg' => 'Overlay export successful.']);
 		break;
+		
+	case 'update_tournament_details':
+		$tournament_data = app('tournament')->load($_POST['uid']);
+		// loop post keys and attempt to update object paths within tournament object
+		foreach ($_POST as $key => $value) {
+			// if variable path
+			if ($key[0] == '$' && substr($key, -1) == '$') {
+				// create base path as reference to tournament data property
+				$base_path = &$tournament_data->data;
+				// explode and traverse path until empty
+				$path = explode('/', substr($key, 1, -1));
+				while(count($path) > 0) {
+					// shift from path into reference path
+					$base_path = &$base_path->{array_shift($path)};
+				}
+				$base_path = $value;
+			}
+		}
+		app('tournament')->save($_POST['uid'], $tournament_data);
+		echo json_encode((object)['msg' => 'Tournament data successfully updated.']);
+		break;
 	
 	default:
 		echo json_encode((object)['error_msg' => 'No application defined.']);
