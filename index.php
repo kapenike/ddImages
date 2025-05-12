@@ -27,5 +27,10 @@ document.addEventListener('DOMContentLoaded', function() {
 <link rel="stylesheet" href="main.css">
 
 </head>
-<body id="body"></body>
+<body id="body">
+<div class="navigation">
+
+</div>
+<div id="main"></div>
+</body>
 </html>

@@ -1,7 +1,7 @@
 function generateUI() {
 	
 	// boil the water we makin pasta
-	Select('#body', {
+	Select('#main', {
 		innerHTML: '',
 		children: [
 			Create('div', {
@@ -40,63 +40,72 @@ function generateUI() {
 			Create('form', {
 				id: 'form_capture',
 				children: [
-					...GLOBAL.active_tournament.ui.map(section => {
+					...GLOBAL.active_tournament.ui.map(upper_section => {
+						let active_section = upper_section.cols ? upper_section.cols : [upper_section];
 						return Create('div', {
-							innerHTML: '<h3>'+section.section+'</h3>',
-							className: 'block',
-							children: section.fields.map(field => {
-								let depth_value = getDepthComparisonValue(field);
-								if (field.type == 'text' || field.type == 'number') {
-									return Create('label', {
-										innerHTML: field.title,
-										children: [
-											Create('input', {
-												type: field.type,
-												name: field.source,
-												onkeydown: function () { logSourceChange(this); },
-												value: depth_value
-											})
-										]
-									});
-								} else if (field.type == 'select') {
-									return Create('label', {
-										innerHTML: field.title,
-										children: [
-											Create('select', {
-												name: field.source,
-												onchange: function () { logSourceChange(this); },
-												children: field.values.map(option => {
-													return Create('option', {
-														innerHTML: option.display,
-														value: option.value,
-														selected: option.value == depth_value
-													});
-												})
-											})
-										]
-									});
-								} else if (field.type == 'radio') {
-									return Create('div', {
-										children: field.values.map(radio => {
+							className: 'row',
+							children: active_section.map(section => {
+								return Create('div', {
+									innerHTML: '<h3>'+section.section+'</h3>',
+									className: 'col block',
+									style: {
+										width: parseFloat((100/active_section.length).toFixed(2))+'%' // precision round off
+									},
+									children: section.fields.map(field => {
+										let depth_value = getDepthComparisonValue(field);
+										if (field.type == 'text' || field.type == 'number') {
 											return Create('label', {
+												innerHTML: field.title,
 												children: [
 													Create('input', {
-														type: 'radio',
-														onclick: function () { logSourceChange(this); },
+														type: field.type,
 														name: field.source,
-														value: radio.value,
-														checked: radio.value == depth_value
-													}),
-													Create('span', {
-														innerHTML: radio.display+'&nbsp;'
+														onkeydown: function () { logSourceChange(this); },
+														value: depth_value
 													})
 												]
 											});
-										})
-									});
-								} else {
-									return Create('div');
-								}
+										} else if (field.type == 'select') {
+											return Create('label', {
+												innerHTML: field.title,
+												children: [
+													Create('select', {
+														name: field.source,
+														onchange: function () { logSourceChange(this); },
+														children: field.values.map(option => {
+															return Create('option', {
+																innerHTML: option.display,
+																value: option.value,
+																selected: option.value == depth_value
+															});
+														})
+													})
+												]
+											});
+										} else if (field.type == 'radio') {
+											return Create('div', {
+												children: field.values.map(radio => {
+													return Create('label', {
+														children: [
+															Create('input', {
+																type: 'radio',
+																onclick: function () { logSourceChange(this); },
+																name: field.source,
+																value: radio.value,
+																checked: radio.value == depth_value
+															}),
+															Create('span', {
+																innerHTML: radio.display+'&nbsp;'
+															})
+														]
+													});
+												})
+											});
+										} else {
+											return Create('div');
+										}
+									})
+								});
 							})
 						});
 					}),

@@ -93,6 +93,8 @@ function generateOverlay(ctx, output_overlays, overlay, overlay_index) {
 			printText(ctx, layer);
 		} else if (layer.type == 'clip_path') {
 			manageClipPath(ctx, layer);
+		} else if (layer.type == 'rect') {
+			printRect(ctx, layer);
 		}
 		
 	}
@@ -191,6 +193,39 @@ function manageClipPath(ctx, layer) {
 		ctx.closePath();		
 		ctx.save();
 		ctx.clip();
+	}
+	
+}
+
+function printRect(ctx, layer) {
+	
+	let value = getRealValue(layer.toggle);
+
+	// if value is truthy, or 0 / '0'
+	if (value || value === 0 || value === '0') {
+		
+		// use path for fillRect so a border can be applied
+		ctx.beginPath();
+		ctx.moveTo(layer.offset.x, layer.offset.y);
+		ctx.lineTo(layer.offset.x, layer.offset.y + layer.dimensions.height);
+		ctx.lineTo(layer.offset.x + layer.dimensions.width, layer.offset.y + layer.dimensions.height);
+		ctx.lineTo(layer.offset.x + layer.dimensions.width, layer.offset.y);
+		ctx.lineTo(layer.offset.x, layer.offset.y);
+		ctx.closePath();
+		
+		// fill
+		if (layer.style.fill) {
+			ctx.fillStyle = layer.style.fill;
+			ctx.fill();
+		}
+		
+		// border
+		if (layer.style.border) {
+			ctx.strokeStyle = layer.style.border;
+			ctx.lineWidth = layer.style.border_width ?? 1;
+			ctx.stroke();
+		}
+		
 	}
 	
 }
