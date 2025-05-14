@@ -76,7 +76,8 @@ function generateUI() {
 															return Create('option', {
 																innerHTML: option.display,
 																value: option.value,
-																selected: option.value == depth_value
+																selected: option.value == depth_value,
+																sub_setters: JSON.stringify(option.sub_setters ?? null)
 															});
 														})
 													})
@@ -92,7 +93,8 @@ function generateUI() {
 																onclick: function () { logSourceChange(this); },
 																name: field.source,
 																value: radio.value,
-																checked: radio.value == depth_value
+																checked: radio.value == depth_value,
+																sub_setters: JSON.stringify(radio.sub_setters ?? null)
 															}),
 															Create('span', {
 																innerHTML: radio.display+'&nbsp;'
@@ -108,24 +110,19 @@ function generateUI() {
 								});
 							})
 						});
-					}),
-					Create('div', {
-						className: 'block',
-						style: {
-							textAlign: 'right'
-						},
-						children: [
-							Create('button', {
-								innerHTML: 'Save',
-								onclick: updateSourceChanges
-							})
-						]
 					})
 				]
 			})
 		]
 	});
 	
+	// set active navigation save state
+	GLOBAL.navigation.on_save = updateSourceChanges;
+	
+}
+
+function onSaveAction() {
+	GLOBAL.navigation.on_save();
 }
 
 // not all comparisons are similar, allow ui setup to determine value depth to compare
@@ -150,6 +147,35 @@ function updateSourceChanges() {
 		if (GLOBAL.source_changes.includes(field_name)) {
 			form_details[field_name] = full_form[field_name];
 		}
+	});
+	
+	// use filtered form objects to search for potential sub setters
+	Object.keys(form_details).forEach(field_name => {
+		
+		// get list of named elements
+		let named_fields = Array.from(MSelect('[name="'+field_name+'"]'));
+		
+		// if select, use children instead
+		if (named_fields[0].tagName.toLowerCase() == 'select') {
+			named_fields = Array.from(named_fields[0].children);
+		}
+
+		// itterate named fields, find active value node and check for sub setters
+		for (let i=0; i<named_fields.length; i++) {
+			let field = named_fields[i];
+			if (field.value == form_details[field_name]) {
+				let sub_setters = JSON.parse(field.sub_setters);
+				if (sub_setters) {
+					// set sub setters in form details
+					sub_setters.forEach(sub_setter => {
+						// allow depth value setting here as well
+						form_details[sub_setter.path] = getDepthComparisonValue(sub_setter);
+					});
+				}
+				break;
+			}
+		}
+		
 	});
 	
 	// append application and uid values to send object

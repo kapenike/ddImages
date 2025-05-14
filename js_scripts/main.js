@@ -2,7 +2,8 @@
 var GLOBAL = {
 	use_vram: true, // generate Bitmaps for faster overlay creation at the cost of the GPU
 	generate_sources: true, // flag used by generateStreamOverlays(null) when passed null to update overlay sources (defines what UI value updates will proc a stream overlay image export)
-	source_changes: [] // where to store source changes before an update
+	source_changes: [], // where to store source changes before an update
+	navigation: {} // data location for navigation
 };
 
 function initStreamOverlay() {
@@ -16,8 +17,8 @@ function initStreamOverlay() {
 	### TODO ###
 
 
-	- finish match overview overlay
-	- create UI method for all form field types (-file)
+	- sub setters for select, checkbox, radio inputs
+	- display toggle based on value
 	
 	- complete BRB / Caster screen
 	

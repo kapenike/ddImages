@@ -172,6 +172,39 @@ function setRealValue(string_path, value) {
 
 }
 
+function toggleTrue(layer) {
+	
+	// if toggle undefined, toggle is true
+	if (typeof layer.toggle === 'undefined') {
+		return true;
+	} else {
+		
+		// check for comparison
+		let comparitor_index = layer.toggle.indexOf('$=$');
+		if (comparitor_index > -1) {
+			
+			// split and compare real values of comparison
+			let comp_split = layer.toggle.split('$=$');
+			if (getRealValue(comp_split[0]+'$') == getRealValue('$'+comp_split[1])) {
+				return true;
+			}
+			
+		} else {
+			
+			let value = getRealValue(layer.toggle);
+			// check truthfulness of toggle value
+			if (value || value === '0' || value === 0) {
+				return true;
+			}
+			
+		}
+		
+	}
+	
+	return false;
+	
+}
+
 function manageClipPath(ctx, layer) {
 	
 	// set or remove a clip path
@@ -199,10 +232,7 @@ function manageClipPath(ctx, layer) {
 
 function printRect(ctx, layer) {
 	
-	let value = getRealValue(layer.toggle);
-
-	// if value is truthy, or 0 / '0'
-	if (value || value === 0 || value === '0') {
+	if (toggleTrue(layer)) {
 		
 		// use path for fillRect so a border can be applied
 		ctx.beginPath();
@@ -261,7 +291,7 @@ function printText(ctx, layer) {
 	}
 	
 	// if value not falsey (exluding 0), draw text
-	if (value || value === 0 || value === '0') {
+	if (toggleTrue(layer) && (value || value === 0 || value === '0')) {
 		ctx.fillText(
 			value,
 			layer.offset.x,
