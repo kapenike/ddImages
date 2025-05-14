@@ -163,7 +163,7 @@ function updateSourceChanges() {
 		// itterate named fields, find active value node and check for sub setters
 		for (let i=0; i<named_fields.length; i++) {
 			let field = named_fields[i];
-			if (field.value == form_details[field_name]) {
+			if (field.value == form_details[field_name] && field.sub_setters) {
 				let sub_setters = JSON.parse(field.sub_setters);
 				if (sub_setters) {
 					// set sub setters in form details
