@@ -15,14 +15,8 @@ function initStreamOverlay() {
 
 	
 	### TODO ###
-
-
-	- sub setters for select, checkbox, radio inputs
-	- display toggle based on value
 	
-	- complete BRB / Caster screen
-	
-	- potential restructure and comments on ui.js
+	- complete BRB / Caster screen / Starting soon
 	
 	- create player and teams data structures along with UI (logo, name, colors, etc)
 	- create bracket system
@@ -41,7 +35,23 @@ function initStreamOverlay() {
 	ajax('POST', '/requestor.php', {
 		application: 'load_tournament_data',
 		uid: 'uid_0000001'
-	}, streamDataLoaded, 'body');
+	}, loadTeams, 'body');
+	
+}
+
+function loadTeams(status, data) {
+	
+	if (status) {
+		
+		// save initial tournament data in GLOBAL
+		GLOBAL.active_tournament = data;
+		
+		// request team data
+		ajax('POST', '/requestor.php', {
+			application: 'get_team_data',
+			uid: 'uid_0000001'
+		}, streamDataLoaded, 'body');
+	}
 	
 }
 
@@ -49,9 +59,9 @@ function streamDataLoaded(status, data) {
 	
 	if (status) {
 		
-		// save initial tournament data in GLOBAL
-		GLOBAL.active_tournament = data;
-		
+		// set team data in global
+		GLOBAL.active_tournament.data.teams = data;
+
 		// load dependent image sources into GLOBAL
 		loadOverlayDependencies();
 		

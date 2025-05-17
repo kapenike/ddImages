@@ -1,0 +1,216 @@
+function setNavigationTeams() {
+
+	Select('#main', {
+		innerHTML: '',
+		children: [
+			Create('div', {
+				className: 'block',
+				style: {
+					height: '100%'
+				},
+				children: [
+					Create('div', {
+						className: 'row',
+						children: [
+							Create('div', {
+								className: 'col',
+								style: {
+									width: '30%',
+									height: '100%'
+								},
+								children: [
+									Create('div', {
+										className: 'row',
+										children: [
+											Create('div', {
+												className: 'col',
+												style: {
+													width: '50%'
+												},
+												children: [
+													Create('h3', {
+														innerHTML: 'Team Management'
+													})
+												]
+											}),
+											Create('div', {
+												className: 'col',
+												style: {
+													width: '50%',
+													textAlign: 'right'
+												},
+												children: [
+													Create('button', {
+														innerHTML: 'Create Team',
+														onclick: () => { setupTeamEditor(); },
+														style: {
+															position: 'relative',
+															top: '10px'
+														}
+													})
+												]
+											})
+										]
+									}),
+									Create('input', {
+										type: 'text',
+										placeholder: 'Search...'
+									}),
+									Create('div', {
+										id: 'team_list',
+										style: {
+											height: 'calc(100% - 150px)',
+											overflowY: 'scroll'
+										}
+									})
+								]
+							}),
+							Create('div', {
+								className: 'col',
+								id: 'team_management_form_block',
+								style: {
+									width: '70%',
+									height: '100%',
+									overflowY: 'scroll'
+								}
+							})
+						]
+					})
+				]
+			})
+		]
+	});
+	
+	// setup team editor, default to create
+	setupTeamEditor(null);
+	
+	// setup team selection list
+	generateTeamSelectionList();
+		
+}
+
+function updateTeamData() {
+	
+	// use form style capture to easily inherit form capture methods
+	let form_details = formToObj('team_creation_form');
+	
+	// append application
+	form_details.application = 'update_team';
+	
+	// update server-side team details, then call back to same scope function to save changes locally
+	ajax('POST', '/requestor.php', form_details, (status, data) => {
+		
+		if (status) {
+			
+			if (form_details.team_manager_type == 'create') {
+				
+				// insert new team locally
+				GLOBAL.active_tournament.data.teams.push(data);
+
+			} else {
+				
+				// update new team locally
+				let update_index = GLOBAL.active_tournament.data.teams.findIndex(v => v.uid == data.uid);
+				GLOBAL.active_tournament.data.teams[update_index] = data;
+				
+			}
+			
+			// load team data into form
+			loadTeamData(data.uid);
+			
+			// re-create team selection list
+			generateTeamSelectionList();
+			
+		}
+		
+	}, 'team_management_form_block');
+}
+
+function loadTeamData(uid) {
+	let index = GLOBAL.active_tournament.data.teams.findIndex(v => v.uid == uid);
+	setupTeamEditor(GLOBAL.active_tournament.data.teams[index]);
+}
+
+function setupTeamEditor(team_data = null) {
+	Select('#team_management_form_block', {
+		innerHTML: '',
+		children: [
+			Create('h3', {
+				innerHTML: (team_data == null ? 'Create New Team' : 'Update Team')
+			}),
+			Create('form', {
+				id: 'team_creation_form',
+				children: [
+					Create('input', {
+						type: 'hidden',
+						name: 'team_manager_type',
+						value: team_data == null ? 'create' : team_data.uid
+					}),
+					Create('label', {
+						innerHTML: 'Team Name',
+						children: [
+							Create('input', {
+								type: 'text',
+								name: 'team_name',
+								value: team_data == null ? '' : team_data.team_name
+							})
+						]
+					}),
+					Create('label', {
+						innerHTML: 'Primary Color',
+						children: [
+							Create('input', {
+								type: 'color',
+								name: 'team_primary_color',
+								value: team_data == null ? '#000000' : team_data.primary_color
+							})
+						]
+					}),
+					Create('label', {
+						innerHTML: 'Secondary Color',
+						children: [
+							Create('input', {
+								type: 'color',
+								name: 'team_secondary_color',
+								value: team_data == null ? '#ffffff' : team_data.secondary_color
+							})
+						]
+					}),
+					Create('h4', {
+						innerHTML: 'Roster'
+					}),
+					...new Array(GLOBAL.active_tournament.data.settings.team_size).fill(null).map((v, index) => {
+						return Create('input', {
+							type: 'text',
+							name: 'team_roster[]',
+							value: team_data == null ? '' : (team_data.roster[index] ?? '')
+						});
+					})
+				]
+			})
+		]
+	});
+}
+
+function generateTeamSelectionList() {
+	
+	Select('#team_list', {
+		innerHTML: '',
+		children: GLOBAL.active_tournament.data.teams.sort((a,b) => {
+			return (a.team_name < b.team_name ? -1 : a.team_name > b.team_name ? 1 : 0);
+		}).map(team => {
+			return Create('div', {
+				innerHTML: team.team_name,
+				className: 'team_block',
+				onclick: () => { loadTeamData(team.uid); },
+				style: {
+					backgroundColor: team.primary_color,
+					color: team.secondary_color
+				}
+			});
+		})
+	});
+	;
+	
+	
+}

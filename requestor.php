@@ -43,6 +43,42 @@ switch($_POST['application']) {
 		app('tournament')->save($_POST['uid'], $tournament_data);
 		echo json_encode((object)['msg' => 'Tournament data successfully updated.']);
 		break;
+		
+	case 'get_team_data':
+		$team_data = [];
+		foreach(app('team')->getRegistry() as $key=>$value) {
+			$team_data[] = app('team')->load($key);
+		}
+		echo json_encode($team_data);
+		break;
+		
+	case 'update_team':
+		
+		if ($_POST['team_manager_type'] == 'create') {
+			
+			// create team
+			$uid = app('team')->register($_POST['team_name']);
+			$data = app('team')->load($uid);
+			$data->primary_color = $_POST['team_primary_color'];
+			$data->secondary_color = $_POST['team_secondary_color'];
+			$data->roster = $_POST['team_roster'];
+			app('team')->save($uid, $data);
+			echo json_encode($data);
+			
+		} else {
+			
+			// update team
+			$data = app('team')->load($_POST['team_manager_type']);
+			$data->team_name = $_POST['team_name'];
+			$data->primary_color = $_POST['team_primary_color'];
+			$data->secondary_color = $_POST['team_secondary_color'];
+			$data->roster = $_POST['team_roster'];
+			app('team')->save($data->uid, $data);
+			echo json_encode($data);
+			
+		}
+		
+		break;
 	
 	default:
 		echo json_encode((object)['error_msg' => 'No application defined.']);

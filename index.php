@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <body id="body">
 <div class="navigation">
 	<div class="row">
-		<div class="col" style="width: 80%;"></div>
+		<div class="col" style="width: 80%;" id="navigation"></div>
 		<div class="col" style="width: 20%; text-align: right;">
 			<button onclick="onSaveAction();">Save</button>
 		</div>
