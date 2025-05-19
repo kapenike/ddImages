@@ -97,6 +97,9 @@ function updateTeamData() {
 	// append application
 	form_details.application = 'update_team';
 	
+	// append tournament uid
+	form_details.tournament_uid = GLOBAL.active_tournament.uid;
+	
 	// update server-side team details, then call back to same scope function to save changes locally
 	ajax('POST', '/requestor.php', form_details, (status, data) => {
 		
@@ -105,13 +108,13 @@ function updateTeamData() {
 			if (form_details.team_manager_type == 'create') {
 				
 				// insert new team locally
-				GLOBAL.active_tournament.data.teams.push(data);
+				GLOBAL.active_tournament.teams.push(data);
 
 			} else {
 				
 				// update new team locally
-				let update_index = GLOBAL.active_tournament.data.teams.findIndex(v => v.uid == data.uid);
-				GLOBAL.active_tournament.data.teams[update_index] = data;
+				let update_index = GLOBAL.active_tournament.teams.findIndex(v => v.uid == data.uid);
+				GLOBAL.active_tournament.teams[update_index] = data;
 				
 			}
 			
@@ -127,8 +130,8 @@ function updateTeamData() {
 }
 
 function loadTeamData(uid) {
-	let index = GLOBAL.active_tournament.data.teams.findIndex(v => v.uid == uid);
-	setupTeamEditor(GLOBAL.active_tournament.data.teams[index]);
+	let index = GLOBAL.active_tournament.teams.findIndex(v => v.uid == uid);
+	setupTeamEditor(GLOBAL.active_tournament.teams[index]);
 }
 
 function setupTeamEditor(team_data = null) {
@@ -179,7 +182,7 @@ function setupTeamEditor(team_data = null) {
 					Create('h4', {
 						innerHTML: 'Roster'
 					}),
-					...new Array(GLOBAL.active_tournament.data.settings.team_size).fill(null).map((v, index) => {
+					...new Array(GLOBAL.active_tournament.settings.team_size).fill(null).map((v, index) => {
 						return Create('input', {
 							type: 'text',
 							name: 'team_roster[]',
@@ -196,7 +199,7 @@ function generateTeamSelectionList() {
 	
 	Select('#team_list', {
 		innerHTML: '',
-		children: GLOBAL.active_tournament.data.teams.sort((a,b) => {
+		children: GLOBAL.active_tournament.teams.sort((a,b) => {
 			return (a.team_name < b.team_name ? -1 : a.team_name > b.team_name ? 1 : 0);
 		}).map(team => {
 			return Create('div', {
@@ -210,7 +213,5 @@ function generateTeamSelectionList() {
 			});
 		})
 	});
-	;
-	
 	
 }

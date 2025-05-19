@@ -32,6 +32,12 @@ html, body {
 	cursor: default;
 }
 
+.nav_break {
+	float: left;
+	width: 80px;
+	height: 40px;
+}
+
 #main {
 	width: 100%;
 	height: calc(100% - 54px);
@@ -48,7 +54,7 @@ html, body {
 }
 
 /* form styles */
-input[type="text"], input[type="color"], input[type="number"], textarea, select {
+input[type="text"], input[type="color"], input[type="number"], input[type="file"], textarea, select {
 	width: 100%;
 	padding: 12px 20px;
 	display: inline-block;
@@ -82,6 +88,21 @@ button, input[type="submit"] {
 	border: 1px solid #ffffff;
 	box-sizing: border-box;
 	cursor: pointer;
+}
+
+.asset_preview {
+	max-width: 100%;
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 5px;
+	border-radius: 5px;
+	border: 1px solid #ffffff;
+	background-color: #cccccc;
+}
+
+.asset_preview img {
+	max-width: 100%;
+	border-radius: 5px;
 }
 
 /* basic templating */

@@ -1,4 +1,4 @@
-function setNavigationMain() {
+function setNavigationTournamentData() {
 	
 	// boil the water we makin pasta
 	Select('#main', {

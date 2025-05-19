@@ -24,13 +24,19 @@ switch($_POST['application']) {
 		break;
 		
 	case 'update_tournament_details':
-		$tournament_data = app('tournament')->load($_POST['uid']);
+	
+		// get original tournament data
+		$tournament_data = app('tournament')->loadSection($_POST['uid'], 'data');
+		
 		// loop post keys and attempt to update object paths within tournament object
 		foreach ($_POST as $key => $value) {
+			
 			// if variable path
 			if ($key[0] == '$' && substr($key, -1) == '$') {
+				
 				// create base path as reference to tournament data property
-				$base_path = &$tournament_data->data;
+				$base_path = &$tournament_data;
+				
 				// explode and traverse path until empty
 				$path = explode('/', substr($key, 1, -1));
 				while(count($path) > 0) {
@@ -38,18 +44,14 @@ switch($_POST['application']) {
 					$base_path = &$base_path->{array_shift($path)};
 				}
 				$base_path = $value;
+				
 			}
 		}
-		app('tournament')->save($_POST['uid'], $tournament_data);
-		echo json_encode((object)['msg' => 'Tournament data successfully updated.']);
-		break;
 		
-	case 'get_team_data':
-		$team_data = [];
-		foreach(app('team')->getRegistry() as $key=>$value) {
-			$team_data[] = app('team')->load($key);
-		}
-		echo json_encode($team_data);
+		// update data file with tournament data object
+		app('tournament')->save($_POST['uid'], 'data', $tournament_data);
+		
+		echo json_encode((object)['msg' => 'Tournament data successfully updated.']);
 		break;
 		
 	case 'update_team':
@@ -57,27 +59,38 @@ switch($_POST['application']) {
 		if ($_POST['team_manager_type'] == 'create') {
 			
 			// create team
-			$uid = app('team')->register($_POST['team_name']);
-			$data = app('team')->load($uid);
+			$uid = app('team')->register($_POST['tournament_uid'], $_POST['team_name']);
+			$data = app('team')->load($_POST['tournament_uid'], $uid);
 			$data->primary_color = $_POST['team_primary_color'];
 			$data->secondary_color = $_POST['team_secondary_color'];
 			$data->roster = $_POST['team_roster'];
-			app('team')->save($uid, $data);
+			app('team')->save($_POST['tournament_uid'], $uid, $data);
 			echo json_encode($data);
 			
 		} else {
 			
 			// update team
-			$data = app('team')->load($_POST['team_manager_type']);
+			$data = app('team')->load($_POST['tournament_uid'], $_POST['team_manager_type']);
 			$data->team_name = $_POST['team_name'];
 			$data->primary_color = $_POST['team_primary_color'];
 			$data->secondary_color = $_POST['team_secondary_color'];
 			$data->roster = $_POST['team_roster'];
-			app('team')->save($data->uid, $data);
+			app('team')->save($_POST['tournament_uid'], $data->uid, $data);
 			echo json_encode($data);
 			
 		}
 		
+		break;
+		
+	case 'create_update_asset':
+		echo json_encode(app('asset')->createUpdateAsset($_POST['tournament_id'], (object)[
+			'type' => $_POST['asset_registration_type'],
+			'name' => $_POST['asset_name'],
+			'slug' => $_POST['asset_slug'],
+			'file' => (isset($_FILES['asset_file_0']) ? $_FILES['asset_file_0'] : null),
+			'offset_x' => $_POST['asset_offset_x'],
+			'offset_y' => $_POST['asset_offset_y']
+		]));
 		break;
 	
 	default:

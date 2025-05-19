@@ -1,6 +1,12 @@
 // accepts list of data sources that have been changed to determine what overlays to regenerate, send null to generate all and set source paths
 function generateStreamOverlays(sources = null, callback = () => {}) {
 	
+	// if no overlays, straight to callback
+	if (GLOBAL.active_tournament.overlays.length == 0) {
+		callback();
+		return;
+	}
+	
 	// if sources is null, set GLOBAL flag to regenerate sources
 	if (sources == null) {
 		GLOBAL.generate_sources = true;
@@ -264,12 +270,37 @@ function printImage(ctx, layer) {
 	// get real source
 	let value = getRealValue(layer.source);
 	
-	// if source not falsey, draw image
+	// if value not falsey, draw image
 	if (value) {
+		
+		let output_width = value.width;
+		let output_height = value.height;
+		
+		// determine if scaling of original image based on layer is needed
+		let width_scale = layer.dimensions.width != null;
+		let height_scale = layer.dimensions.height != null;
+		if (width_scale || height_scale) {
+			if (width_scale && height_scale) {
+				// if both scaling
+				output_width = layer.dimensions.width;
+				output_height = layer.dimensions.height;
+			} else if (width_scale) {
+				// if only scaling width
+				output_width = layer.dimensions.width;
+				output_height = (layer.dimensions.width / value.width) * output_height;
+			} else if (height_scale) {
+				// if only scaling height
+				output_height = layer.dimensions.height;
+				output_width = (layer.dimensions.height / value.height) * output_width;
+			}
+		}
+		
 		ctx.drawImage(
-			value,
-			layer.offset.x,
-			layer.offset.y
+			value.source,
+			layer.offset.x + parseInt(value.offset_x),
+			layer.offset.y + parseInt(value.offset_y),
+			output_width,
+			output_height
 		);
 	}
 }

@@ -2,41 +2,38 @@
 
 class team {
 	
-	private $registry;
-	
-	// on load, get list of tournament uid | team name pair
-	function __construct() {
-		$this->registry = json_decode(file_get_contents('./php_apps/app_data/team_registry.json'));
+	// get list of tournament uid | team name pair
+	function getRegistry($tournament_uid) {
+		return json_decode(file_get_contents('./data/'.$tournament_uid.'/teams/team_registry.json'));
 	}
 	
-	// save current team registry
-	function saveRegistry() {
-		file_put_contents('./php_apps/app_data/team_registry.json', json_encode($this->registry));
+	// save team registry
+	function saveRegistry($tournament_uid, $data) {
+		file_put_contents('./data/'.$tournament_uid.'/teams/team_registry.json', json_encode($data));
 	}
 	
-	function getRegistry() {
-		return $this->registry;
-	}
-	
-	function register($team_name) {
+	function register($tournament_uid, $team_name) {
 		
 		// request new uid
 		$uid = app('uid')->generate();
 		
+		// get registry
+		$registry = $this->getRegistry($tournament_uid);
+		
 		// add to registry
-		$this->registry->{$uid} = $team_name;
+		$registry->{$uid} = $team_name;
 		
 		// save registry
-		$this->saveRegistry();
+		$this->saveRegistry($tournament_uid, $registry);
 		
 		// create team directory
-		mkdir('./data/team/'.$uid);
+		mkdir('./data/'.$tournament_uid.'/teams/'.$uid);
 		
 		// create team sources directory
-		mkdir('./data/team/'.$uid.'/sources/');
+		mkdir('./data/'.$tournament_uid.'/teams/sources/');
 		
 		// create team skeleton json file
-		file_put_contents('./data/team/'.$uid.'/'.$uid.'.json', json_encode((object)[
+		file_put_contents('./data/'.$tournament_uid.'/teams/'.$uid.'/team_data.json', json_encode((object)[
 			'uid' => $uid,
 			'team_name' => $team_name,
 			'banner_logo' => null,
@@ -51,14 +48,16 @@ class team {
 		
 	}
 	
-	// $team_uid(string) - team_uid
-	function load($team_uid) {
+	function load($tournament_uid, $team_uid) {
+		
+		// get registry
+		$registry = $this->getRegistry($tournament_uid);
 		
 		// check if team exists
-		if (isset($this->registry->{$team_uid})) {
+		if (isset($registry->{$team_uid})) {
 			
 			// path to team data
-			$data_path = './data/team/'.$team_uid.'/'.$team_uid.'.json';
+			$data_path = './data/'.$tournament_uid.'/teams/'.$team_uid.'/team_data.json';
 			
 			// ensure team data file exists
 			if (file_exists($data_path)) {
@@ -77,9 +76,21 @@ class team {
 		
 	}
 	
-	// $team_uid(string) - team uid, $save - object
-	function save($team_uid, $save) {
-		file_put_contents('./data/team/'.$team_uid.'/'.$team_uid.'.json', json_encode($save));
+	// load and return all teams
+	function loadAll($tournament_uid) {
+		
+		// get registry
+		$registry = $this->getRegistry($tournament_uid);
+		
+		$team_data = [];
+		foreach($registry as $key=>$value) {
+			$team_data[] = app('team')->load($tournament_uid, $key);
+		}
+		return $team_data;
+	}
+
+	function save($tournament_uid, $team_uid, $save) {
+		file_put_contents('./data/'.$tournament_uid.'/teams/'.$team_uid.'/team_data.json', json_encode($save));
 		return true;
 	}
 	
