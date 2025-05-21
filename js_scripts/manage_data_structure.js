@@ -1,6 +1,5 @@
 function manageDataStructure(data, submit_to_application) {
 
-	GLOBAL.data_structure.removed = [];
 	GLOBAL.data_structure.new_key_inc = 0;
 	GLOBAL.data_structure.active_data_path = data;
 
@@ -72,19 +71,6 @@ function recurseSetKeyInputs(data, path) {
 
 function removeDataKey(path) {
 	Select('[name="'+path+'"').parentNode.remove();
-	// ensure reference exists within global state before logging as removed
-	let ref = GLOBAL.data_structure.active_data_path;
-	let path_parts = path.split('/');
-	while (path_parts.length > 0) {
-		let curr_path_part = path_parts.pop();
-		if (typeof ref[curr_path_part] === 'undefined') {
-			// exit
-			return false;
-		} else {
-			ref = ref[curr_path_part];
-		}
-	}
-	GLOBAL.data_structure.removed.push(path);
 }
 
 function generateNewDataKey() {
@@ -100,32 +86,44 @@ function createDataKey(path) {
 	).lastChild.prepend(recurseSetKeyInputs({ [new_key]: '' }, (path == null ? [] : path.split('/'))));
 }
 
-function updateDataStructureKeys(data, form_fields) {
+function createDataStructureFromForm(data, form_fields) {
 	
-	// bottom up so that form_field name reference is not broken
-	// this may cause undefined paths within the data structure, auto gen
-	let paths = Object.keys(form_fields);
-	for (let i=paths.length-1; i>=0; i--) {
-		let path = paths[i].split('/');
-		let ref_path = data;
-		while (path.length > 1) {
-			let path_point = path.shift();
-			if (typeof ref_path[path_point] === 'undefined') {
-				ref_path[path_point] = {};
+	let return_data = {};
+	
+	Object.keys(form_fields).forEach(key_path => {
+		let path = key_path.split('/');
+		let data_origin_ref_path = data;
+		let return_data_ref_path = return_data;
+		let final_value = '';
+		let last_key = 'error';
+		path.forEach((path_pointer, index) => {
+			// during new object creation, check for valid value path in old object
+			if (typeof data_origin_ref_path !== 'undefined' && typeof data_origin_ref_path[path_pointer] !== 'undefined') {
+				data_origin_ref_path = data_origin_ref_path[path_pointer];
 			}
-			ref_path = ref_path[path_point];
+			// convert path pointer based on value in form for use in new object creation
+			path_pointer = form_fields[path.slice(0, index+1).join('/')];
+			// prevent final key assignment
+			if (index < path.length-1) {
+				// if previously defined as end of path empty string or has not been defined yet, set as empty object
+				if (!isObject(return_data_ref_path[path_pointer]) || typeof return_data_ref_path[path_pointer] === 'undefined') {
+					return_data_ref_path[path_pointer] = {};
+				}
+				// continue new object reference path
+				return_data_ref_path = return_data_ref_path[path_pointer];
+			}
+			// save for later final key assignment
+			last_key = path_pointer;
+		});
+		// if old path contains an output value
+		if (typeof data_origin_ref_path !== 'undefined' && !isObject(data_origin_ref_path)) {
+			final_value = data_origin_ref_path;
 		}
-		let final_point = path.shift();
-		if (typeof ref_path[final_point] === 'undefined') {
-			ref_path[final_point] = '';
-		}
-		if (final_point != form_fields[paths[i]]) {
-			ref_path[form_fields[paths[i]]] = ref_path[final_point] == '' ? '' : JSON.parse(JSON.stringify(ref_path[final_point]));
-			delete ref_path[final_point];
-		}
-	}
+		// set final value
+		return_data_ref_path[last_key] = final_value;
+	});
 
-	return data;
+	return return_data;
 }
 
 function updateDataStructure() {
@@ -133,25 +131,8 @@ function updateDataStructure() {
 	// get data structure key values
 	let full_form = formToObj('form_capture');
 	
-	// create copy of data structure
-	let local_data = JSON.parse(JSON.stringify(GLOBAL.data_structure.active_data_path));
-	
-	// list of ignored root paths and user removed data
-	let remove_list = [...GLOBAL.data_structure.ignored, ...GLOBAL.data_structure.removed];
-	
-	// loop path as reference to local_data and delete keys
-	for (let i=0; i<remove_list.length; i++) {
-		let ref_path = local_data;
-		let path_parts = remove_list[i].split('/');
-		for (let i2=0; i2<path_parts.length-1; i2++) {
-			ref_path = ref_path[path_parts[i2]];
-		}
-		// object reference changes require an object -> key assignment
-		delete ref_path[path_parts[path_parts.length-1]];
-	}
-	
-	// loop remaining data structure keys and detect changes
-	local_data = updateDataStructureKeys(local_data, full_form);
+	// create data structure from UI form elements
+	let local_data = createDataStructureFromForm(GLOBAL.data_structure.active_data_path, full_form);
 	
 	// append application and uid values to send object
 	let form_details = {};
@@ -164,8 +145,16 @@ function updateDataStructure() {
 		
 		if (status) {
 			
-			// recurse update active local data structure
-			updateDataStructureKeys(GLOBAL.data_structure.active_data_path, full_form);
+			// loop original data structure and update non-ignored keys, remove unfound root keys
+			Object.keys(GLOBAL.data_structure.active_data_path).forEach(root_key => {
+				if (!GLOBAL.data_structure.ignored.includes(root_key)) {
+					if (typeof local_data[root_key] === 'undefined') {
+						delete GLOBAL.data_structure.active_data_path[root_key];
+					} else {
+						GLOBAL.data_structure.active_data_path[root_key] = local_data[root_key];
+					}
+				}
+			});
 		
 		}
 		
