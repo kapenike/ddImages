@@ -133,8 +133,15 @@ function getRealValue(value, depth = null) {
 		// pull from use path
 		while (path.length > 0) {
 			
+			// pathing protection
+			let path_part = path.shift();
+			if (typeof reference_path[path_part] === 'undefined') {
+				console.error('Attempting to access undefined object from variable path: '+value+', Undefined key path starting at: '+[path_part, ...path].join('/'));
+				return '!!Corrupted Data Path!!';
+			}
+			
 			// shift from use path into reference path
-			reference_path = reference_path[path.shift()];
+			reference_path = reference_path[path_part];
 			
 		}
 		

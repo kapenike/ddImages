@@ -26,6 +26,36 @@ html, body {
 	cursor: pointer;
 }
 
+.sub_navigation {
+	border-bottom: 2px solid #ffffff;
+	padding: 16px 10px 0 10px;
+	margin: 0 4px;
+	background-color: #222222;
+}
+
+.sub_navigation:before,
+.sub_navigation:after {
+	display: table;
+	content: "";
+}
+.sub_navigation:after {
+	clear: both;
+}
+
+.sub_navigation_element {
+	background-color: #222222;
+	border: 1px solid #ffffff;
+	border-bottom: none;
+	padding: 4px 12px;
+	color: #ffffff;
+	cursor: pointer;
+}
+
+.sub_navigation_element_active {
+	background-color: #ffffff;
+	color: #000000;
+}
+
 .active_navigation {
 	background-color: #222222;
 	color: #ffffff;
@@ -51,6 +81,41 @@ html, body {
 	background-color: #222222;
 	border: 1px solid #111111;
 	border-radius: 3px;
+}
+
+.data_key_block {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 12px 4px 0 28px;
+	background-color: #222222;
+	border: 1px solid #cccccc;
+	border-top: none;
+	border-bottom: none;
+	border-radius: 3px;
+}
+
+.data_key_block input {
+	margin-bottom: 0 !important;
+}
+
+.remove_data_key {
+	display: inline-block;
+	padding: 4px 8px;
+	background-color: red;
+	color: #ffffff;
+	cursor: pointer;
+	line-height: 1em;
+	font-size: 12px;
+}
+
+.create_data_key {
+	display: inline-block;
+	padding: 4px 8px;
+	background-color: green;
+	color: #ffffff;
+	cursor: pointer;
+	line-height: 1em;
+	font-size: 12px;
 }
 
 /* form styles */

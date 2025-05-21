@@ -28,7 +28,7 @@ function generateUI(navigation = 'Tournament Data') {
 	// switch case for setting navigation contents
 	switch(navigation) {
 		case 'Tournament Data':
-			GLOBAL.navigation.on_save = updateSourceChanges;
+			// navigation on save set within setNavigationTournamentData()
 			// (./js_scripts/nav_main.js)
 			setNavigationTournamentData();
 			break;
@@ -60,9 +60,4 @@ function generateUI(navigation = 'Tournament Data') {
 
 function onSaveAction() {
 	GLOBAL.navigation.on_save();
-}
-
-// not all comparisons are similar, allow ui setup to determine value depth to compare
-function getDepthComparisonValue(field) {
-	return getRealValue(field.source, (typeof field.value_depth === 'undefined' ? null : field.value_depth));
 }

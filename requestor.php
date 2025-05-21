@@ -54,6 +54,12 @@ switch($_POST['application']) {
 		echo json_encode((object)['msg' => 'Tournament data successfully updated.']);
 		break;
 		
+	case 'update_tournament_data_structure':
+		// update data file with new data structure object
+		app('tournament')->save($_POST['uid'], 'data', json_decode($_POST['data_structure']));
+		echo json_encode((object)['msg' => 'Tournament data structure successfully updated.']);
+		break;
+		
 	case 'update_team':
 		
 		if ($_POST['team_manager_type'] == 'create') {

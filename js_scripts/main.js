@@ -6,7 +6,12 @@ function initGlobal() {
 		use_vram: true, // generate Bitmaps for faster overlay creation at the cost of the GPU
 		generate_sources: true, // flag used by generateStreamOverlays(null) when passed null to update overlay sources (defines what UI value updates will proc a stream overlay image export)
 		source_changes: [], // where to store source changes before an update
-		navigation: {} // data location for navigation
+		navigation: {}, // data location for navigation
+		data_structure: {
+			ignored: ['teams', 'bracket', 'assets'], // data paths to ignore during structure editor generation,
+			removed: [], // data keys removed during structure editing
+			new_key_inc: 0 // incrementor used to make new key name values unique
+		}
 	}
 }
 
@@ -35,6 +40,10 @@ function streamDataLoaded(status, data) {
 		
 		// save initial tournament data in GLOBAL
 		GLOBAL.active_tournament = data;
+		
+		// TODO: teams and bracket within data
+		GLOBAL.active_tournament.data.teams = {};
+		GLOBAL.active_tournament.data.bracket = {};
 
 		// load dependent image sources into GLOBAL
 		loadOverlayDependencies();

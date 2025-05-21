@@ -1,160 +1,90 @@
 function setNavigationTournamentData() {
 	
-	// boil the water we makin pasta
 	Select('#main', {
 		innerHTML: '',
 		children: [
-			Create('form', {
-				id: 'form_capture',
+			Create('div', {
+				className: 'sub_navigation',
 				children: [
-					...GLOBAL.active_tournament.ui.map(upper_section => {
-						let active_section = upper_section.cols ? upper_section.cols : [upper_section];
-						return Create('div', {
-							className: 'row',
-							children: active_section.map(section => {
-								return Create('div', {
-									innerHTML: '<h3>'+section.section+'</h3>',
-									className: 'col block',
-									style: {
-										width: parseFloat((100/active_section.length).toFixed(2))+'%' // precision round off
-									},
-									children: section.fields.map(field => {
-										let depth_value = getDepthComparisonValue(field);
-										if (field.type == 'text' || field.type == 'number') {
-											return Create('label', {
-												innerHTML: field.title,
-												children: [
-													Create('input', {
-														type: field.type,
-														name: field.source,
-														onkeydown: function () { logSourceChange(this); },
-														value: depth_value
-													})
-												]
-											});
-										} else if (field.type == 'select') {
-											return Create('label', {
-												innerHTML: field.title,
-												children: [
-													Create('select', {
-														name: field.source,
-														onchange: function () { logSourceChange(this); },
-														children: field.values.map(option => {
-															return Create('option', {
-																innerHTML: option.display,
-																value: option.value,
-																selected: option.value == depth_value,
-																sub_setters: JSON.stringify(option.sub_setters ?? null)
-															});
-														})
-													})
-												]
-											});
-										} else if (field.type == 'radio') {
-											return Create('div', {
-												children: field.values.map(radio => {
-													return Create('label', {
-														children: [
-															Create('input', {
-																type: 'radio',
-																onclick: function () { logSourceChange(this); },
-																name: field.source,
-																value: radio.value,
-																checked: radio.value == depth_value,
-																sub_setters: JSON.stringify(radio.sub_setters ?? null)
-															}),
-															Create('span', {
-																innerHTML: radio.display+'&nbsp;'
-															})
-														]
-													});
-												})
-											});
-										} else {
-											return Create('div');
-										}
-									})
-								});
-							})
-						});
+					Create('div', {
+						className: 'sub_navigation_element',
+						id: 'data_management',
+						innerHTML: 'Data Management',
+						style: {
+							float: 'left'
+						},
+						onclick: function() { setTournamentDataSubNavigation('data_management'); }
+					}),
+					Create('div', {
+						className: 'sub_navigation_element',
+						id: 'data_structure',
+						innerHTML: 'Edit Data Structure',
+						style: {
+							float: 'right'
+						},
+						onclick: function() { setTournamentDataSubNavigation('data_structure'); }
+					}),
+					Create('div', {
+						className: 'sub_navigation_element_active',
+						id: 'ui_structure',
+						innerHTML: 'Edit UI Structure',
+						style: {
+							float: 'right'
+						},
+						onclick: function() { setTournamentDataSubNavigation('ui_structure'); }
 					})
 				]
+			}),
+			Create('div', {
+				id: 'tournament_data_continuation_block'
 			})
 		]
 	});
-		
+	
+	// init on data_management
+	setTournamentDataSubNavigation('data_management');
+	
 }
 
-function logSourceChange(field) {
-	if (!GLOBAL.source_changes.includes(field.name)) {
-		GLOBAL.source_changes.push(field.name);
+function setTournamentDataSubNavigation(id) {
+	
+	// if current id is active tab, return
+	if (Select('.sub_navigation_element_active').id == id) {
+		return false;
 	}
-}
-
-function updateSourceChanges() {
 	
-	// use form style capture to easily inherit form capture methods
-	let full_form = formToObj('form_capture');
+	// revert sub navigation active element to inactive
+	Select('.sub_navigation_element_active', { className: 'sub_navigation_element' });
 	
-	// filter form object by values logged in GLOBAL.source_changes
-	let form_details = {};
-	Object.keys(full_form).forEach(field_name => {
-		if (GLOBAL.source_changes.includes(field_name)) {
-			form_details[field_name] = full_form[field_name];
-		}
-	});
+	// make current sub navigation active
+	Select('#'+id, { className: 'sub_navigation_element sub_navigation_element_active' });
 	
-	// use filtered form objects to search for potential sub setters
-	Object.keys(form_details).forEach(field_name => {
-		
-		// get list of named elements
-		let named_fields = Array.from(MSelect('[name="'+field_name+'"]'));
-		
-		// if select, use children instead
-		if (named_fields[0].tagName.toLowerCase() == 'select') {
-			named_fields = Array.from(named_fields[0].children);
-		}
-
-		// itterate named fields, find active value node and check for sub setters
-		for (let i=0; i<named_fields.length; i++) {
-			let field = named_fields[i];
-			if (field.value == form_details[field_name] && field.sub_setters) {
-				let sub_setters = JSON.parse(field.sub_setters);
-				if (sub_setters) {
-					// set sub setters in form details
-					sub_setters.forEach(sub_setter => {
-						// allow depth value setting here as well
-						form_details[sub_setter.path] = getDepthComparisonValue(sub_setter);
-					});
-				}
-				break;
-			}
-		}
-		
-	});
-	
-	// append application and uid values to send object
-	form_details.application = 'update_tournament_details';
-	form_details.uid = GLOBAL.active_tournament.uid;
-	
-	// update server-side tournament details, then call back to same scope function to save changes locally and generate affected overlays
-	ajax('POST', '/requestor.php', form_details, (status, data) => {
-		
-		if (status) {
-			
-			// using instanced 'form_details', update local tournament data
-			Object.keys(form_details).forEach(path => {
-				if (isPathVariable(path)) {
-					setRealValue(path, form_details[path]);
-				}
+	// set main area contents
+	switch (id) {
+		case 'data_management':
+			GLOBAL.navigation.on_save = updateSourceChanges;
+			Select('#tournament_data_continuation_block', {
+				innerHTML: '',
+				children: [
+					createUIFromData(GLOBAL.active_tournament.ui, 'update_tournament_details')
+				]
 			});
+			break;
 			
-			// generate new overlays with updated sources, once complete, reset updated sources
-			generateStreamOverlays(GLOBAL.source_changes, () => {
-				GLOBAL.source_changes = [];
+		case 'data_structure':
+			GLOBAL.navigation.on_save = updateDataStructure;
+			Select('#tournament_data_continuation_block', {
+				innerHTML: '',
+				children: [
+					manageDataStructure(GLOBAL.active_tournament.data, 'update_tournament_data_structure')
+				]
 			});
-		
-		}
-		
-	}, 'body');
+			break;
+			
+		default:
+			GLOBAL.navigation.on_save = ()=>{};
+			Select('#tournament_data_continuation_block', { innerHTML: '' });
+	}
+	
+	
 }
