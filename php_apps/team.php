@@ -84,7 +84,7 @@ class team {
 		
 		$team_data = [];
 		foreach($registry as $key=>$value) {
-			$team_data[] = app('team')->load($tournament_uid, $key);
+			$team_data[$key] = app('team')->load($tournament_uid, $key);
 		}
 		return $team_data;
 	}

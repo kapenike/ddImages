@@ -81,6 +81,16 @@ function setTournamentDataSubNavigation(id) {
 			});
 			break;
 			
+		case 'ui_structure':
+			GLOBAL.navigation.on_save = updateUIStructure;
+			Select('#tournament_data_continuation_block', {
+				innerHTML: '',
+				children: [
+					manageUIStructure(GLOBAL.active_tournament.ui, 'update_tournament_ui_structure')
+				]
+			});
+			break;
+			
 		default:
 			GLOBAL.navigation.on_save = ()=>{};
 			Select('#tournament_data_continuation_block', { innerHTML: '' });

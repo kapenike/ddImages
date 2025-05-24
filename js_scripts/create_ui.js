@@ -30,6 +30,26 @@ function createUIFromData(data, submit_to_application) {
 										]
 									});
 								} else if (field.type == 'select') {
+									
+									// edge case for handling dataset select
+									if (typeof field.values === 'string') {
+										// get associated object
+										let dataset = getRealValue(field.values);
+										// generate values and subsetters list from object
+										field.values = [null, ...Object.keys(dataset)].map(key => {
+											return {
+												display: key == null ? '-Empty-' : getRealValue(field.display, null, dataset[key]),
+												value: key == null ? '' : key,
+												sub_setters: (key == null ? null : field.sub_setters.map(sub_setter => {
+													return {
+														path: sub_setter.path,
+														source: getRealValue(sub_setter.source, null, dataset[key])
+													}
+												}))
+											};
+										});
+									}
+									
 									return Create('label', {
 										innerHTML: field.title,
 										children: [

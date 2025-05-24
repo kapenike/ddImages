@@ -105,18 +105,8 @@ function updateTeamData() {
 		
 		if (status) {
 			
-			if (form_details.team_manager_type == 'create') {
-				
-				// insert new team locally
-				GLOBAL.active_tournament.teams.push(data);
-
-			} else {
-				
-				// update new team locally
-				let update_index = GLOBAL.active_tournament.teams.findIndex(v => v.uid == data.uid);
-				GLOBAL.active_tournament.teams[update_index] = data;
-				
-			}
+			// update / insert new team locally
+			GLOBAL.active_tournament.data.teams[data.uid] = data;
 			
 			// load team data into form
 			loadTeamData(data.uid);
@@ -130,8 +120,7 @@ function updateTeamData() {
 }
 
 function loadTeamData(uid) {
-	let index = GLOBAL.active_tournament.teams.findIndex(v => v.uid == uid);
-	setupTeamEditor(GLOBAL.active_tournament.teams[index]);
+	setupTeamEditor(GLOBAL.active_tournament.data.teams[uid]);
 }
 
 function setupTeamEditor(team_data = null) {
@@ -199,9 +188,8 @@ function generateTeamSelectionList() {
 	
 	Select('#team_list', {
 		innerHTML: '',
-		children: GLOBAL.active_tournament.teams.sort((a,b) => {
-			return (a.team_name < b.team_name ? -1 : a.team_name > b.team_name ? 1 : 0);
-		}).map(team => {
+		children: Object.keys(GLOBAL.active_tournament.data.teams).map(team_uid => {
+			let team = GLOBAL.active_tournament.data.teams[team_uid];
 			return Create('div', {
 				innerHTML: team.team_name,
 				className: 'team_block',

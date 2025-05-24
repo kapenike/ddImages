@@ -41,8 +41,7 @@ function streamDataLoaded(status, data) {
 		// save initial tournament data in GLOBAL
 		GLOBAL.active_tournament = data;
 		
-		// TODO: teams and bracket within data
-		GLOBAL.active_tournament.data.teams = {};
+		// TODO: bracket within data
 		GLOBAL.active_tournament.data.bracket = {};
 
 		// load dependent image sources into GLOBAL

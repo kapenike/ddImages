@@ -111,7 +111,7 @@ function isPathVariable(value) {
 	return typeof value === 'string' && value[0] == '$' && value.slice(-1) == '$';
 }
 
-function getRealValue(value, depth = null) {
+function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.data) {
 	
 	// detect if value is a path variable
 	if (isPathVariable(value)) {
@@ -127,14 +127,14 @@ function getRealValue(value, depth = null) {
 		// split path
 		path = path.split('/');
 		
-		// path base reference
-		let reference_path = GLOBAL.active_tournament.data;
-		
+		let reference_path = base_path;
+
 		// pull from use path
 		while (path.length > 0) {
 			
 			// pathing protection
 			let path_part = path.shift();
+
 			if (typeof reference_path[path_part] === 'undefined') {
 				console.error('Attempting to access undefined object from variable path: '+value+', Undefined key path starting at: '+[path_part, ...path].join('/'));
 				return '!!Corrupted Data Path!!';
@@ -154,7 +154,7 @@ function getRealValue(value, depth = null) {
 		}
 		
 		// run final reference path value through getRealValue until a real value is spit out (variable chaining)
-		return getRealValue(reference_path, depth);
+		return getRealValue(reference_path, depth, base_path);
 	}
 	
 	// if not a variable, return value

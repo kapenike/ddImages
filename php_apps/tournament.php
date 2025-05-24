@@ -78,14 +78,14 @@ class tournament {
 				// import tournament assets as a subset to data
 				$tournament_data->data->assets = app('asset')->getRegistry($tournament_uid);
 				
+				// import tournament teams
+				$tournament_data->data->teams = app('team')->loadAll($tournament_uid);
+				
 				// import tournament data ui
 				$tournament_data->ui = json_decode(file_get_contents($data_path.'ui.json'));
 				
 				// import tournament overlays
 				$tournament_data->overlays = json_decode(file_get_contents($data_path.'overlay.json'));
-				
-				// import tournament teams
-				$tournament_data->teams = app('team')->loadAll($tournament_uid);
 				
 				// append cwd
 				$tournament_data->cwd = getcwd();
