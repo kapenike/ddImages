@@ -78,8 +78,11 @@ class tournament {
 				// import tournament assets as a subset to data
 				$tournament_data->data->assets = app('asset')->getRegistry($tournament_uid);
 				
-				// import tournament teams
-				$tournament_data->data->teams = app('team')->loadAll($tournament_uid);
+				// !!home of data set structure TODO
+				$tournament_data->data->sets = (object)[];
+				
+				// import tournament teams dataset
+				$tournament_data->data->sets->teams = app('team')->loadAll($tournament_uid);
 				
 				// import tournament data ui
 				$tournament_data->ui = json_decode(file_get_contents($data_path.'ui.json'));

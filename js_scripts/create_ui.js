@@ -32,11 +32,12 @@ function createUIFromData(data, submit_to_application) {
 								} else if (field.type == 'select') {
 									
 									// edge case for handling dataset select
+									let dataset_values = null;
 									if (typeof field.values === 'string') {
 										// get associated object
 										let dataset = getRealValue(field.values);
 										// generate values and subsetters list from object
-										field.values = [null, ...Object.keys(dataset)].map(key => {
+										dataset_values = [null, ...Object.keys(dataset)].map(key => {
 											return {
 												display: key == null ? '-Empty-' : getRealValue(field.display, null, dataset[key]),
 												value: key == null ? '' : key,
@@ -56,7 +57,7 @@ function createUIFromData(data, submit_to_application) {
 											Create('select', {
 												name: field.source,
 												onchange: function () { logSourceChange(this); },
-												children: field.values.map(option => {
+												children: (dataset_values == null ? field.values : dataset_values).map(option => {
 													return Create('option', {
 														innerHTML: option.display,
 														value: option.value,
