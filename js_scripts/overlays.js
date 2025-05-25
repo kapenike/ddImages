@@ -183,7 +183,7 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 				}
 				
 				// if proper depth found, append variable path result rather than searching further
-				if (depth == null || depth == 0) {
+				if (depth == 0) {
 					return_value += reference_path;
 				} else {
 					return_value += getRealValue(reference_path, depth, base_path);
