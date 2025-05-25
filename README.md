@@ -26,3 +26,4 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 	- Method for creating, editing and removing overlays
 	- Create GUI editor for placing text and images along with setting values from variable data structures
 	- Create clipping path UI
+- [] Path variable comparison should use the new getRealValue method to allow more complex comparisons

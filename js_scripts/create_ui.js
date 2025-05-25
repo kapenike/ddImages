@@ -41,12 +41,12 @@ function createUIFromData(data, submit_to_application) {
 											return {
 												display: key == null ? '-Empty-' : getRealValue(field.display, null, dataset[key]),
 												value: key == null ? '' : key,
-												sub_setters: (key == null ? null : field.sub_setters.map(sub_setter => {
+												sub_setters: field.sub_setters.map(sub_setter => {
 													return {
 														path: sub_setter.path,
-														source: getRealValue(sub_setter.source, null, dataset[key])
+														source: (key == null ? '' : getRealValue(sub_setter.source, null, dataset[key]))
 													}
-												}))
+												})
 											};
 										});
 									}

@@ -1,6 +1,6 @@
 // accepts list of data sources that have been changed to determine what overlays to regenerate, send null to generate all and set source paths
 function generateStreamOverlays(sources = null, callback = () => {}) {
-	
+
 	// if no overlays, straight to callback
 	if (GLOBAL.active_tournament.overlays.length == 0) {
 		callback();
@@ -108,53 +108,94 @@ function generateOverlay(ctx, output_overlays, overlay, overlay_index) {
 }
 
 function isPathVariable(value) {
-	return typeof value === 'string' && value[0] == '$' && value.slice(-1) == '$';
+	return typeof value === 'string' && ((value.split('$').length-1)%2) == 0;
+}
+
+function getRealVariableParts(value) {
+	let return_data = [];
+	let split = value.split('$');
+	for (let i=0; i<split.length; i++) {
+		if (i%2 == 0) {
+			// real part
+			if (split[i] != '') {
+				return_data.push({ real: split[i] });
+			}
+		} else {
+			// variable part
+			return_data.push({ variable: split[i] });
+		}
+	}
+	return return_data;
 }
 
 function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.data) {
 	
-	// detect if value is a path variable
+	// detect if value contains a path variable
 	if (isPathVariable(value)) {
 		
-		// remove path delimiters
-		let path = value.slice(1, -1);
+		// identify real and variable path parts
+		let var_real_parts = getRealVariableParts(value);
 		
-		// if global flag, add variable path to overlay sources
+		// if global flag, add variable paths to overlay sources
 		if (GLOBAL.generate_sources == true) {
-			GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_index].sources.push(value);
+			var_real_parts.forEach(split_part => {
+				if (split_part.variable) {
+					GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_index].sources.push('$'+split_part.variable+'$');
+				}
+			});
 		}
 		
-		// split path
-		path = path.split('/');
+		let return_value = '';
 		
-		let reference_path = base_path;
-
-		// pull from use path
-		while (path.length > 0) {
-			
-			// pathing protection
-			let path_part = path.shift();
-
-			if (typeof reference_path[path_part] === 'undefined') {
-				console.error('Attempting to access undefined object from variable path: '+value+', Undefined key path starting at: '+[path_part, ...path].join('/'));
-				return '!!Corrupted Data Path!!';
-			}
-			
-			// shift from use path into reference path
-			reference_path = reference_path[path_part];
-			
-		}
-		
-		// if depth is not null, reduce depth until it is 0, then return the reference path rather than chaining to final real value
+		// log change to current depth
 		if (depth != null) {
 			depth -= 1;
-			if (depth == 0) {
-				return reference_path;
-			}
 		}
 		
-		// run final reference path value through getRealValue until a real value is spit out (variable chaining)
-		return getRealValue(reference_path, depth, base_path);
+		// loop variable parts and nest continue their chaining if depth allows, then append for final return
+		var_real_parts.forEach(split_part => {
+			if (split_part.variable) {
+				
+				let path = split_part.variable.split('/');
+				let reference_path = base_path;
+				
+				// pull from use path
+				while (path.length > 0) {
+					
+					// pathing protection
+					let path_part = path.shift();
+					if (typeof reference_path[path_part] === 'undefined') {
+						console.error('Attempting to access undefined object from variable path: '+value+', Undefined key path starting at: '+[path_part, ...path].join('/'));
+						return '!!Corrupted Data Path!!';
+					}
+					
+					// shift from use path into reference path
+					reference_path = reference_path[path_part];
+					
+				}
+				
+				// edge case .. if depth allows access to a non string value, concatting string method not allowed, return object
+				// (e.g.): getRealValue on dataset to return object structure or on image object for use on overlay print
+				// 		should only be used to combine string values from data input or a string value + new path variable
+				if (typeof reference_path !== 'string') {
+					return_value = reference_path;
+					return;
+				}
+				
+				// if proper depth found, append variable path result rather than searching further
+				if (depth == null || depth == 0) {
+					return_value += reference_path;
+				} else {
+					return_value += getRealValue(reference_path, depth, base_path);
+				}
+				
+			} else {
+				// append real part
+				return_value += split_part.real;
+			}
+		});
+		
+		return return_value;
 	}
 	
 	// if not a variable, return value
