@@ -146,6 +146,8 @@ function updateSourceChanges() {
 					sub_setters.forEach(sub_setter => {
 						// allow depth value setting here as well
 						form_details[sub_setter.path] = getDepthComparisonValue(sub_setter);
+						// add sub setters to global changed sources list
+						logSourceChange({ name: sub_setter.path });
 					});
 				}
 				break;
