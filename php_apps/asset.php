@@ -50,6 +50,8 @@ class asset {
 				
 				// handle asset new file upload
 				if ($data->file != null) {
+					// remove old source file
+					app('files')->remove('./data/'.$tournament_uid.'/sources/', $registry->{$data->type}->file);
 					$new_file = app('files')->upload($data->file, './data/'.$tournament_uid.'/sources/', ['type' => 'img', 'fname' => true]);
 					$registry->{$data->type}->file = $new_file['msg'];
 					$size = getimagesize('./data/'.$tournament_uid.'/sources/'.$new_file['msg']);
