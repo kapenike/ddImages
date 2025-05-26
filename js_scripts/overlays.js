@@ -15,18 +15,6 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	// pre-initialize ajax loader for overlay generation (useVRAM may stall the loader)
 	ajaxInitLoader('body');
 	
-	// define output canvas
-	let canvas = Create('canvas', {
-		width: 1920,
-		height: 1080
-	});
-	
-	// canvas context
-	let ctx = canvas.getContext('2d');
-	
-	// use top-down baseline for easier reference during data output from .psd
-	ctx.textBaseline = 'top';
-	
 	// overlay output, prepared as ready to send form object
 	let output_overlays = {
 		application: 'export_overlays',
@@ -39,6 +27,18 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 
 		// if overlay contains an updated source, or sources is null
 		if (sources == null || overlay.sources.some(x => sources.includes(x))) {
+			
+			// define output canvas
+			let canvas = Create('canvas', {
+				width: overlay.dimensions.width,
+				height: overlay.dimensions.height
+			});
+			
+			// canvas context
+			let ctx = canvas.getContext('2d');
+			
+			// use top-down baseline for easier reference during data output from .psd
+			ctx.textBaseline = 'top';
 			
 			// if global flag, reset overlay sources
 			if (GLOBAL.generate_sources == true) {
