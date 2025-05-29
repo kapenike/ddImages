@@ -153,7 +153,9 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 		}
 		
 		// loop variable parts and nest continue their chaining if depth allows, then append for final return
-		var_real_parts.forEach(split_part => {
+		for (let i=0; i<var_real_parts.length; i++) {
+			let split_part = var_real_parts[i];
+			
 			if (split_part.variable) {
 				
 				let path = split_part.variable.split('/');
@@ -179,21 +181,27 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 				// 		should only be used to combine string values from data input or a string value + new path variable
 				if (typeof reference_path !== 'string') {
 					return_value = reference_path;
-					return;
+					break;
 				}
 				
 				// if proper depth found, append variable path result rather than searching further
 				if (depth == 0) {
 					return_value += reference_path;
 				} else {
-					return_value += getRealValue(reference_path, depth, base_path);
+					// duplicate edge case for nested lookup (passing non null depth and object reference)
+					let nested_loopkup = getRealValue(reference_path, depth, base_path);
+					if (typeof nested_loopkup !== 'string') {
+						return_value = nested_loopkup;
+						break;
+					}
+					return_value += nested_loopkup;
 				}
 				
 			} else {
 				// append real part
 				return_value += split_part.real;
 			}
-		});
+		}
 		
 		return return_value;
 	}
@@ -299,13 +307,13 @@ function printRect(ctx, layer) {
 		
 		// fill
 		if (layer.style.fill) {
-			ctx.fillStyle = layer.style.fill;
+			ctx.fillStyle = getRealValue(layer.style.fill);
 			ctx.fill();
 		}
 		
 		// border
 		if (layer.style.border) {
-			ctx.strokeStyle = layer.style.border;
+			ctx.strokeStyle = getRealValue(layer.style.border);
 			ctx.lineWidth = layer.style.border_width ?? 1;
 			ctx.stroke();
 		}
@@ -315,6 +323,7 @@ function printRect(ctx, layer) {
 }
 
 function printImage(ctx, layer) {
+
 	// get real source
 	let value = getRealValue(layer.source);
 	
@@ -355,7 +364,7 @@ function printImage(ctx, layer) {
 
 function printText(ctx, layer) {
 	ctx.font = layer.style.font;
-	ctx.fillStyle = layer.style.color;
+	ctx.fillStyle = getRealValue(layer.style.color);
 	
 	// default align left
 	let align_type = layer.style.align ?? 'left';
