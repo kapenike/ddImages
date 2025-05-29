@@ -445,7 +445,6 @@ function generateBrowserSourceTimer() {
 			hide: timer_params.cc_second_hidewhen0 ? true : false
 		}
 	};
-	console.log(send_obj);
 	
 	Select('#cc_output', {
 		value: window.location.origin+'/browser_sources/time.php?time_params='+btoa(JSON.stringify(send_obj))
