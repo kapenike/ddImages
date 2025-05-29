@@ -12,7 +12,8 @@ function setNavigationOverlaySources() {
 					Create('div', {
 						children: GLOBAL.active_tournament.overlays.map(overlay => {
 							return Create('input', {
-								disabled: true,
+								readOnly: 'true',
+								onclick: function () { this.focus(); this.select() },
 								type: 'text',
 								value: GLOBAL.active_tournament.cwd+'/overlay_output/'+GLOBAL.active_tournament.uid+'/'+overlay.slug+'.png'
 							})

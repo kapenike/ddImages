@@ -9,7 +9,8 @@ function generateUI(navigation = 'Tournament Data') {
 			'Teams Manager', // teams as sub data structure to tournament to complete
 			'',
 			'Assets', // asset management to complete
-			'Overlays'
+			'Overlays',
+			'Browser Sources'
 		].map(section => {
 			if (section == '') {
 				return Create('div', {
@@ -49,6 +50,12 @@ function generateUI(navigation = 'Tournament Data') {
 			GLOBAL.navigation.on_save = ()=>{};
 			// (./js_scripts/nav_overlay_sources.js)
 			setNavigationOverlaySources();
+			break;
+			
+		case 'Browser Sources':
+			GLOBAL.navigation.on_save = ()=>{};
+			// (./js_scripts/nav_browser_sources.js)
+			setNavigationBrowserSources();
 			break;
 			
 		default:

@@ -8,7 +8,7 @@ class directoryFileList {
 		forEach($files as $file) {
 			if ($file != '.' && $file != '..') {
 				if (is_dir($dir.'/'.$file)) {
-					$list = array_merge($this->grab($list, $dir.'/'.$file));
+					$list = array_merge($this->get($list, $dir.'/'.$file));
 				} else {
 					$list[] = $dir.'/'.$file;
 				}
