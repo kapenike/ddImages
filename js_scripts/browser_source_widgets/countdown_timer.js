@@ -350,13 +350,28 @@ function setupCountdownClockWidget() {
 						placeholder: 'Edit your settings and then generate a browser source timer'
 					})
 				]
+			}),
+			Create('label', {
+				innerHTML: 'Import Settings from Browser Source URL',
+				children: [
+					Create('input', {
+						type: 'text',
+						id: 'cc_input',
+						onclick: function () { this.focus(); this.select() },
+						placeholder: 'Import a previous browser source and adjust settings'
+					})
+				]
+			}),
+			Create('button', {
+				innerHTML: 'Import Settings',
+				onclick: importBrowserSourceTimer
 			})
 		]
 	});
 
 }
 
-function addNewCountdownClockStyleEntry() {
+function addNewCountdownClockStyleEntry(key = '', value = '') {
 	Select('#cc_styles').insertBefore(
 		Create('div', {
 			className: 'row',
@@ -367,7 +382,8 @@ function addNewCountdownClockStyleEntry() {
 					children: [
 						Create('input', {
 							type: 'text',
-							name: 'cc_style_keys[]'
+							name: 'cc_style_keys[]',
+							value: key
 						})
 					]
 				}),
@@ -377,7 +393,8 @@ function addNewCountdownClockStyleEntry() {
 					children: [
 						Create('input', {
 							type: 'text',
-							name: 'cc_style_values[]'
+							name: 'cc_style_values[]',
+							value: value
 						})
 					]
 				}),
@@ -402,17 +419,6 @@ function addNewCountdownClockStyleEntry() {
 function generateBrowserSourceTimer() {
 	let timer_params = formToObj('countdown_clock_widget_form');
 	
-	let distance = 0;
-	if (timer_params.countdown_clock_type == 'fromdistance') {
-		distance = (parseInt(timer_params.countdown_clock_hours)*60*60) + (parseInt(timer_params.countdown_clock_minutes)*60) + parseInt(timer_params.countdown_clock_seconds);
-	} else {
-		let now = new Date();
-		now.setHours(parseInt(timer_params.countdown_clock_hours));
-		now.setMinutes(parseInt(timer_params.countdown_clock_minutes));
-		now.setSeconds(parseInt(timer_params.countdown_clock_seconds));
-		distance = now.getTime();
-	}
-	
 	let styles = {};
 	if (timer_params['cc_style_keys[]']) {
 		timer_params['cc_style_keys[]'].forEach((key, index) => {
@@ -423,7 +429,11 @@ function generateBrowserSourceTimer() {
 	let send_obj = {
 		type: timer_params.countdown_clock_type,
 		fallback: timer_params.cc_end_text_display,
-		distance: distance,
+		distance: {
+			hours: parseInt(timer_params.countdown_clock_hours) ?? 0,
+			minutes: parseInt(timer_params.countdown_clock_minutes) ?? 0,
+			seconds: parseInt(timer_params.countdown_clock_seconds) ?? 0
+		},
 		separator: timer_params.cc_uniform_separator,
 		style: styles,
 		hour: {
@@ -449,4 +459,44 @@ function generateBrowserSourceTimer() {
 	Select('#cc_output', {
 		value: window.location.origin+'/browser_sources/time.php?time_params='+btoa(JSON.stringify(send_obj))
 	});
+}
+
+function importBrowserSourceTimer() {
+	// convert url data to object
+	let settings = JSON.parse(atob(Select('#cc_input').value.split('browser_sources/time.php?time_params=')[1]));
+	
+	// remove previous style entries
+	let style_inputs = Array.from(Select('#cc_styles').children);
+	for (let i=0; i<style_inputs.length-1; i++) {
+		style_inputs[i].remove();
+	}
+	
+	// insert styles from import object
+	Object.keys(settings.style).forEach(key => {
+		addNewCountdownClockStyleEntry(key, settings.style[key]);
+	});
+	
+	// set static inputs
+	Array.from(Select('[name="countdown_clock_type"]').children).forEach(child => {
+		child.selected = (child.value == settings.type)
+	})
+	Select('[name="cc_end_text_display"]').value = settings.fallback;
+	Select('[name="countdown_clock_hours"]').value = settings.distance.hours;
+	Select('[name="cc_hour_tail"]').value = settings.hour.tail;
+	Select('[name="cc_hour_pad"]').checked = settings.hour.pad;
+	Select('[name="cc_hour_linebreak"]').checked = settings.hour.lb;
+	Select('[name="cc_hour_hidewhen0"]').checked = settings.hour.hide;
+	Select('[name="countdown_clock_minutes"]').value = settings.distance.minutes;
+	Select('[name="cc_minute_tail"]').value = settings.minute.tail;
+	Select('[name="cc_minute_pad"]').checked = settings.minute.pad;
+	Select('[name="cc_minute_linebreak"]').checked = settings.minute.lb;
+	Select('[name="cc_minute_hidewhen0"]').checked = settings.minute.hide;
+	Select('[name="countdown_clock_seconds"]').value = settings.distance.seconds;
+	Select('[name="cc_second_tail"]').value = settings.second.tail;
+	Select('[name="cc_second_pad"]').checked = settings.second.pad;
+	Select('[name="cc_second_linebreak"]').checked = settings.second.lb;
+	Select('[name="cc_second_hidewhen0"]').checked = settings.second.hide;
+	Select('[name="cc_uniform_separator"]').value = settings.separator;
+	
+	//http://localhost:8000/browser_sources/time.php?time_params=eyJ0eXBlIjoidG93YXJkc3RpbWUiLCJmYWxsYmFjayI6Ii0tOi0tIiwiZGlzdGFuY2UiOnsiaG91cnMiOjE4LCJtaW51dGVzIjozMCwic2Vjb25kcyI6MH0sInNlcGFyYXRvciI6IiIsInN0eWxlIjp7ImZvbnRTaXplIjoiODBweCIsImZvbnRXZWlnaHQiOiI2MDAiLCJjb2xvciI6IiNmZmZmZmYiLCJmb250RmFtaWx5IjoiUHJveGltYSBOb3ZhIiwibGluZUhlaWdodCI6IjFlbSJ9LCJob3VyIjp7InRhaWwiOiJoIiwicGFkIjpmYWxzZSwibGIiOnRydWUsImhpZGUiOnRydWV9LCJtaW51dGUiOnsidGFpbCI6IjoiLCJwYWQiOnRydWUsImxiIjpmYWxzZSwiaGlkZSI6ZmFsc2V9LCJzZWNvbmQiOnsidGFpbCI6IiIsInBhZCI6dHJ1ZSwibGIiOmZhbHNlLCJoaWRlIjpmYWxzZX19
 }

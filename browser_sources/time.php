@@ -23,11 +23,15 @@ function initTime(params) {
 		]
 	});
 	if (params.type == 'fromdistance') {
-		GLOBAL.distance = parseInt(params.distance);
+		GLOBAL.distance = (parseInt(params.distance.hours)*60*60) + (parseInt(params.distance.minutes)*60) + parseInt(params.distance.seconds);
 		GLOBAL.timer = setInterval(runFromDistance, 1000);
 		GLOBAL.params = params;
 	} else if (params.type == 'towardstime') {
-		GLOBAL.distance = params.distance;
+		let now = new Date();
+		now.setHours(params.distance.hours);
+		now.setMinutes(params.distance.minutes);
+		now.setSeconds(params.distance.seconds);
+		GLOBAL.distance = now.getTime();
 		GLOBAL.timer = setInterval(runTowardsTime, 1000);
 		GLOBAL.params = params;
 	}

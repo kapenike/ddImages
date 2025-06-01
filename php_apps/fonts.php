@@ -24,9 +24,9 @@ class fonts {
 			echo '
 			@font-face {
 				font-family: \''.$font->name.'\';
-				src: url(\'./fonts/'.$font->filename.'\') format(\''.$ext_to_format->{strtolower(array_pop(explode('.',$font->filename)))}.'\');
+				src: url(\'/fonts/'.$font->filename.'\') format(\''.$ext_to_format->{strtolower(array_pop(explode('.',$font->filename)))}.'\');
 				font-style: '.$font->style.';
-				font-weight: '.$font->weight ?? '400'.';
+				font-weight: '.($font->weight ?? '400').';
 			}
 			'."\r\n";
 		}
