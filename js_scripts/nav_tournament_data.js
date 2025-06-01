@@ -16,22 +16,13 @@ function setNavigationTournamentData() {
 						onclick: function() { setTournamentDataSubNavigation('data_management'); }
 					}),
 					Create('div', {
-						className: 'sub_navigation_element',
+						className: 'sub_navigation_element_active',
 						id: 'data_structure',
 						innerHTML: 'Edit Data Structure',
 						style: {
 							float: 'right'
 						},
 						onclick: function() { setTournamentDataSubNavigation('data_structure'); }
-					}),
-					Create('div', {
-						className: 'sub_navigation_element_active',
-						id: 'ui_structure',
-						innerHTML: 'Edit UI Structure',
-						style: {
-							float: 'right'
-						},
-						onclick: function() { setTournamentDataSubNavigation('ui_structure'); }
 					})
 				]
 			}),
@@ -77,16 +68,6 @@ function setTournamentDataSubNavigation(id) {
 				innerHTML: '',
 				children: [
 					manageDataStructure(GLOBAL.active_tournament.data, 'update_tournament_data_structure')
-				]
-			});
-			break;
-			
-		case 'ui_structure':
-			GLOBAL.navigation.on_save = updateUIStructure;
-			Select('#tournament_data_continuation_block', {
-				innerHTML: '',
-				children: [
-					manageUIStructure(GLOBAL.active_tournament.ui, 'update_tournament_ui_structure')
 				]
 			});
 			break;
