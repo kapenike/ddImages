@@ -4,12 +4,12 @@ class team {
 	
 	// get list of tournament uid | team name pair
 	function getRegistry($tournament_uid) {
-		return json_decode(file_get_contents('./data/'.$tournament_uid.'/teams/team_registry.json'));
+		return json_decode(file_get_contents(getBasePath().'/data/'.$tournament_uid.'/teams/team_registry.json'));
 	}
 	
 	// save team registry
 	function saveRegistry($tournament_uid, $data) {
-		file_put_contents('./data/'.$tournament_uid.'/teams/team_registry.json', json_encode($data));
+		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/teams/team_registry.json', json_encode($data));
 	}
 	
 	function register($tournament_uid, $team_name) {
@@ -27,13 +27,13 @@ class team {
 		$this->saveRegistry($tournament_uid, $registry);
 		
 		// create team directory
-		mkdir('./data/'.$tournament_uid.'/teams/'.$uid);
+		mkdir(getBasePath().'/data/'.$tournament_uid.'/teams/'.$uid);
 		
 		// create team sources directory
-		mkdir('./data/'.$tournament_uid.'/teams/sources/');
+		mkdir(getBasePath().'/data/'.$tournament_uid.'/teams/sources/');
 		
 		// create team skeleton json file
-		file_put_contents('./data/'.$tournament_uid.'/teams/'.$uid.'/team_data.json', json_encode((object)[
+		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/teams/'.$uid.'/team_data.json', json_encode((object)[
 			'uid' => $uid,
 			'team_name' => $team_name,
 			'banner_logo' => null,
@@ -57,7 +57,7 @@ class team {
 		if (isset($registry->{$team_uid})) {
 			
 			// path to team data
-			$data_path = './data/'.$tournament_uid.'/teams/'.$team_uid.'/team_data.json';
+			$data_path = getBasePath().'/data/'.$tournament_uid.'/teams/'.$team_uid.'/team_data.json';
 			
 			// ensure team data file exists
 			if (file_exists($data_path)) {
@@ -90,7 +90,7 @@ class team {
 	}
 
 	function save($tournament_uid, $team_uid, $save) {
-		file_put_contents('./data/'.$tournament_uid.'/teams/'.$team_uid.'/team_data.json', json_encode($save));
+		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/teams/'.$team_uid.'/team_data.json', json_encode($save));
 		return true;
 	}
 	

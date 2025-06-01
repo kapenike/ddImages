@@ -11,6 +11,8 @@ forEach(app('directoryFileList')->get([], './js_scripts') as $file) {
 }
 ?>
 
+<?php app('fonts')->generateFontCSS(); ?>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 	// on document ready, import custom fonts into document.fonts (because web browsers are stupidaf), then run initStreamOverlay() (./js_scripts/main.js)
@@ -19,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	custom_fonts.forEach(font => {
 		new FontFace(font.name, 'url(./fonts/'+font.filename+')', {
 			style: font.style,
-			weight: font.weight
+			weight: font.weight ?? 400
 		}).load().then(loaded_font => {
 			document.fonts.add(loaded_font);
 			loaded_fonts++;
@@ -30,9 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 });
 </script>
-
-<!-- font init -->
-<link rel="stylesheet" href="./fonts/fonts.css">
 
 <!-- main css -->
 <link rel="stylesheet" href="main.css">

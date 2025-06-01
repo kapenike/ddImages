@@ -6,12 +6,12 @@ class tournament {
 	
 	// on load, get list of tournament uid | tournament name pair
 	function __construct() {
-		$this->registry = json_decode(file_get_contents('./php_apps/app_data/tournament_registry.json'));
+		$this->registry = json_decode(file_get_contents(getBasePath().'/php_apps/app_data/tournament_registry.json'));
 	}
 	
 	// save current tournament registry
 	function saveRegistry() {
-		file_put_contents('./php_apps/app_data/tournament_registry.json', json_encode($this->registry));
+		file_put_contents(getBasePath().'/php_apps/app_data/tournament_registry.json', json_encode($this->registry));
 	}
 	
 	function register($tournament_name) {
@@ -26,31 +26,31 @@ class tournament {
 		$this->saveRegistry();
 		
 		// create tournament directory
-		mkdir('./data/'.$uid);
+		mkdir(getBasePath().'/data/'.$uid);
 		
 		// create tournament overlay directory
-		mkdir('./overlay_output/'.$uid);
+		mkdir(getBasePath().'/overlay_output/'.$uid);
 		
 		// create tournament sources directory
-		mkdir('./data/'.$uid.'/sources');
+		mkdir(getBasePath().'/data/'.$uid.'/sources');
 		
 		// create tournament teams directory
-		mkdir('./data/'.$uid.'/teams');
+		mkdir(getBasePath().'/data/'.$uid.'/teams');
 		
 		// create skeleton teams registry file
-		file_put_contents('./data/'.$uid.'/teams/team_registry.json', json_encode((object)[]));
+		file_put_contents(getBasePath().'/data/'.$uid.'/teams/team_registry.json', json_encode((object)[]));
 		
 		// create tournament container json file
-		file_put_contents('./data/'.$uid.'/container.json', json_encode((object)['uid' => $uid]));
+		file_put_contents(getBasePath().'/data/'.$uid.'/container.json', json_encode((object)['uid' => $uid]));
 		
 		// create skeleton data file
-		file_put_contents('./data/'.$uid.'/data.json', json_encode((object)[]));
+		file_put_contents(getBasePath().'/data/'.$uid.'/data.json', json_encode((object)[]));
 		
 		// create skeleton ui file
-		file_put_contents('./data/'.$uid.'/ui.json', json_encode([]));
+		file_put_contents(getBasePath().'/data/'.$uid.'/ui.json', json_encode([]));
 		
 		// create skeleton asset registry file
-		file_put_contents('./data/'.$uid.'/asset_registry.json', json_encode((object)[]));
+		file_put_contents(getBasePath().'/data/'.$uid.'/asset_registry.json', json_encode((object)[]));
 		
 		// never fail ... plz
 		return true;
@@ -64,7 +64,7 @@ class tournament {
 		if (isset($this->registry->{$tournament_uid})) {
 			
 			// path to tournament data
-			$data_path = './data/'.$tournament_uid.'/';
+			$data_path = getBasePath().'/data/'.$tournament_uid.'/';
 			
 			// ensure tournament directory exists
 			if (is_dir($data_path)) {
@@ -106,12 +106,12 @@ class tournament {
 	
 	// $tournament_uid(string), $section - specific data section to load
 	function loadSection($tournament_uid, $section) {
-		return json_decode(file_get_contents('./data/'.$tournament_uid.'/'.$section.'.json'));
+		return json_decode(file_get_contents(getBasePath().'/data/'.$tournament_uid.'/'.$section.'.json'));
 	}
 	
 	// $tournament_uid(string) - tournament uid, $section - section to write to, $save - object
 	function save($tournament_uid, $section, $save) {
-		file_put_contents('./data/'.$tournament_uid.'/'.$section.'.json', json_encode($save));
+		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/'.$section.'.json', json_encode($save));
 		return true;
 	}
 	

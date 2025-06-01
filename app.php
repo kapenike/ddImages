@@ -1,4 +1,9 @@
 <?php
+// no htaccess or hierarchical structure so create a relative base path method
+function getBasePath() {
+	return explode('phpMyStreamOverlay',getcwd())[0].'phpMyStreamOverlay/';
+}
+
 // $APP stores loaded classes as an instance of app({$class})
 $APP = (object)[];
 
@@ -6,7 +11,7 @@ $APP = (object)[];
 function app($app, ...$params) {
 	global $APP;
 	if (!isset($APP->$app)) {
-		require('./php_apps/'.$app.'.php');
+		require(getBasePath().'/php_apps/'.$app.'.php');
 		$APP->$app = new $app(...$params);
 	}
 	return $APP->$app;

@@ -3,11 +3,11 @@
 class asset {
 	
 	function getRegistry($tournament_uid) {
-		return json_decode(file_get_contents('./data/'.$tournament_uid.'/asset_registry.json'));
+		return json_decode(file_get_contents(getBasePath().'/data/'.$tournament_uid.'/asset_registry.json'));
 	}
 	
 	function saveRegistry($tournament_uid, $data) {
-		file_put_contents('./data/'.$tournament_uid.'/asset_registry.json', json_encode($data));
+		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/asset_registry.json', json_encode($data));
 	}
 	
 	function createUpdateAsset($tournament_uid, $data) {
@@ -23,9 +23,9 @@ class asset {
 			$registry->{$data->slug}->offset_x = $data->offset_x;
 			$registry->{$data->slug}->offset_y = $data->offset_y;
 			
-			$new_file = app('files')->upload($data->file, './data/'.$tournament_uid.'/sources/', ['type' => 'img', 'fname' => true]);
+			$new_file = app('files')->upload($data->file, getBasePath().'/data/'.$tournament_uid.'/sources/', ['type' => 'img', 'fname' => true]);
 			$registry->{$data->slug}->file = $new_file['msg'];
-			$size = getimagesize('./data/'.$tournament_uid.'/sources/'.$new_file['msg']);
+			$size = getimagesize(getBasePath().'/data/'.$tournament_uid.'/sources/'.$new_file['msg']);
 			$registry->{$data->slug}->width = $size[0];
 			$registry->{$data->slug}->height = $size[1];
 			
@@ -51,10 +51,10 @@ class asset {
 				// handle asset new file upload
 				if ($data->file != null) {
 					// remove old source file
-					app('files')->remove('./data/'.$tournament_uid.'/sources/', $registry->{$data->type}->file);
-					$new_file = app('files')->upload($data->file, './data/'.$tournament_uid.'/sources/', ['type' => 'img', 'fname' => true]);
+					app('files')->remove(getBasePath().'/data/'.$tournament_uid.'/sources/', $registry->{$data->type}->file);
+					$new_file = app('files')->upload($data->file, getBasePath().'/data/'.$tournament_uid.'/sources/', ['type' => 'img', 'fname' => true]);
 					$registry->{$data->type}->file = $new_file['msg'];
-					$size = getimagesize('./data/'.$tournament_uid.'/sources/'.$new_file['msg']);
+					$size = getimagesize(getBasePath().'/data/'.$tournament_uid.'/sources/'.$new_file['msg']);
 					$registry->{$data->type}->width = $size[0];
 					$registry->{$data->type}->height = $size[1];
 				}

@@ -1,6 +1,9 @@
+<?php
+require '../app.php';
+?>
 <html>
 <head>
-<link rel="stylesheet" href="/fonts/fonts.css">
+<?php app('fonts')->generateFontCSS(); ?>
 <script src="/js_scripts/jsui.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
