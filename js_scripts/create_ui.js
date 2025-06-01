@@ -15,7 +15,20 @@ function createUIFromData(data, submit_to_application) {
 							style: {
 								width: parseFloat((100/active_section.length).toFixed(2))+'%' // precision round off
 							},
-							children: section.fields.map(field => {
+							children: [(
+								section.reset
+									?	Create('div', {
+											children: [
+												Create('button', {
+													type: 'button',
+													className: 'small_button',
+													innerHTML: 'Reset',
+													onclick: () => { resetUISection(section); }
+												})
+											]
+										})
+									: Create('div')
+							), ...section.fields.map(field => {
 								let depth_value = getDepthComparisonValue(field);
 								if (field.type == 'text' || field.type == 'number') {
 									return Create('label', {
@@ -91,7 +104,7 @@ function createUIFromData(data, submit_to_application) {
 								} else {
 									return Create('div');
 								}
-							})
+							})]
 						});
 					})
 				});
@@ -99,6 +112,27 @@ function createUIFromData(data, submit_to_application) {
 		]
 	})
 	
+}
+
+function resetUISection(section) {
+	section.fields.forEach(field => {
+		let elem = Select('[name="'+field.source+'"]');
+		switch (field.type) {
+			case 'select':
+				Array.from(elem.children).forEach(child => {
+					child.selected = false;
+				});
+				elem.children[0].selected = true;
+				break;
+			case 'radio':
+				elem.checked = true;
+				break;
+			default:
+				elem.value = '';
+				break;
+		}
+		logSourceChange(elem);
+	});
 }
 
 function logSourceChange(field) {

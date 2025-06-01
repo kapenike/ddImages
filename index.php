@@ -12,10 +12,21 @@ forEach(app('directoryFileList')->get([], './js_scripts') as $file) {
 ?>
 
 <script>
-// init application (./js_scripts/main.js)
 document.addEventListener('DOMContentLoaded', function() {
-	document.fonts.ready.then(function () {
-		initStreamOverlay();
+	// on document ready, import custom fonts into document.fonts (because web browsers are stupidaf), then run initStreamOverlay() (./js_scripts/main.js)
+	let custom_fonts = JSON.parse('<?php echo str_replace("\r\n", "", file_get_contents('./fonts/font_registry.json')); ?>');
+	let loaded_fonts = 0;
+	custom_fonts.forEach(font => {
+		new FontFace(font.name, 'url(./fonts/'+font.filename+')', {
+			style: font.style,
+			weight: font.weight
+		}).load().then(loaded_font => {
+			document.fonts.add(loaded_font);
+			loaded_fonts++;
+			if (loaded_fonts == custom_fonts.length) {
+				initStreamOverlay();
+			}
+		});
 	});
 });
 </script>
@@ -37,5 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	</div>
 </div>
 <div id="main"></div>
+<div style="font-family: 'JuanCock';"></div>
 </body>
 </html>
