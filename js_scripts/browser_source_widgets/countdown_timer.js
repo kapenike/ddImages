@@ -430,9 +430,9 @@ function generateBrowserSourceTimer() {
 		type: timer_params.countdown_clock_type,
 		fallback: timer_params.cc_end_text_display,
 		distance: {
-			hours: parseInt(timer_params.countdown_clock_hours) ?? 0,
-			minutes: parseInt(timer_params.countdown_clock_minutes) ?? 0,
-			seconds: parseInt(timer_params.countdown_clock_seconds) ?? 0
+			hours: parseInt(timer_params.countdown_clock_hours == '' ? 0 : timer_params.countdown_clock_hours),
+			minutes: parseInt(timer_params.countdown_clock_minutes == '' ? 0 : timer_params.countdown_clock_minutes),
+			seconds: parseInt(timer_params.countdown_clock_seconds == '' ? 0 : timer_params.countdown_clock_seconds)
 		},
 		separator: timer_params.cc_uniform_separator,
 		style: styles,
