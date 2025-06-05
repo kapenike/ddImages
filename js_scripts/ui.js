@@ -30,7 +30,7 @@ function generateUI(navigation = 'Tournament Data') {
 	switch(navigation) {
 		case 'Tournament Data':
 			// navigation on save set within setNavigationTournamentData()
-			// (./js_scripts/nav_main.js)
+			// (./js_scripts/nav_tournament_data.js)
 			setNavigationTournamentData();
 			break;
 			

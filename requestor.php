@@ -54,6 +54,11 @@ switch($_POST['application']) {
 		echo json_encode((object)['msg' => 'Tournament data successfully updated.']);
 		break;
 		
+	case 'update_tournament_details_ui_edit':
+		// write tournament ui structure data
+		file_put_contents(getBasePath().'/data/'.$_POST['uid'].'/ui.json', $_POST['data']);
+		break;
+		
 	case 'update_tournament_data_structure':
 		// update data file with new data structure object
 		app('tournament')->save($_POST['uid'], 'data', json_decode($_POST['data_structure']));

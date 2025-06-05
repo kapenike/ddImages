@@ -6,6 +6,22 @@ html, body {
 	font-family: 'Proxima Nova';
 	background-color: #000000;
 	color: #ffffff;
+	overflow-x: hidden;
+}
+
+.editable_ui,
+.editable_ui * {
+	cursor: grab;
+}
+.editable_ui_dragging,
+.editable_ui_dragging * {
+	cursor: grabbing;
+}
+#drag_clone {
+	position: absolute;
+	z-index: 999;
+	background-color: #eeeeee70;
+	cursor: grabbing;
 }
 
 .navigation {

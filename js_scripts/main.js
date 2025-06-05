@@ -4,6 +4,7 @@ var GLOBAL = {};
 function initGlobal() {
 	GLOBAL = {
 		use_vram: true, // generate Bitmaps for faster overlay creation at the cost of the GPU
+		held_keys: { ctrl: false, s: false, reset: false },
 		generate_sources: true, // flag used by generateStreamOverlays(null) when passed null to update overlay sources (defines what UI value updates will proc a stream overlay image export)
 		source_changes: [], // where to store source changes before an update
 		navigation: {}, // data location for navigation
@@ -11,14 +12,51 @@ function initGlobal() {
 			ignored: ['teams', 'bracket', 'assets', 'sets'], // data paths to ignore during structure editor generation,
 			removed: [], // data keys removed during structure editing
 			new_key_inc: 0 // incrementor used to make new key name values unique
+		},
+		ui: {
+			active_data: null, // data used during UI creation
+			drag_elem: null, // element being dragged during UI editing
+			drag_clone: null, // shadow clone to animate drag
+			drag_hover: null, // current hovered element while dragging
+			drop_side: null
 		}
 	}
+}
+
+function initCtrlSaveListener() {
+	window.addEventListener('keydown', function (event) {
+		if (GLOBAL.held_keys.reset == true) {
+			event.preventDefault();
+			return;
+		}
+		if (event.keyCode == 17) {
+			GLOBAL.held_keys.ctrl = true;
+		} else if (event.keyCode == 83) {
+			GLOBAL.held_keys.s = true;
+		}
+		if (GLOBAL.held_keys.ctrl && GLOBAL.held_keys.s) {
+			event.preventDefault();
+			GLOBAL.held_keys.reset = true;
+			onSaveAction();
+		}
+	});
+	window.addEventListener('keyup', function (event) {
+		if (event.keyCode == 17) {
+			GLOBAL.held_keys.ctrl = false;
+		} else if (event.keyCode == 83) {
+			GLOBAL.held_keys.s = false;
+		}
+		GLOBAL.held_keys.reset = false;
+	});
 }
 
 function initStreamOverlay() {
 	
 	// init global var
 	initGlobal();
+	
+	// ctrl+s listener and remover
+	initCtrlSaveListener();
 	
 	/*
 	proof of concept scenario:
