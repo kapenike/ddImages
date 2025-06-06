@@ -94,6 +94,16 @@ class team {
 		return true;
 	}
 	
+	function remove($tournament_uid, $team_uid) {
+		$team_data_path = getBasePath().'/data/'.$tournament_uid.'/teams/'.$team_uid.'/';
+		if (is_dir($team_data_path)) {
+			unlink($team_data_path.'/team_data.json');
+			rmdir($team_data_path);
+			return true;
+		}
+		return false;
+	}
+	
 }
 
 ?>

@@ -212,6 +212,10 @@ button, input[type="submit"] {
 	background-color: #000000;
 }
 
+.remove_button {
+	background-color: red;
+}
+
 .team_block {
 	padding: 14px;
 	margin-bottom: 4px;

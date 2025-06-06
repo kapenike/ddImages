@@ -93,6 +93,10 @@ switch($_POST['application']) {
 		
 		break;
 		
+	case 'remove_team':
+		app('team')->remove($_POST['tournament_uid'], $_POST['team_uid']);
+		break;
+		
 	case 'create_update_asset':
 		echo json_encode(app('asset')->createUpdateAsset($_POST['tournament_id'], (object)[
 			'type' => $_POST['asset_registration_type'],

@@ -119,6 +119,33 @@ function updateTeamData() {
 	}, 'team_management_form_block');
 }
 
+function removeTeam(team) {
+	
+	let form_details = {
+		tournament_uid: GLOBAL.active_tournament.uid,
+		team_uid: team.uid,
+		application: 'remove_team'
+	};
+	
+	// remove team server side
+	ajax('POST', '/requestor.php', form_details, (status, data) => {
+		
+		if (status) {
+			
+			// delete local team
+			delete GLOBAL.active_tournament.data.sets.teams[team.uid];
+			
+			// bring up create team form
+			loadTeamData();
+			
+			// re-create team selection list
+			generateTeamSelectionList();
+			
+		}
+		
+	}, 'team_management_form_block');
+}
+
 function loadTeamData(uid) {
 	setupTeamEditor(GLOBAL.active_tournament.data.sets.teams[uid]);
 }
@@ -177,7 +204,16 @@ function setupTeamEditor(team_data = null) {
 							name: 'team_roster[]',
 							value: team_data == null ? '' : (team_data.roster[index] ?? '')
 						});
-					})
+					}),
+					(team_data == null
+						? Create('div')
+						: Create('button', {
+								type: 'button',
+								innerHTML: 'Delete Team',
+								className: 'remove_button',
+								onclick: () => { removeTeam(team_data) }
+							})
+					)
 				]
 			})
 		]
