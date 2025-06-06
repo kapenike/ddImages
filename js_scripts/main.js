@@ -4,7 +4,6 @@ var GLOBAL = {};
 function initGlobal() {
 	GLOBAL = {
 		use_vram: true, // generate Bitmaps for faster overlay creation at the cost of the GPU
-		held_keys: { ctrl: false, s: false, reset: false },
 		generate_sources: true, // flag used by generateStreamOverlays(null) when passed null to update overlay sources (defines what UI value updates will proc a stream overlay image export)
 		source_changes: [], // where to store source changes before an update
 		navigation: {}, // data location for navigation
@@ -18,36 +17,10 @@ function initGlobal() {
 			drag_elem: null, // element being dragged during UI editing
 			drag_clone: null, // shadow clone to animate drag
 			drag_hover: null, // current hovered element while dragging
-			drop_side: null
+			drop_side: null,
+			container: null
 		}
 	}
-}
-
-function initCtrlSaveListener() {
-	window.addEventListener('keydown', function (event) {
-		if (GLOBAL.held_keys.reset == true) {
-			event.preventDefault();
-			return;
-		}
-		if (event.keyCode == 17) {
-			GLOBAL.held_keys.ctrl = true;
-		} else if (event.keyCode == 83) {
-			GLOBAL.held_keys.s = true;
-		}
-		if (GLOBAL.held_keys.ctrl && GLOBAL.held_keys.s) {
-			event.preventDefault();
-			GLOBAL.held_keys.reset = true;
-			onSaveAction();
-		}
-	});
-	window.addEventListener('keyup', function (event) {
-		if (event.keyCode == 17) {
-			GLOBAL.held_keys.ctrl = false;
-		} else if (event.keyCode == 83) {
-			GLOBAL.held_keys.s = false;
-		}
-		GLOBAL.held_keys.reset = false;
-	});
 }
 
 function initStreamOverlay() {
@@ -55,21 +28,21 @@ function initStreamOverlay() {
 	// init global var
 	initGlobal();
 	
-	// ctrl+s listener and remover
-	initCtrlSaveListener();
+	// listen for hotkey commands (./js_scripts/hotkeys.js)
+	initHotKeyListeners();
 	
 	/*
 	proof of concept scenario:
 		- CoD Double Tap
 		- UID: uid_0000001
 	*/
-	
 	// request tournament data
 	ajax('POST', '/requestor.php', {
 		application: 'load_tournament_data',
 		uid: 'uid_0000001'
 	}, streamDataLoaded, 'body');
 	
+	// async path ends with call to initNavigation() to kick off application start (./js_scripts/navigation.js)
 }
 
 function streamDataLoaded(status, data) {
@@ -153,6 +126,6 @@ function loadOverlayDependencies() {
 }
 
 function dependenciesLoaded(status, data) {
-	// (./js_scripts/ui.js)
-	generateUI();
+	// (./js_scripts/navigation.js)
+	initNavigation();
 }

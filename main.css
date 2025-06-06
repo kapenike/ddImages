@@ -65,9 +65,10 @@ html, body {
 	padding: 4px 12px;
 	color: #ffffff;
 	cursor: pointer;
+	float: left;
 }
 
-.sub_navigation_element_active {
+.active_sub_navigation {
 	background-color: #ffffff;
 	color: #000000;
 }

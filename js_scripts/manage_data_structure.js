@@ -1,23 +1,31 @@
-function manageDataStructure(data, submit_to_application) {
+function manageDataStructure(container, data, submit_to_application) {
 
+	// incrementor to ensure new form value names
 	GLOBAL.data_structure.new_key_inc = 0;
+	
+	// reference to original passed object
 	GLOBAL.data_structure.active_data_path = data;
 
-	return Create('form', {
-		id: 'form_capture',
-		data: submit_to_application,
+	Select(container, {
+		innerHTML: '',
 		children: [
-			Create('div', {
-				className: 'block',
+			Create('form', {
+				id: 'form_capture',
+				data: submit_to_application,
 				children: [
 					Create('div', {
-						className: 'create_data_key',
-						innerHTML: '+ Add Key',
-						onclick: () => { createDataKey(null); }
-					})
+						className: 'block',
+						children: [
+							Create('div', {
+								className: 'create_data_key',
+								innerHTML: '+ Add Key',
+								onclick: () => { createDataKey(null); }
+							})
+						]
+					}),
+					recurseSetKeyInputs(data, [])
 				]
-			}),
-			recurseSetKeyInputs(data, [])
+			})
 		]
 	});
 	

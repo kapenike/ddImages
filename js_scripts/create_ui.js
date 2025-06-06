@@ -1,163 +1,172 @@
-function createUIFromData(data, submit_to_application) {
+function createUIFromData(container, data, submit_to_application) {
 	
 	// save reference to current UI object for use during editing
 	GLOBAL.ui.active_data = data;
+	
+	// save reference to container used
+	GLOBAL.ui.container = container;
 
-	return Create('form', {
-		id: 'form_capture',
-		className: GLOBAL.ui.drag_elem != null ? 'editable_ui' : '', // if rebuilding during drag and drop, still in edit mode
-		data: submit_to_application,
+	Select(container, {
+		innerHTML: '',
 		children: [
-			Create('div', {
-				style: {
-					textAlign: 'right',
-					marginBottom: '-43px'
-				},
+			Create('form', {
+				id: 'form_capture',
+				className: GLOBAL.ui.drag_elem != null ? 'editable_ui' : '', // if rebuilding during drag and drop, still in edit mode
+				data: submit_to_application,
 				children: [
-					Create('label', {
-						innerHTML: 'Toggle UI Editor ',
+					Create('div', {
 						style: {
-							paddingRight: '20px'
+							textAlign: 'right',
+							marginBottom: '-43px'
 						},
 						children: [
-							Create('input', {
-								type: 'checkbox',
+							Create('label', {
+								innerHTML: 'Toggle UI Editor ',
 								style: {
-									display: 'inline-block',
-									width: 'auto',
-									position: 'relative',
-									top: '5px'
+									paddingRight: '20px'
 								},
-								checked: GLOBAL.ui.drag_elem != null, // if rebuilding during drag and drop, still in edit mode
-								onclick: function () {
-									toggleUIEditor(this.checked);
-								}
+								children: [
+									Create('input', {
+										type: 'checkbox',
+										id: 'ui_editor_toggle',
+										style: {
+											display: 'inline-block',
+											width: 'auto',
+											position: 'relative',
+											top: '5px'
+										},
+										checked: GLOBAL.ui.drag_elem != null, // if rebuilding during drag and drop, still in edit mode
+										onclick: function () {
+											toggleUIEditor(this.checked);
+										}
+									})
+								]
 							})
 						]
-					})
-				]
-			}),
-			...data.map((upper_section, section_index) => {
-				return Create('div', {
-					className: 'row',
-					children: upper_section.cols.map((section, col_index) => {
+					}),
+					...data.map((upper_section, section_index) => {
 						return Create('div', {
-							innerHTML: '<h3>'+section.section+'</h3>',
-							data: JSON.stringify({ section: section_index, column: col_index }),
-							className: 'col block',
-							style: {
-								width: parseFloat((100/upper_section.cols.length).toFixed(2))+'%' // precision round off
-							},
-							children: [(
-								section.reset
-									?	Create('div', {
-											children: [
-												Create('button', {
-													type: 'button',
-													className: 'small_button',
-													innerHTML: 'Reset',
-													onclick: () => { resetUISection(section); }
-												})
-											]
-										})
-									: Create('div')
-							), ...section.fields.map((field, field_index) => {
-								let depth_value = getDepthComparisonValue(field);
-								if (field.type == 'text' || field.type == 'number') {
-									return Create('div', {
-										className: 'ui_field',
-										data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
-										children: [
-											Create('label', {
-												innerHTML: field.title,
-												children: [
-													Create('input', {
-														type: field.type,
-														name: field.source,
-														onkeydown: function () { logSourceChange(this); },
-														value: depth_value
-													})
-												]
-											})
-										]
-									});
-								} else if (field.type == 'select') {
-									
-									// edge case for handling dataset select
-									let dataset_values = null;
-									if (typeof field.values === 'string') {
-										// get associated object
-										let dataset = getRealValue(field.values);
-										// generate values and subsetters list from object
-										dataset_values = [null, ...Object.keys(dataset)].map(key => {
-											return {
-												display: key == null ? '-Empty-' : getRealValue(field.display, null, dataset[key]),
-												value: key == null ? '' : key,
-												sub_setters: field.sub_setters.map(sub_setter => {
-													return {
-														path: sub_setter.path,
-														source: (key == null ? '' : getRealValue(sub_setter.source, null, dataset[key]))
-													}
-												})
-											};
-										});
-									}
-									
-									return Create('div', {
-										className: 'ui_field',
-										data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
-										children: [
-											Create('label', {
-												innerHTML: field.title,
-												children: [
-													Create('select', {
-														name: field.source,
-														onchange: function () { logSourceChange(this); },
-														children: (dataset_values == null ? field.values : dataset_values).map(option => {
-															return Create('option', {
-																innerHTML: option.display,
-																value: option.value,
-																selected: option.value == depth_value,
-																sub_setters: JSON.stringify(option.sub_setters ?? null)
-															});
+							className: 'row',
+							children: upper_section.cols.map((section, col_index) => {
+								return Create('div', {
+									innerHTML: '<h3>'+section.section+'</h3>',
+									data: JSON.stringify({ section: section_index, column: col_index }),
+									className: 'col block',
+									style: {
+										width: parseFloat((100/upper_section.cols.length).toFixed(2))+'%' // precision round off
+									},
+									children: [(
+										section.reset
+											?	Create('div', {
+													children: [
+														Create('button', {
+															type: 'button',
+															className: 'small_button',
+															innerHTML: 'Reset',
+															onclick: () => { resetUISection(section); }
 														})
-													})
-												]
-											})
-										]
-									});
-								} else if (field.type == 'radio') {
-									return Create('div', {
-										className: 'ui_field',
-										data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
-										children: field.values.map(radio => {
-											return Create('label', {
+													]
+												})
+											: Create('div')
+									), ...section.fields.map((field, field_index) => {
+										let depth_value = getDepthComparisonValue(field);
+										if (field.type == 'text' || field.type == 'number') {
+											return Create('div', {
+												className: 'ui_field',
+												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
 												children: [
-													Create('input', {
-														type: 'radio',
-														onclick: function () { logSourceChange(this); },
-														name: field.source,
-														value: radio.value,
-														checked: radio.value == depth_value,
-														sub_setters: JSON.stringify(radio.sub_setters ?? null)
-													}),
-													Create('span', {
-														innerHTML: radio.display+'&nbsp;'
+													Create('label', {
+														innerHTML: field.title,
+														children: [
+															Create('input', {
+																type: field.type,
+																name: field.source,
+																onkeydown: function () { logSourceChange(this); },
+																value: depth_value
+															})
+														]
 													})
 												]
 											});
-										})
-									});
-								} else {
-									return Create('div');
-								}
-							})]
+										} else if (field.type == 'select') {
+											
+											// edge case for handling dataset select
+											let dataset_values = null;
+											if (typeof field.values === 'string') {
+												// get associated object
+												let dataset = getRealValue(field.values);
+												// generate values and subsetters list from object
+												dataset_values = [null, ...Object.keys(dataset)].map(key => {
+													return {
+														display: key == null ? '-Empty-' : getRealValue(field.display, null, dataset[key]),
+														value: key == null ? '' : key,
+														sub_setters: field.sub_setters.map(sub_setter => {
+															return {
+																path: sub_setter.path,
+																source: (key == null ? '' : getRealValue(sub_setter.source, null, dataset[key]))
+															}
+														})
+													};
+												});
+											}
+											
+											return Create('div', {
+												className: 'ui_field',
+												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
+												children: [
+													Create('label', {
+														innerHTML: field.title,
+														children: [
+															Create('select', {
+																name: field.source,
+																onchange: function () { logSourceChange(this); },
+																children: (dataset_values == null ? field.values : dataset_values).map(option => {
+																	return Create('option', {
+																		innerHTML: option.display,
+																		value: option.value,
+																		selected: option.value == depth_value,
+																		sub_setters: JSON.stringify(option.sub_setters ?? null)
+																	});
+																})
+															})
+														]
+													})
+												]
+											});
+										} else if (field.type == 'radio') {
+											return Create('div', {
+												className: 'ui_field',
+												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
+												children: field.values.map(radio => {
+													return Create('label', {
+														children: [
+															Create('input', {
+																type: 'radio',
+																onclick: function () { logSourceChange(this); },
+																name: field.source,
+																value: radio.value,
+																checked: radio.value == depth_value,
+																sub_setters: JSON.stringify(radio.sub_setters ?? null)
+															}),
+															Create('span', {
+																innerHTML: radio.display+'&nbsp;'
+															})
+														]
+													});
+												})
+											});
+										} else {
+											return Create('div');
+										}
+									})]
+								});
+							})
 						});
 					})
-				});
+				]
 			})
 		]
-	})
+	});
 	
 }
 
@@ -186,11 +195,6 @@ function logSourceChange(field) {
 	if (!GLOBAL.source_changes.includes(field.name)) {
 		GLOBAL.source_changes.push(field.name);
 	}
-}
-
-// not all comparisons are similar, allow ui setup to determine value depth to compare
-function getDepthComparisonValue(field) {
-	return getRealValue(field.source, (typeof field.value_depth === 'undefined' ? null : field.value_depth));
 }
 
 function updateSourceChanges() {
@@ -276,6 +280,7 @@ function toggleUIEditor(flag) {
 		// on save converted to updating UI instead
 		GLOBAL.navigation.on_save = updateUIChange;
 	} else {
+		resetDrag();
 		form.className = '';
 		window.removeEventListener('mousedown', uiEditMouseDown);
 		window.removeEventListener('mousemove', uiEditMouseMove);
@@ -381,15 +386,17 @@ function uiEditMouseMove(event) {
 }
 
 function resetDrag() {
-	uiDragSetBorder(GLOBAL.ui.drag_hover);
-	GLOBAL.ui.drag_elem.style.backgroundColor = '';
-	uiDragSetBorder(GLOBAL.ui.drag_elem);
-	GLOBAL.ui.drag_elem = null;
-	GLOBAL.ui.drag_clone.remove();
-	GLOBAL.ui.drag_clone = null;
-	GLOBAL.ui.drag_hover = null;
-	GLOBAL.ui.drop_side = null;
-	Select('#form_capture').className = 'editable_ui';
+	if (GLOBAL.ui.drop_side != null) {
+		uiDragSetBorder(GLOBAL.ui.drag_hover);
+		GLOBAL.ui.drag_elem.style.backgroundColor = '';
+		uiDragSetBorder(GLOBAL.ui.drag_elem);
+		GLOBAL.ui.drag_elem = null;
+		GLOBAL.ui.drag_clone.remove();
+		GLOBAL.ui.drag_clone = null;
+		GLOBAL.ui.drag_hover = null;
+		GLOBAL.ui.drop_side = null;
+		Select('#form_capture').className = 'editable_ui';
+	}
 }
 
 function uiEditMouseUp(event) {
@@ -444,12 +451,7 @@ function uiEditMouseUp(event) {
 				}
 			}
 			// refresh current ui generation with new data
-			Create(Select('#form_capture').parentNode, {
-				innerHTML: '',
-				children: [
-					createUIFromData(GLOBAL.ui.active_data, Select('#form_capture').data)
-				]
-			}, true);
+			createUIFromData(GLOBAL.ui.container, GLOBAL.ui.active_data, Select('#form_capture').data);
 		}
 	}
 	resetDrag();
