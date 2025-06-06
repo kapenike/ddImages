@@ -173,6 +173,34 @@ button, input[type="submit"] {
   cursor: pointer;
 }
 
+.ui_edit_menu {
+	width: 200px;
+	color: #000000;
+	background-color: #cccccc;
+	border: 1px solid #000000;
+	border-radius: 3px;
+	text-align: center;
+	position: absolute;
+	z-index: 999;
+}
+.ui_edit_menu > div {
+	box-sizing: border-box;
+	border-bottom: 1px solid #bbbbbb;
+	padding: 8px 12px;
+	cursor: pointer;
+}
+.ui_edit_menu > div:last-child {
+	border: none;
+}
+.ui_edit_menu .ui_edit_menu_cancel {
+	background-color: #444444;
+	color: #ffffff;
+}
+.ui_edit_menu .ui_edit_menu_remove {
+	background-color: red;
+	color: #ffffff;
+}
+
 .radio_group {
 	background-color: #444444;
 	padding: 10px 4px 10px 4px;

@@ -2,16 +2,19 @@ function initNavigation() {
 	GLOBAL_NAVIGATION = [
 		{
 			name: 'Tournament Data',
-			active: true,
+			default: true,
 			sub_navigation: [
 				{
 					name: 'Data Management',
-					active: true,
+					default: true,
 					on_save: updateSourceChanges,
 					app_init: function () {
 						createUIFromData('#sub_main', GLOBAL.active_tournament.ui, 'update_tournament_details')
 					},
-					app_close: function () { toggleUIEditor(false); }
+					close_app: function () { 
+						toggleUIEditor(false);
+						clearSourceChanges();
+					}
 				},
 				{
 					name: 'Edit Data Structure',
@@ -54,17 +57,13 @@ function generateUI(navigation = null) {
 	
 	// prevent navigation of already-active page
 	if (navigation != null) {
-		let active_navigation = Select('.active_navigation');
-		if (active_navigation && active_navigation.innerHTML == navigation) {
+		let active_navigation = Select('.active_navigation').innerHTML;
+		if (active_navigation == navigation) {
 			return;
 		} else {
 			
-			// if new navigation, run all app_close methods on non-current navigation elements
-			GLOBAL_NAVIGATION.forEach(nav_elem => {
-				if (nav_elem.name != navigation && nav_elem.app_close) {
-					nav_elem.app_close();
-				}
-			});
+			// if new navigation, run close app on active page
+			closeApp(true, active_navigation);
 			
 		}
 	}
@@ -81,7 +80,7 @@ function generateUI(navigation = null) {
 			}
 			
 			// if current tab is active
-			let nav_is_active = navigation == nav_elem.name || navigation == null && nav_elem.active;
+			let nav_is_active = navigation == nav_elem.name || navigation == null && nav_elem.default;
 			if (nav_is_active) {
 				
 				// init on save and application startup methods
@@ -112,17 +111,6 @@ function generateUI(navigation = null) {
 	});
 	
 }
-
-function initNavigationApp(nav) {
-	GLOBAL.navigation.on_save = (nav.on_save ? nav.on_save : () => {});
-	if (nav.app_init) {
-		nav.app_init();
-	}
-}
-
-function onSaveAction() {
-	GLOBAL.navigation.on_save();
-}
 	
 function generateSubUI(navigation, sub_navigation) {
 	
@@ -131,17 +119,11 @@ function generateSubUI(navigation, sub_navigation) {
 		let active_navigation = Select('.active_sub_navigation');
 		if (active_navigation && active_navigation.innerHTML == navigation) {
 			return;
-		} else {
-			
-			// if new navigation, run all app_close methods on non-current navigation elements
-			sub_navigation.forEach(nav_elem => {
-				if (nav_elem.name != navigation && nav_elem.app_close) {
-					nav_elem.app_close();
-				}
-			});
-			
 		}
 	}
+	
+	// check for close app condition on sub navigation
+	closeApp(false);
 	
 	// append sub navigation to main container
 	Select('#main', {
@@ -159,7 +141,7 @@ function generateSubUI(navigation, sub_navigation) {
 					}
 
 					// generate sub navigation element
-					let nav_is_active = navigation == nav_elem.name || navigation == null && nav_elem.active;
+					let nav_is_active = navigation == nav_elem.name || navigation == null && nav_elem.default;
 					let nav_element = Create('div', {
 						className: 'sub_navigation_element'+(nav_is_active ? ' active_sub_navigation' : ''),
 						innerHTML: nav_elem.name,
@@ -185,7 +167,7 @@ function generateSubUI(navigation, sub_navigation) {
 	
 	// sub navigation container does not exist, so run app init after navigation creation
 	sub_navigation.forEach(nav_elem => {
-		if (navigation == nav_elem.name || navigation == null && nav_elem.active) {
+		if (navigation == nav_elem.name || navigation == null && nav_elem.default) {
 			
 			// init on save and application startup methods
 			initNavigationApp(nav_elem);
@@ -194,3 +176,45 @@ function generateSubUI(navigation, sub_navigation) {
 	});
 }
 
+function initNavigationApp(nav) {
+	GLOBAL.navigation.on_save = (nav.on_save ? nav.on_save : () => {});
+	if (nav.app_init) {
+		nav.app_init();
+	}
+}
+
+function closeApp(master, navigation = null) {
+	
+	// loop global navigation
+	GLOBAL_NAVIGATION.forEach(nav_elem => {
+		
+		// if master tier, close app for old navigation
+		if (master && nav_elem.close_app && nav_elem.name == navigation) {
+			nav_elem.close_app();
+		}
+		
+		// run on sub navigation if it exists
+		if (nav_elem.sub_navigation) {
+			
+			// query for active sub navigation
+			let active_sub_navigation = Select('.active_sub_navigation');
+			if (active_sub_navigation) {
+				active_sub_navigation = active_sub_navigation.innerHTML;
+				
+				// loop sub navigation
+				nav_elem.sub_navigation.forEach(sub_nav_elem => {
+					
+					// close app for old navigation
+					if (sub_nav_elem.close_app && sub_nav_elem.name == active_sub_navigation) {
+						sub_nav_elem.close_app();
+					}
+					
+				});
+			}
+		}
+	});
+}
+
+function onSaveAction() {
+	GLOBAL.navigation.on_save();
+}

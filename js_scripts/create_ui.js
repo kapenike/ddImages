@@ -76,7 +76,7 @@ function createUIFromData(container, data, submit_to_application) {
 												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
 												children: [
 													Create('label', {
-														innerHTML: field.title,
+														innerHTML: trackSourceChange(field.title),
 														children: [
 															Create('input', {
 																type: field.type,
@@ -115,7 +115,7 @@ function createUIFromData(container, data, submit_to_application) {
 												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
 												children: [
 													Create('label', {
-														innerHTML: field.title,
+														innerHTML: trackSourceChange(field.title),
 														children: [
 															Create('select', {
 																name: field.source,
@@ -152,7 +152,7 @@ function createUIFromData(container, data, submit_to_application) {
 																		sub_setters: JSON.stringify(radio.sub_setters ?? null)
 																	}),
 																	Create('span', {
-																		innerHTML: radio.display+'&nbsp;'
+																		innerHTML: trackSourceChange(radio.display)+'&nbsp;'
 																	})
 																]
 															});
@@ -166,7 +166,7 @@ function createUIFromData(container, data, submit_to_application) {
 												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
 												children: [
 													Create('label', {
-														innerHTML: field.title,
+														innerHTML: trackSourceChange(field.title),
 														children: [
 															Create('br'),
 															Create('input', {
@@ -216,9 +216,18 @@ function resetUISection(section) {
 }
 
 function logSourceChange(field) {
+	trackChangeSource(field.name, field.value);
 	if (!GLOBAL.source_changes.includes(field.name)) {
 		GLOBAL.source_changes.push(field.name);
 	}
+}
+
+function clearSourceChanges() {
+	GLOBAL.track_sources = {
+		inc: 0,
+		pairs: []
+	};
+	GLOBAL.source_changes = [];
 }
 
 function updateSourceChanges() {
@@ -261,7 +270,7 @@ function updateSourceChanges() {
 						// allow depth value setting here as well
 						form_details[sub_setter.path] = getDepthComparisonValue(sub_setter);
 						// add sub setters to global changed sources list
-						logSourceChange({ name: sub_setter.path });
+						logSourceChange({ name: sub_setter.path, value: form_details[sub_setter.path] });
 					});
 				}
 				break;
@@ -335,7 +344,7 @@ function getUpperContainer(elem, class_name = null) {
 
 // on mouse down, define a draggable field or section and create a shadow clone to show user is dragging
 function uiEditMouseDown(event) {
-	if (GLOBAL.ui.drag_elem) {
+	if (GLOBAL.ui.drag_elem || event.buttons == '2') {
 		event.preventDefault();
 		return;
 	}
@@ -486,16 +495,6 @@ function uiEditMouseUp(event) {
 	resetDrag();
 }
 
-// edit menu
-function uiEditRightMouse(event) {
-	event.preventDefault();
-	// if dragging, cancel drag
-	if (GLOBAL.ui.drag_elem) {
-		resetDrag();
-		return;
-	}
-}
-
 function updateUIChange() {
 	
 	// capture current UI state
@@ -513,4 +512,91 @@ function updateUIChange() {
 			// notifications soon
 		}
 	}, 'body');
+	
+}
+
+// edit menu
+function uiEditRightMouse(event) {
+	event.preventDefault();
+	
+	// if dragging, cancel drag
+	if (GLOBAL.ui.drag_elem) {
+		resetDrag();
+		return;
+	}
+	
+	// get nearest editable object
+	let elem = getUpperContainer(event.target);
+	if (elem != null) {
+		createUIEditMenu(event.clientX, event.clientY, elem);
+	}
+	
+}
+
+function removeUIEditMenu() {
+	if (Select('#ui_edit_menu')) {
+		Select('#ui_edit_menu').remove();
+	}
+}
+
+function createUIEditMenu(x, y, elem) {
+	
+	// if menu already exists, close it
+	removeUIEditMenu();
+		
+	Select('#body', {
+		children: [
+			Create('div', {
+				className: 'ui_edit_menu',
+				id: 'ui_edit_menu',
+				style: {
+					left: x,
+					top: y,
+					transform: 'translate('+(x < (screen.width/2) ? '0' : '-100%')+', '+(y > (screen.height/2) ? '-100%' : '0')+')'
+				},
+				children: elem.className == 'ui_field'
+					? [
+						Create('div', {
+							innerHTML: 'Edit Field',
+							onclick: () => { editUIField(elem); }
+						}),
+						Create('div', {
+							innerHTML: 'Remove Field',
+							onclick: () => { removeUIField(elem); },
+							className: 'ui_edit_menu_remove'
+						}),
+						Create('div', {
+							innerHTML: 'cancel',
+							className: 'ui_edit_menu_cancel',
+							onclick: () => { removeUIEditMenu(); }
+						})
+					]
+					: [
+						Create('div', {
+							innerHTML: 'Create New Field',
+							onclick: () => { createNewUIField(elem); }
+						}),
+						Create('div', {
+							innerHTML: 'Create New Section',
+							onclick: () => { createNewUISection(elem); }
+						}),
+						Create('div', {
+							innerHTML: 'Edit Section',
+							onclick: () => { editUISection(elem); }
+						}),
+						Create('div', {
+							innerHTML: 'Remove Section',
+							className: 'ui_edit_menu_remove',
+							onclick: () => { removeUISection(elem); }
+						}),
+						Create('div', {
+							innerHTML: 'cancel',
+							className: 'ui_edit_menu_cancel',
+							onclick: () => { removeUIEditMenu(); }
+						})
+					]
+			})
+		]
+	});
+	
 }

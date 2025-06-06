@@ -24,6 +24,48 @@ function getRealVariableParts(value) {
 	return return_data;
 }
 
+function trackChangeSource(source, value) {
+	
+	// loop source / tracking span pairs and update on source change
+	GLOBAL.track_sources.pairs.forEach(tracker => {
+		if (tracker.source == source) {
+			Select('#tracking_source_'+tracker.id, {
+				innerHTML: value
+			});
+		}
+	});
+	
+}
+
+function trackSourceChange(source) {
+	
+	// output buffer
+	let output = '<span>';
+	
+	// loop source real and variable parts
+	getRealVariableParts(source).forEach(split_part => {
+		if (split_part.variable) {
+			
+			// contain variable parts within an id tracking span
+			output += '<span id="tracking_source_'+(++GLOBAL.track_sources.inc)+'">'+getRealValue('$'+split_part.variable+'$')+'</span>';
+
+			// create source -> tracking span id pair
+			GLOBAL.track_sources.pairs.push({
+				id: GLOBAL.track_sources.inc,
+				source: '$'+split_part.variable+'$'
+			});
+			
+		} else {
+			
+			// append real part span
+			output += '<span>'+split_part.real+'</span>';
+			
+		}
+	});
+	
+	return output+'</span>';
+}
+
 function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.data) {
 	
 	// detect if value contains a path variable
