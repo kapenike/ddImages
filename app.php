@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+error_reporting(0);
+
 // no htaccess or hierarchical structure so create a relative base path method
 function getBasePath() {
 	return explode('phpMyStreamOverlay',getcwd())[0].'phpMyStreamOverlay/';
