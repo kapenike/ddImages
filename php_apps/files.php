@@ -6,12 +6,6 @@ class files {
 		"jpeg" => "jpg"
 	];
 	
-	// ensure correct opening and closing of file path
-	function fixPath($path) {
-		$path = './'.$path;
-		return (substr($path, -1) == '/') ? $path : $path.'/';
-	}
-	
 	function fixExts($ext) {
 		$ext = strtolower($ext);
 		if (isset($this->fix_exts[$ext])) {
@@ -25,7 +19,7 @@ class files {
 	}
 	
 	function checkSettings($file, $settings) {
-		if ($settings["type"] == 'img' && !in_array(exif_imagetype($file["tmp_name"]), [IMAGETYPE_JPEG,IMAGETYPE_PNG,IMAGETYPE_GIF,IMAGETYPE_BMP])) {
+		if ($settings["type"] == 'img' && !in_array(getimagesize($file["tmp_name"])[2], [IMAGETYPE_JPEG,IMAGETYPE_PNG,IMAGETYPE_GIF,IMAGETYPE_BMP])) {
 			return ["status" => false, "msg" => "Not a supported image type. Supported image formats: jpg, png, gif, bmp"];
 		} else if ($this->disallowedExtensions(strtolower(pathinfo($file["name"])["extension"]))) {
 			return ["status" => false, "msg" => "This file has been disallowed for upload."];
@@ -42,7 +36,6 @@ class files {
 		if ($file === null || empty($file)) {
 			return ["status" => false, "msg" => "File cannot be empty."];
 		}
-		$path = $this->fixPath($path);
 		if (is_file($path.$file)) {
 			unlink($path.$file);
 			return ["status" => true, "msg" => "File removed"];
@@ -111,7 +104,6 @@ class files {
 			return ["status" => false, "msg" => "Corrupted image."];
 		}
 		$fname = (isset($settings["fname"]) ? $settings["fname"] : true);
-		$path = $this->fixPath($path);
 		$status = $this->checkSettings($file, $settings);
 		if ($status === true) {
 			$ext = '.'.$this->fixExts(strtolower(pathinfo($file["name"])["extension"]));
