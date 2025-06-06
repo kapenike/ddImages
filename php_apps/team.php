@@ -15,7 +15,7 @@ class team {
 	function register($tournament_uid, $team_name) {
 		
 		// request new uid
-		$uid = app('uid')->generate();
+		$uid = app('uid')->generate($tournament_uid);
 		
 		// get registry
 		$registry = $this->getRegistry($tournament_uid);

@@ -200,8 +200,8 @@ function printImage(ctx, layer) {
 	// get real source
 	let value = getRealValue(layer.source);
 	
-	// if value not falsey, draw image
-	if (value) {
+	// if layer toggle and value not falsey, draw image
+	if (toggleTrue(layer) && value) {
 		
 		let output_width = value.width;
 		let output_height = value.height;
