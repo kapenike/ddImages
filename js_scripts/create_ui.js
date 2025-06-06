@@ -137,26 +137,50 @@ function createUIFromData(container, data, submit_to_application) {
 											return Create('div', {
 												className: 'ui_field',
 												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
-												children: field.values.map(radio => {
-													return Create('label', {
-														children: [
-															Create('input', {
-																type: 'radio',
-																onclick: function () { logSourceChange(this); },
-																name: field.source,
-																value: radio.value,
-																checked: radio.value == depth_value,
-																sub_setters: JSON.stringify(radio.sub_setters ?? null)
-															}),
-															Create('span', {
-																innerHTML: radio.display+'&nbsp;'
-															})
-														]
-													});
-												})
+												children: [
+													Create('div', {
+														className: 'radio_group',
+														children: field.values.map(radio => {
+															return Create('label', {
+																children: [
+																	Create('input', {
+																		type: 'radio',
+																		onclick: function () { logSourceChange(this); },
+																		name: field.source,
+																		value: radio.value,
+																		checked: radio.value == depth_value,
+																		sub_setters: JSON.stringify(radio.sub_setters ?? null)
+																	}),
+																	Create('span', {
+																		innerHTML: radio.display+'&nbsp;'
+																	})
+																]
+															});
+														})
+													})
+												]
 											});
-										} else {
-											return Create('div');
+										} else if (field.type == 'checkbox') {
+											return Create('div', {
+												className: 'ui_field',
+												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
+												children: [
+													Create('label', {
+														innerHTML: field.title,
+														children: [
+															Create('br'),
+															Create('input', {
+																type: field.type,
+																name: field.source,
+																onkeydown: function () { logSourceChange(this); },
+																data: field.value,
+																checked: depth_value != ''
+															}),
+															Create('br')
+														]
+													})
+												]
+											});
 										}
 									})]
 								});
@@ -201,13 +225,18 @@ function updateSourceChanges() {
 	
 	// use form style capture to easily inherit form capture methods
 	let full_form = formToObj('form_capture');
-	
+
 	// filter form object by values logged in GLOBAL.source_changes
 	let form_details = {};
 	Object.keys(full_form).forEach(field_name => {
 		if (GLOBAL.source_changes.includes(field_name)) {
 			form_details[field_name] = full_form[field_name];
 		}
+	});
+	
+	// include non-checked boxes and set value to data value rather than boolean
+	Array.from(MSelect('input[type="checkbox"]')).filter(v => v.name != '').forEach(checkbox => {
+		form_details[checkbox.name] = checkbox.checked ? checkbox.data : '';
 	});
 	
 	// use filtered form objects to search for potential sub setters

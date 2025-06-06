@@ -4,13 +4,10 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 > this code is pre-alpha and not fully commented or structured
 
 ## To-DO
-- [ ] Entire structural rewrite along with comments
-	- [ ] Global navigation state including sub menus
-	- [ ] Notification system
 - [ ] Create UI builder with use of data from assets and `data structure` along with data from `data.sets`
-	- [ ] Create checkbox form element
+	- [x] Create checkbox form element
 	- [x] Allow drag and drop sorting of UI elements
-		- Create hook to reset UI listeners on navigation change
+		- [x] Create hook to reset UI listeners on navigation change
 	- Create contextmenu override for:
 		- Editing, removing and creatings sections
 		- Editing, removing and creating field entries (allow data set entry)
@@ -19,7 +16,7 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 - [ ] Convert UID system to random UID rather than incremental, this is to prevent (future) exports and imports alongside an OBS export from creating disconnects with overlays sources
 	-	Setup should mention that using documents to house this application is a good idea ... for the same reason mentioned above
 - [ ] Allow creation of more data sets like teams `data.sets.teams`
-- [ ] Create ability to delete teams and assets
+- [ ] Create ability to delete teams and assets along with a notification system
 - [ ] Create bracket system
 	- Import bracket details into `data` property during import of tournament data
 	- Allow creation of a bracket and seeding it with data from teams
@@ -30,3 +27,6 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 - [ ] Request god extend days by 4 hours each and then create an overlay editor
 - [ ] More complex path variable comparisons
 
+
+
+- [ ] Final rewrite with a TOP for creating new broadcasts
