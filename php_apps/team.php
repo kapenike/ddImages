@@ -30,7 +30,7 @@ class team {
 		mkdir(getBasePath().'/data/'.$tournament_uid.'/teams/'.$uid);
 		
 		// create team sources directory
-		mkdir(getBasePath().'/data/'.$tournament_uid.'/teams/sources/');
+		mkdir(getBasePath().'/data/'.$tournament_uid.'/teams/'.$uid.'/sources/');
 		
 		// create team skeleton json file
 		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/teams/'.$uid.'/team_data.json', json_encode((object)[
@@ -99,6 +99,9 @@ class team {
 		if (is_dir($team_data_path)) {
 			unlink($team_data_path.'/team_data.json');
 			rmdir($team_data_path);
+			$registry = $this->getRegistry($tournament_uid);
+			unset($registry->$team_uid);
+			$this->saveRegistry($tournament_uid, $registry);
 			return true;
 		}
 		return false;
