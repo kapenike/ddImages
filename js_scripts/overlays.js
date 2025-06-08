@@ -115,12 +115,12 @@ function toggleTrue(layer) {
 	} else {
 		
 		// check for comparison
-		let comparitor_index = layer.toggle.indexOf('$=$');
+		let comparitor_index = layer.toggle.indexOf('$/var$=$var$');
 		if (comparitor_index > -1) {
 			
 			// split and compare real values of comparison
-			let comp_split = layer.toggle.split('$=$');
-			if (getRealValue(comp_split[0]+'$') == getRealValue('$'+comp_split[1])) {
+			let comp_split = layer.toggle.split('$/var$=$var$');
+			if (getRealValue(comp_split[0]+'$/var$') == getRealValue('$var$'+comp_split[1])) {
 				return true;
 			}
 			

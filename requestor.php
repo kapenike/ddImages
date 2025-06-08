@@ -27,13 +27,14 @@ switch($_POST['application']) {
 		foreach ($_POST as $key => $value) {
 			
 			// if variable path
-			if ($key[0] == '$' && substr($key, -1) == '$') {
+			if (substr($key, 0, 5) == '$var$' && substr($key, -6) == '$/var$') {
 				
 				// create base path as reference to tournament data property
 				$base_path = &$tournament_data;
 				
 				// explode and traverse path until empty
-				$path = explode('/', substr($key, 1, -1));
+				$path = explode('/', substr($key, 5, -6));
+
 				while(count($path) > 0) {
 					// shift from path into reference path
 					$base_path = &$base_path->{array_shift($path)};

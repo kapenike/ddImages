@@ -1,5 +1,5 @@
 function isPathVariable(value) {
-	return typeof value === 'string' && ((value.split('$').length-1)%2) == 0;
+	return typeof value === 'string' && value.indexOf('$var$') > -1 && value.indexOf('$/var$');
 }
 
 // not all comparisons are similar, allow ui setup to determine value depth to compare
@@ -9,7 +9,7 @@ function getDepthComparisonValue(field) {
 
 function getRealVariableParts(value) {
 	let return_data = [];
-	let split = value.split('$');
+	let split = value.replace('$var$','$delimiter$').replace('$/var$','$delimiter$').split('$delimiter$');	
 	for (let i=0; i<split.length; i++) {
 		if (i%2 == 0) {
 			// real part
@@ -47,12 +47,12 @@ function trackSourceChange(source) {
 		if (split_part.variable) {
 			
 			// contain variable parts within an id tracking span
-			output += '<span id="tracking_source_'+(++GLOBAL.track_sources.inc)+'">'+getRealValue('$'+split_part.variable+'$')+'</span>';
+			output += '<span id="tracking_source_'+(++GLOBAL.track_sources.inc)+'">'+getRealValue('$var$'+split_part.variable+'$/var$')+'</span>';
 
 			// create source -> tracking span id pair
 			GLOBAL.track_sources.pairs.push({
 				id: GLOBAL.track_sources.inc,
-				source: '$'+split_part.variable+'$'
+				source: '$var$'+split_part.variable+'$/var$'
 			});
 			
 		} else {
@@ -78,7 +78,7 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 		if (GLOBAL.generate_sources == true) {
 			var_real_parts.forEach(split_part => {
 				if (split_part.variable) {
-					GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_index].sources.push('$'+split_part.variable+'$');
+					GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_index].sources.push('$var$'+split_part.variable+'$/var$');
 				}
 			});
 		}
