@@ -35,7 +35,7 @@ class team {
 		// create team skeleton json file
 		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/teams/'.$uid.'/team_data.json', json_encode((object)[
 			'uid' => $uid,
-			'team_name' => $team_name,
+			'display' => $team_name,
 			'banner_logo' => null,
 			'emblem_logo' => null,
 			'primary_color' => '#000000',
@@ -98,6 +98,7 @@ class team {
 		$team_data_path = getBasePath().'/data/'.$tournament_uid.'/teams/'.$team_uid.'/';
 		if (is_dir($team_data_path)) {
 			unlink($team_data_path.'/team_data.json');
+			rmdir($team_data_path.'/sources/');
 			rmdir($team_data_path);
 			$registry = $this->getRegistry($tournament_uid);
 			unset($registry->$team_uid);

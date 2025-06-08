@@ -77,7 +77,7 @@ switch($_POST['application']) {
 			
 			// update team
 			$data = app('team')->load($_POST['tournament_uid'], $_POST['team_manager_type']);
-			$data->team_name = $_POST['team_name'];
+			$data->display = $_POST['team_name'];
 			$data->primary_color = $_POST['team_primary_color'];
 			$data->secondary_color = $_POST['team_secondary_color'];
 			$data->roster = $_POST['team_roster'];

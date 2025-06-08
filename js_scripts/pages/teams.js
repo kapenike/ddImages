@@ -171,7 +171,7 @@ function setupTeamEditor(team_data = null) {
 							Create('input', {
 								type: 'text',
 								name: 'team_name',
-								value: team_data == null ? '' : team_data.team_name
+								value: team_data == null ? '' : team_data.display
 							})
 						]
 					}),
@@ -227,7 +227,7 @@ function generateTeamSelectionList() {
 		children: Object.keys(GLOBAL.active_tournament.data.sets.teams).map(team_uid => {
 			let team = GLOBAL.active_tournament.data.sets.teams[team_uid];
 			return Create('div', {
-				innerHTML: team.team_name,
+				innerHTML: team.display,
 				className: 'team_block',
 				onclick: () => { loadTeamData(team.uid); },
 				style: {
