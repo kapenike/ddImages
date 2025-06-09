@@ -10,6 +10,10 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 		- [x] Create hook to reset UI listeners on navigation change
 	- [ ] create variable path and variable path + real text input fields
 		- [ ] create method for accessing a data sets values directly from the set value rather than requiring sub setters to save it in the data structure
+		- [ ] allow save and load of this data into editor during context menu override below
+		- [ ] restrict path selection input field paths based on GLOBAL.data_structure.ignored during source setting or value setting as path only
+		- [ ] restrict value setting of `assets` and `sets` sub data BUT allow access when requesting source of data (`sets` only)
+		- [ ] force path only on `assets` during value set
 	[ ] Create contextmenu override for:
 		- Editing, removing and creatings sections
 		- Editing, removing and creating field entries (allow data set entry)
