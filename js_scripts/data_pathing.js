@@ -21,7 +21,9 @@ function getRealVariableParts(value) {
 			return_data.push({ variable: split[i] });
 		}
 	}
-	return return_data;
+	return return_data.filter(x => {
+		return (x.variable ? true : x.real != '')
+	});
 }
 
 function trackChangeSource(source, value) {

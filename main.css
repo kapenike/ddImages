@@ -24,6 +24,104 @@ html, body {
 	cursor: grabbing;
 }
 
+.variable_set_input {
+	position: relative;
+}
+
+.variable_set_input_field {
+	padding: 12px 16px;
+	background-color: #444444;
+	border: 1px solid #000000;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 800px;
+	min-height: 46px;
+	border-radius: 3px;
+	float: left;
+}
+
+.has_path_insert {
+	width: calc(100% - 73px);
+	max-width: calc(800px - 73px);
+	border-radius: 3px 0 0 3px;
+	border-right: none;
+}
+
+.path_var_container {
+	width: 100%;
+	max-width: 800px;
+	box-sizing: border-box;
+	text-align: right;
+	font-size: 14px;
+	background-color: #000000;
+	color: #ffffff;
+	padding: 4px 10px 4px 10px;
+	border-radius: 0 0 3px 3px;
+}
+
+.path_variable_entry {
+	background-color: #005b96;
+	color: #b3cde0;
+	font-style: italic;
+	padding: 2px 8px;
+}
+
+.path_var_container input[type="checkbox"] {
+	width: 14px;
+	height: 14px;
+	margin: 0;
+	position: relative;
+	top: 1px;
+}
+
+.path_insert_button {
+	background-color: #f9a602;
+	color: #444444;
+	padding: 12px 16px;
+	text-align: center;
+	box-sizing: border-box;
+	width: 73px;
+	border-radius: 0 3px 3px 0;
+	text-align: center;
+	border: 1px solid #000000;
+	float: left;
+	border-left: none;
+	cursor: pointer;
+}
+
+.close_path_selection_editor {
+	background-color: red;
+}
+
+#path_selection_dialog {
+	position: absolute;
+	top: 46px;
+	width: 100%;
+	max-width: 800px;
+	max-height: 240px;
+	overflow-y: auto;
+	background-color: #f9a602;
+	border: 1px solid #000000;
+	color: #444444;
+	border-top: none;
+	z-index: 1;
+	box-sizing: border-box;
+	padding: 12px 16px;
+}
+
+#path_selection_dialog > div {
+	cursor: pointer;
+}
+#path_selection_dialog .path_selection_element_set,
+#path_selection_dialog .path_selection_element_extend {
+	width: 100%;
+	padding: 4px 0 4px 0;
+}
+
+#path_selection_dialog .path_selection_element_extend:hover {
+	background-color: #cccccc80;
+}
+
 .navigation {
 	width: 100%;
 	height: 54px;

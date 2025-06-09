@@ -12,7 +12,7 @@ function initGlobal() {
 		},
 		navigation: {}, // data location for navigation
 		data_structure: {
-			ignored: ['teams', 'bracket', 'assets', 'sets'], // data paths to ignore during structure editor generation,
+			ignored: ['bracket', 'assets', 'sets'], // data paths to ignore during structure editor generation,
 			removed: [], // data keys removed during structure editing
 			new_key_inc: 0 // incrementor used to make new key name values unique
 		},
@@ -23,7 +23,8 @@ function initGlobal() {
 			drag_hover: null, // current hovered element while dragging
 			drop_side: null,
 			container: null
-		}
+		},
+		unique_id: 0
 	}
 }
 

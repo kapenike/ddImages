@@ -44,6 +44,14 @@ function createUIFromData(container, data, submit_to_application) {
 							})
 						]
 					}),
+					Create('div', {
+						className: 'block',
+						children: [
+							createPathVariableField({
+								name: 'test'
+							})
+						]
+					}),
 					...data.map((upper_section, section_index) => {
 						return Create('div', {
 							className: 'row',
