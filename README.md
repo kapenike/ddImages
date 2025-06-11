@@ -8,19 +8,18 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 	- [x] Create checkbox form element
 	- [x] Allow drag and drop sorting of UI elements
 		- [x] Create hook to reset UI listeners on navigation change
-	- [ ] create variable path and variable path + real text input fields
-		- [ ] create method for accessing a data sets values directly from the set value rather than requiring sub setters to save it in the data structure
-		- [ ] allow save and load of this data into editor during context menu override below
-		- [ ] restrict path selection input field paths based on GLOBAL.data_structure.ignored during source setting or value setting as path only
-		- [ ] restrict value setting of `assets` and `sets` sub data BUT allow access when requesting source of data (`sets` only)
-		- [ ] force path only on `assets` during value set
+	- [x] create variable path and variable path + real text input fields
+		- [ ] during "path only" selection, prevent diving past identifier within a set or asset
+		- [ ] during value selecting, allow identification of a saved set identifier and access to its properties
+		- [ ] restrict setting values to ignored properties like assets and sets during ui field creation
 	[ ] Create contextmenu override for:
-		- Editing, removing and creatings sections
+		- [x] Editing, removing and creatings sections
 		- Editing, removing and creating field entries (allow data set entry)
-		- Create method for selecting data structure element
-		- Create input field that is just text that can read real time data to display with `getRealValue`
+		- [x] Create method for selecting data structure element
+		- [ ] Allow new input field of "text only" with tracking allowed for path selection
 - [ ] Allow creation of more data sets like teams `data.sets.teams`
 - [ ] Create ability to delete assets
+- [ ] Create base layer editor to later expand on for a GUI editor
 - [ ] Create bracket system
 	- Import bracket details into `data` property during import of tournament data
 	- Allow creation of a bracket and seeding it with data from teams
