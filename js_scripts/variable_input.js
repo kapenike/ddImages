@@ -65,6 +65,13 @@ function setPathEditorValue(path) {
 	closePathEditor(id);
 }
 
+function createPathRealEntry(entry) {
+	return Create('span', {
+		className: 'path_real_entry',
+		innerHTML: entry
+	});
+}
+
 function createPathVariableEntry(path) {
 	return Create('span', {
 		className: 'path_variable_entry',
@@ -181,6 +188,19 @@ function getFormValueOfPathSelection(id, value) {
 	return output;
 }
 
+// created with appended string because the document element doesnt exist yet
+function getPathSelectionValueFromFormValue(value) {
+	let output = ''
+	getRealVariableParts(value).forEach(entry => {
+		output += (
+			entry.variable
+				? '<span class="path_variable_entry" contenteditable="false">'+entry.variable+'</span>'
+				: '<span class="path_real_entry">'+entry.real+'</span>'
+		);
+	});
+	return output;
+}
+
 function createPathVariableField(settings = {}) {
 
 	// ensure defaults exists
@@ -240,7 +260,7 @@ function createPathVariableField(settings = {}) {
 						oninput: function () {
 							Select('#var_set_input_form_value_'+this.data, { value: getFormValueOfPathSelection(this.data, this.innerHTML) });
 						},
-						innerHTML: ''
+						innerHTML: getPathSelectionValueFromFormValue(settings.value.value)
 					}),
 					Create('div', {
 						id: 'path_insert_button_'+GLOBAL.unique_id,

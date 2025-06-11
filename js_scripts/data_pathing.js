@@ -30,7 +30,7 @@ function trackChangeSource(source, value) {
 	
 	// loop source / tracking span pairs and update on source change
 	GLOBAL.track_sources.pairs.forEach(tracker => {
-		if (tracker.source == source) {
+		if (Select('#tracking_source_'+tracker.id) && tracker.source == source) {
 			Select('#tracking_source_'+tracker.id, {
 				innerHTML: value
 			});
@@ -66,6 +66,14 @@ function trackSourceChange(source) {
 	});
 	
 	return output+'</span>';
+}
+
+function clearSourceChanges() {
+	GLOBAL.track_sources = {
+		inc: 0,
+		pairs: []
+	};
+	GLOBAL.source_changes = [];
 }
 
 function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.data) {

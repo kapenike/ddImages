@@ -1,4 +1,4 @@
-function createUIFromData(container, data, submit_to_application) {
+function createUIFromData(container, data, submit_to_application, editor = false) {
 	
 	// save reference to current UI object for use during editing
 	GLOBAL.ui.active_data = data;
@@ -6,12 +6,15 @@ function createUIFromData(container, data, submit_to_application) {
 	// save reference to container used
 	GLOBAL.ui.container = container;
 
+	// create source changes
+	clearSourceChanges();
+
 	Select(container, {
 		innerHTML: '',
 		children: [
 			Create('form', {
 				id: 'form_capture',
-				className: GLOBAL.ui.drag_elem != null ? 'editable_ui' : '', // if rebuilding during drag and drop, still in edit mode
+				className: editor ? 'editable_ui' : '', // if rebuilding during drag and drop, still in edit mode
 				data: submit_to_application,
 				children: [
 					Create('div', {
@@ -35,7 +38,7 @@ function createUIFromData(container, data, submit_to_application) {
 											position: 'relative',
 											top: '5px'
 										},
-										checked: GLOBAL.ui.drag_elem != null, // if rebuilding during drag and drop, still in edit mode
+										checked: editor, // if rebuilding during drag and drop, still in edit mode
 										onclick: function () {
 											toggleUIEditor(this.checked);
 										}
@@ -44,20 +47,12 @@ function createUIFromData(container, data, submit_to_application) {
 							})
 						]
 					}),
-					Create('div', {
-						className: 'block',
-						children: [
-							createPathVariableField({
-								name: 'test'
-							})
-						]
-					}),
 					...data.map((upper_section, section_index) => {
 						return Create('div', {
 							className: 'row',
 							children: upper_section.cols.map((section, col_index) => {
 								return Create('div', {
-									innerHTML: '<h3>'+section.section+'</h3>',
+									innerHTML: '<h3>'+trackSourceChange(section.section)+'</h3>',
 									data: JSON.stringify({ section: section_index, column: col_index }),
 									className: 'col block',
 									style: {
@@ -66,6 +61,8 @@ function createUIFromData(container, data, submit_to_application) {
 									children: [(
 										section.reset
 											?	Create('div', {
+													className: 'ui_field_above',
+													data: JSON.stringify({ section: section_index, column: col_index, field: 0 }),
 													children: [
 														Create('button', {
 															type: 'button',
@@ -75,7 +72,10 @@ function createUIFromData(container, data, submit_to_application) {
 														})
 													]
 												})
-											: Create('div')
+											: Create('div', {
+													className: 'ui_field_above',
+													data: JSON.stringify({ section: section_index, column: col_index, field: 0 })
+												})
 									), ...section.fields.map((field, field_index) => {
 										let depth_value = getDepthComparisonValue(field);
 										if (field.type == 'text' || field.type == 'number') {
@@ -230,14 +230,6 @@ function logSourceChange(field) {
 	}
 }
 
-function clearSourceChanges() {
-	GLOBAL.track_sources = {
-		inc: 0,
-		pairs: []
-	};
-	GLOBAL.source_changes = [];
-}
-
 function updateSourceChanges() {
 	
 	// use form style capture to easily inherit form capture methods
@@ -343,6 +335,8 @@ function getUpperContainer(elem, class_name = null) {
 		return elem;
 	} else if ((class_name == null && (elem.className == 'ui_field' || elem.className == 'col block')) || (class_name != null && elem.className == class_name)) {
 		return elem;
+	} else if (elem.className == 'col block' && class_name == 'ui_field') {
+		return Array.from(elem.children).filter(x => x.className == 'ui_field_above').pop();
 	} else if (elem.id == 'form_capture') {
 		return null;
 	} else {
@@ -361,8 +355,8 @@ function uiEditMouseDown(event) {
 		event.preventDefault();
 		Select('#form_capture').className = 'editable_ui_dragging';
 		GLOBAL.ui.drag_elem = parent;
-		parent.style.backgroundColor = '#388ff9';
-		parent.style.border = '1px solid #0469e2';
+		parent.style.backgroundColor = '#388ff980';
+		parent.style.border = '2px solid #0469e2';
 		Select('#body').appendChild(Create('div', {
 			id: 'drag_clone',
 			style: {
@@ -403,8 +397,16 @@ function uiEditMouseMove(event) {
 			if (GLOBAL.ui.drag_hover == null) {
 				GLOBAL.ui.drag_hover = hover;
 			} else if (hover.data != GLOBAL.ui.drag_hover.data) {
+				// reset old hover elements borders
 				uiDragSetBorder(GLOBAL.ui.drag_hover);
+				// set new hover element
 				GLOBAL.ui.drag_hover = hover;
+			}
+			// if hover is ui field within an empty area of section, set to left of hover because classification index does not change and pinpoint is at the top of the section (ui_field_above)
+			if (hover.className == 'ui_field_above') {
+				uiDragSetBorder(hover, 'bottom');
+				GLOBAL.ui.drop_side = 'bottom';
+				return;
 			}
 			if (hover_data.section != original_data.section || hover_data.column != original_data.column || hover_data.field != original_data.field) {
 				let width = hover.offsetWidth;
@@ -450,7 +452,7 @@ function uiEditMouseUp(event) {
 	if (GLOBAL.ui.drop_side != null) {
 		let current_location = JSON.parse(GLOBAL.ui.drag_elem.data);
 		let new_location = JSON.parse(GLOBAL.ui.drag_hover.data);
-		let classification = GLOBAL.ui.drag_hover.className == 'ui_field' ? 'field' : 'section';
+		let classification = (GLOBAL.ui.drag_hover.className == 'ui_field' || GLOBAL.ui.drag_hover.className == 'ui_field_above') ? 'field' : 'section';
 		if (GLOBAL.ui.drop_side == 'left') {
 			//new_location.column--;
 		} else if (GLOBAL.ui.drop_side == 'right') {
@@ -497,7 +499,7 @@ function uiEditMouseUp(event) {
 				}
 			}
 			// refresh current ui generation with new data
-			createUIFromData(GLOBAL.ui.container, GLOBAL.ui.active_data, Select('#form_capture').data);
+			refreshUIBuild();
 		}
 	}
 	resetDrag();
@@ -586,7 +588,7 @@ function createUIEditMenu(x, y, elem) {
 						}),
 						Create('div', {
 							innerHTML: 'Create New Section',
-							onclick: () => { createNewUISection(elem); }
+							onclick: () => { editUISection(elem, true); }
 						}),
 						Create('div', {
 							innerHTML: 'Edit Section',
@@ -607,4 +609,148 @@ function createUIEditMenu(x, y, elem) {
 		]
 	});
 	
+}
+
+function removeUIField(elem) {
+	// remove UI field from data and document
+	let current_location = JSON.parse(elem.data);
+	GLOBAL.ui.active_data[current_location.section].cols[current_location.column].fields.splice(current_location.field, 1);
+	elem.remove();
+	removeUIEditMenu();
+}
+
+function editUISection(elem, is_create = false) {
+	
+	removeUIEditMenu();
+	
+	// locate and grab section data (if is create, dont use data as new data will be pushed as an adjacent column section)
+	let current_location = JSON.parse(elem.data);
+	let current_data = GLOBAL.ui.active_data[current_location.section].cols[current_location.column];
+	
+	createPopUp(
+		(is_create ? 'Create New Section' : 'Edit Section'),
+		Create('div', {
+			children: [
+				Create('input', {
+					type: 'hidden',
+					name: 'is_create',
+					value: is_create ? 'true' : 'false'
+				}),
+				Create('input', {
+					type: 'hidden',
+					name: 'current_location',
+					value: elem.data
+				}),
+				Create('span', {
+					innerHTML: 'Section Title',
+					children: [
+						createPathVariableField({
+							name: 'section_title',
+							value: {
+								path_only: false,
+								value: is_create ? '' : current_data.section
+							},
+							allow_path_only: false
+						})
+					]
+				}),
+				Create('label', {
+					innerHTML: 'Contains Reset Button<br />',
+					children: [
+						Create('input', {
+							type: 'checkbox',
+							name: 'section_has_reset',
+							checked: is_create ? false : current_data.reset
+						})
+					]
+				})
+			]
+		}),
+		function (form_data) {
+			// set new section data or create a new section adjacent to the one created from
+			let current_location = JSON.parse(form_data.current_location);
+			if (form_data.is_create == 'true') {
+				GLOBAL.ui.active_data[current_location.section].cols.splice(current_location.column, 0, {
+					section: form_data.section_title,
+					reset: form_data.section_has_reset ? true : false,
+					fields: []
+				});
+			} else {
+				let current_data = GLOBAL.ui.active_data[current_location.section].cols[current_location.column];
+				current_data.section = form_data.section_title;
+				current_data.reset = form_data.section_has_reset ? true : false;
+			}
+			// refresh current ui generation with new data
+			refreshUIBuild();
+			// close popup
+			closePopup();
+		}
+	);
+}
+
+function refreshUIBuild() {
+	createUIFromData(GLOBAL.ui.container, GLOBAL.ui.active_data, Select('#form_capture').data, true);
+}
+
+function removeUISection(elem) {
+	// remove UI section from data and document
+	let current_location = JSON.parse(elem.data);
+	GLOBAL.ui.active_data[current_location.section].cols.splice(current_location.column, 1);
+	elem.remove();
+	removeUIEditMenu();
+	refreshUIBuild();
+}
+
+function closePopup() {
+	if (Select('#popup')) {
+		Select('#popup').remove();
+	}
+}
+
+function createPopUp(title, content, on_save) {
+	Select('#body').appendChild(Create('div', {
+		id: 'popup',
+		children: [
+			Create('div', {
+				className: 'popup_inner',
+				children: [
+					Create('div', {
+						className: 'popup_title_bar',
+						children: [
+							Create('div', {
+								className: 'popup_title',
+								innerHTML: title
+							}),
+							Create('div', {
+								className: 'popup_close',
+								innerHTML: '&times;',
+								onclick: function () {
+									closePopup();
+								}
+							}),
+							Create('br', { style: { clear: 'both' }})
+						]
+					}),
+					Create('form', {
+						id: 'popup_form_data',
+						children: [
+							content
+						]
+					}),
+					Create('div', {
+						className: 'popup_save_bar',
+						children: [
+							Create('button', {
+								type: 'button',
+								innerHTML: 'Save',
+								onclick: () => {
+									on_save(formToObj('popup_form_data'))
+								}
+							})
+						]
+					})
+				]
+			})
+		]
+	}));
 }
