@@ -71,6 +71,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 															onclick: () => { resetUISection(section); }
 														})
 													: Create('div')
+												)
 											]
 										}),
 										...section.fields.map((field, field_index) => {

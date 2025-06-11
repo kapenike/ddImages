@@ -131,7 +131,7 @@ function createPathListForEditor(path = null) {
 					onclick: () => {
 						let path_split = path.split('/');
 						path_split.pop();
-						updatePathEditor(path_split.join(''));
+						updatePathEditor(path_split.join('/'));
 					}
 				})
 			: Create('div')
