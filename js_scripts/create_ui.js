@@ -6,7 +6,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 	// save reference to container used
 	GLOBAL.ui.container = container;
 
-	// create source changes
+	// clear source changes
 	clearSourceChanges();
 
 	Select(container, {
@@ -58,139 +58,137 @@ function createUIFromData(container, data, submit_to_application, editor = false
 									style: {
 										width: parseFloat((100/upper_section.cols.length).toFixed(2))+'%' // precision round off
 									},
-									children: [(
-										section.reset
-											?	Create('div', {
-													className: 'ui_field_above',
-													data: JSON.stringify({ section: section_index, column: col_index, field: 0 }),
-													children: [
-														Create('button', {
+									children: [
+										Create('div', {
+											className: 'ui_field_above',
+											data: JSON.stringify({ section: section_index, column: col_index, field: 0 }),
+											children: [
+												(section.reset
+													?	Create('button', {
 															type: 'button',
 															className: 'small_button',
 															innerHTML: 'Reset',
 															onclick: () => { resetUISection(section); }
 														})
-													]
-												})
-											: Create('div', {
-													className: 'ui_field_above',
-													data: JSON.stringify({ section: section_index, column: col_index, field: 0 })
-												})
-									), ...section.fields.map((field, field_index) => {
-										let depth_value = getDepthComparisonValue(field);
-										if (field.type == 'text' || field.type == 'number') {
-											return Create('div', {
-												className: 'ui_field',
-												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
-												children: [
-													Create('label', {
-														innerHTML: trackSourceChange(field.title),
-														children: [
-															Create('input', {
-																type: field.type,
-																name: field.source,
-																onkeydown: function () { logSourceChange(this); },
-																value: depth_value
-															})
-														]
-													})
-												]
-											});
-										} else if (field.type == 'select') {
-											
-											// edge case for handling dataset select
-											let dataset_values = null;
-											if (typeof field.values === 'string') {
-												// get associated object
-												let dataset = getRealValue(field.values);
-												// generate values and subsetters list from object
-												dataset_values = [null, ...Object.keys(dataset)].map(key => {
-													return {
-														display: key == null ? '-Empty-' : getRealValue(field.display, null, dataset[key]),
-														value: key == null ? '' : key,
-														sub_setters: field.sub_setters.map(sub_setter => {
-															return {
-																path: sub_setter.path,
-																source: (key == null ? '' : getRealValue(sub_setter.source, null, dataset[key]))
-															}
+													: Create('div')
+											]
+										}),
+										...section.fields.map((field, field_index) => {
+											let depth_value = getDepthComparisonValue(field);
+											if (field.type == 'text' || field.type == 'number') {
+												return Create('div', {
+													className: 'ui_field',
+													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
+													children: [
+														Create('label', {
+															innerHTML: trackSourceChange(field.title),
+															children: [
+																Create('input', {
+																	type: field.type,
+																	name: field.source,
+																	onkeydown: function () { logSourceChange(this); },
+																	value: depth_value
+																})
+															]
 														})
-													};
+													]
+												});
+											} else if (field.type == 'select') {
+												
+												// edge case for handling dataset select
+												let dataset_values = null;
+												if (typeof field.values === 'string') {
+													// get associated object
+													let dataset = getRealValue(field.values);
+													// generate values and subsetters list from object
+													dataset_values = [null, ...Object.keys(dataset)].map(key => {
+														return {
+															display: key == null ? '-Empty-' : getRealValue(field.display, null, dataset[key]),
+															value: key == null ? '' : key,
+															sub_setters: field.sub_setters.map(sub_setter => {
+																return {
+																	path: sub_setter.path,
+																	source: (key == null ? '' : getRealValue(sub_setter.source, null, dataset[key]))
+																}
+															})
+														};
+													});
+												}
+												
+												return Create('div', {
+													className: 'ui_field',
+													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
+													children: [
+														Create('label', {
+															innerHTML: trackSourceChange(field.title),
+															children: [
+																Create('select', {
+																	name: field.source,
+																	onchange: function () { logSourceChange(this); },
+																	children: (dataset_values == null ? field.values : dataset_values).map(option => {
+																		return Create('option', {
+																			innerHTML: option.display,
+																			value: option.value,
+																			selected: option.value == depth_value,
+																			sub_setters: JSON.stringify(option.sub_setters ?? null)
+																		});
+																	})
+																})
+															]
+														})
+													]
+												});
+											} else if (field.type == 'radio') {
+												return Create('div', {
+													className: 'ui_field',
+													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
+													children: [
+														Create('div', {
+															className: 'radio_group',
+															children: field.values.map(radio => {
+																return Create('label', {
+																	children: [
+																		Create('input', {
+																			type: 'radio',
+																			onclick: function () { logSourceChange(this); },
+																			name: field.source,
+																			value: radio.value,
+																			checked: radio.value == depth_value,
+																			sub_setters: JSON.stringify(radio.sub_setters ?? null)
+																		}),
+																		Create('span', {
+																			innerHTML: trackSourceChange(radio.display)+'&nbsp;'
+																		})
+																	]
+																});
+															})
+														})
+													]
+												});
+											} else if (field.type == 'checkbox') {
+												return Create('div', {
+													className: 'ui_field',
+													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
+													children: [
+														Create('label', {
+															innerHTML: trackSourceChange(field.title),
+															children: [
+																Create('br'),
+																Create('input', {
+																	type: field.type,
+																	name: field.source,
+																	onkeydown: function () { logSourceChange(this); },
+																	data: field.value,
+																	checked: depth_value != ''
+																}),
+																Create('br')
+															]
+														})
+													]
 												});
 											}
-											
-											return Create('div', {
-												className: 'ui_field',
-												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
-												children: [
-													Create('label', {
-														innerHTML: trackSourceChange(field.title),
-														children: [
-															Create('select', {
-																name: field.source,
-																onchange: function () { logSourceChange(this); },
-																children: (dataset_values == null ? field.values : dataset_values).map(option => {
-																	return Create('option', {
-																		innerHTML: option.display,
-																		value: option.value,
-																		selected: option.value == depth_value,
-																		sub_setters: JSON.stringify(option.sub_setters ?? null)
-																	});
-																})
-															})
-														]
-													})
-												]
-											});
-										} else if (field.type == 'radio') {
-											return Create('div', {
-												className: 'ui_field',
-												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
-												children: [
-													Create('div', {
-														className: 'radio_group',
-														children: field.values.map(radio => {
-															return Create('label', {
-																children: [
-																	Create('input', {
-																		type: 'radio',
-																		onclick: function () { logSourceChange(this); },
-																		name: field.source,
-																		value: radio.value,
-																		checked: radio.value == depth_value,
-																		sub_setters: JSON.stringify(radio.sub_setters ?? null)
-																	}),
-																	Create('span', {
-																		innerHTML: trackSourceChange(radio.display)+'&nbsp;'
-																	})
-																]
-															});
-														})
-													})
-												]
-											});
-										} else if (field.type == 'checkbox') {
-											return Create('div', {
-												className: 'ui_field',
-												data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
-												children: [
-													Create('label', {
-														innerHTML: trackSourceChange(field.title),
-														children: [
-															Create('br'),
-															Create('input', {
-																type: field.type,
-																name: field.source,
-																onkeydown: function () { logSourceChange(this); },
-																data: field.value,
-																checked: depth_value != ''
-															}),
-															Create('br')
-														]
-													})
-												]
-											});
-										}
-									})]
+										})
+									]
 								});
 							})
 						});
