@@ -9,7 +9,7 @@ function getDepthComparisonValue(field) {
 
 function getRealVariableParts(value) {
 	let return_data = [];
-	let split = value.replace('$var$','$delimiter$').replace('$/var$','$delimiter$').split('$delimiter$');	
+	let split = value.replaceAll('$var$','$delimiter$').replaceAll('$/var$','$delimiter$').split('$delimiter$');	
 	for (let i=0; i<split.length; i++) {
 		if (i%2 == 0) {
 			// real part

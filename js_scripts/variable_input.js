@@ -123,6 +123,10 @@ function createPathListForEditor(path = null) {
 			return -1;
 		}
 	});
+	// filter out any direct image elements
+	list.filter(x => {
+		return (x instanceof ImageBitmap || x instanceof HTMLImageElement ? false : true);
+	})
 	return [
 		(path != null
 			? Create('div', {
