@@ -235,6 +235,12 @@ function createPathVariableField(settings = {}) {
 	}
 	
 	let is_content_editable = !settings.force_path_only && !settings.value.path_only;
+	let is_path_only_name = settings.name;
+	if (is_path_only_name.slice(-2) == '[]') {
+		is_path_only_name = is_path_only_name.slice(0, -2)+'_is_path_only[]';
+	} else {
+		is_path_only_name += '_is_path_only'; 
+	}
 	
 	return Create('div', {
 		className: 'variable_set_input',
@@ -250,7 +256,7 @@ function createPathVariableField(settings = {}) {
 					Create('input', {
 						type: 'hidden',
 						id: 'input_is_path_only_'+GLOBAL.unique_id,
-						name: settings.name+'_is_path_only',
+						name: is_path_only_name,
 						value: settings.value.path_only ? 'true' : 'false'
 					}),
 					Create('div', {

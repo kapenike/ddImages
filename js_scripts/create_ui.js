@@ -811,6 +811,41 @@ function editUIField(elem, is_create = false) {
 					title: form_data.input_label,
 					source: form_data.source_path
 				}
+			} else if (form_data.input_type == 'checkbox') {
+				new_field_data = {
+					type: 'checkbox',
+					title: form_data.input_label,
+					source: form_data.source_path,
+					value: form_data.checked_value_output,
+					value_depth: form_data.checked_value_output_is_path_only == 'true' ? 1 : undefined
+				}
+			} else if (form_data.input_type == 'radio' || form_data.input_type == 'select') {
+				new_field_data = {
+					type: form_data.input_type,
+					title: form_data.input_label,
+					source: form_data.source_path,
+					values: form_data['pair_value_display[]'].map((display, index) => {
+						let key_value = {
+							display: display,
+							value: form_data['pair_value_value[]'][index],
+							value_depth: form_data['pair_value_value_is_path_only[]'][index] == 'true' ? 1 : undefined
+						};
+						// set sub setters
+						let sub_setter_id = form_data['stash_pair_sub_setter_id_ref[]'][index];
+						if (form_data['sub_pair_value_display_'+sub_setter_id+'[]']) {
+							let sub_setters = [];
+							form_data['sub_pair_value_display_'+sub_setter_id+'[]'].forEach((source, sub_index) => {
+								sub_setters.push({
+									path: source,
+									source: form_data['sub_pair_value_value_'+sub_setter_id+'[]'][sub_index],
+									value_depth: form_data['sub_pair_value_value_'+sub_setter_id+'_is_path_only[]'][sub_index] == 'true' ? 1 : undefined
+								});
+							});
+							key_value.sub_setters = sub_setters;
+						}
+						return key_value;
+					})
+				}
 			}
 			
 			// set new field data or create a new field as the first child of the container section
@@ -848,11 +883,233 @@ function modifyFieldBuilderOptions(type) {
 	
 	if (type == 'text') {
 		// do nothing
+	} else if (type == 'checkbox') {
+		fieldBuilderForCheckbox(data);
+	} else if (type == 'radio') {
+		fieldBuilderForRadio(data);
+	} else if (type == 'select') {
+		fieldBuilderForSelect(data);
 	}
 }
 
-function fieldBuilderForText(data) {
+function fieldBuilderForCheckbox(data) {
+	// value to set into source when box is checked
+	Select('#input_edit_options', {
+		innerHTML: '',
+		children: [
+			Create('span', {
+				innerHTML: 'On Checked Value',
+				className: 'spanlabel',
+				children: [
+					createPathVariableField({
+						name: 'checked_value_output',
+						value: {
+							path_only: data == null || typeof data.value_depth === 'undefined' ? false : true,
+							value: data == null ? '' : current_data.value
+						},
+						allow_path_only: true
+					})
+				]
+			})
+		]
+	});
+}
+
+function fieldBuilderForRadio(data) {
 	
+	let key_value = data == null ? [{ display: '', value: '' }] : data.values;
+	
+	Select('#input_edit_options', {
+		innerHTML: '',
+		children: [
+			Create('div', {
+				id: 'key_value_inputs',
+				innerHTML: '<h4>Radio Values</h4>'
+			}),
+			Create('div', {
+				style: {
+					textAlign: 'right'
+				},
+				children: [
+					Create('button', {
+						type: 'button',
+						style: {
+							marginTop: '10px'
+						},
+						className: 'small_button_green',
+						innerHTML: 'Create New Value Set',
+						onclick: function () {
+							appendNewKeyValuePairInput({ display: '', value: '' });
+						}
+					})
+				]
+			})
+		]
+	});
+	
+	key_value.forEach(pair => {
+		appendNewKeyValuePairInput(pair);
+	});
+}
+
+function fieldBuilderForSelect(data) {
+	let key_value = data == null ? [{ display: '', value: '' }] : data.values;
+	
+	Select('#input_edit_options', {
+		innerHTML: '',
+		children: [
+			Create('div', {
+				id: 'key_value_inputs',
+				innerHTML: '<h4>Select Values</h4>'
+			}),
+			Create('div', {
+				style: {
+					textAlign: 'right'
+				},
+				children: [
+					Create('button', {
+						type: 'button',
+						style: {
+							marginTop: '10px'
+						},
+						className: 'small_button_green',
+						innerHTML: 'Create New Value Set',
+						onclick: function () {
+							appendNewKeyValuePairInput({ display: '', value: '' });
+						}
+					})
+				]
+			})
+		]
+	});
+	
+	key_value.forEach(pair => {
+		appendNewKeyValuePairInput(pair);
+	});
+}
+
+function appendNewKeyValuePairInput(key_value) {
+	
+	GLOBAL.unique_id++;
+	let sub_setter_parent_id = GLOBAL.unique_id;
+	
+	Select('#key_value_inputs').appendChild(
+		Create('div', {
+			className: 'key_value_input_pair',
+			children: [
+				Create('input', {
+					type: 'hidden',
+					name: 'stash_pair_sub_setter_id_ref[]',
+					value: sub_setter_parent_id
+				}),
+				Create('div', {
+					className: 'remove_data_key',
+					innerHTML: '&times',
+					style: {
+						float: 'right'
+					},
+					onclick: function () {
+						this.parentNode.remove();
+					}
+				}),
+				Create('span', {
+					innerHTML: 'Display',
+					className: 'spanlabel',
+					children: [
+						createPathVariableField({
+							name: 'pair_value_display[]',
+							value: {
+								path_only: false,
+								value: key_value.display
+							},
+							allow_path_only: false
+						})
+					]
+				}),
+				Create('span', {
+					innerHTML: 'Value',
+					className: 'spanlabel',
+					children: [
+						createPathVariableField({
+							name: 'pair_value_value[]',
+							value: {
+								path_only: typeof key_value.value_depth === 'undefined' ? false : true,
+								value: key_value.value
+							},
+							allow_path_only: true
+						})
+					]
+				}),
+				Create('div', {
+					style: {
+						textAlign: 'right'
+					},
+					children: [
+						Create('div', {
+							className: 'create_data_key',
+							innerHTML: '+ create sub setter',
+							data: sub_setter_parent_id,
+							onclick: function () {
+								Select('#sub_setter_pairs_'+this.data).appendChild(createNewSubSetterField({ display: '', value: ''}, this.data));
+							}
+						})
+					]
+				}),	
+				Create('div', {
+					id: 'sub_setter_pairs_'+sub_setter_parent_id,
+					children: (typeof key_value.sub_setters === 'undefined' ? [] : key_value.sub_setters).map(sub_key_value => {
+						return createNewSubSetterField(sub_key_value, sub_setter_parent_id);
+					})
+				})
+			]
+		})
+	);
+}
+
+function createNewSubSetterField(key_value, id) {
+	return Create('div', {
+		className: 'key_value_input_pair',
+		children: [
+			Create('div', {
+				className: 'remove_data_key',
+				innerHTML: '&times',
+				style: {
+					float: 'right'
+				},
+				onclick: function () {
+					this.parentNode.remove();
+				}
+			}),
+			Create('span', {
+				innerHTML: '[Sub Setter] Save To Path',
+				className: 'spanlabel',
+				children: [
+					createPathVariableField({
+						name: 'sub_pair_value_display_'+id+'[]',
+						value: {
+							path_only: true,
+							value: key_value.path
+						},
+						force_path_only: true
+					})
+				]
+			}),
+			Create('span', {
+				innerHTML: '[Sub Setter] Value',
+				className: 'spanlabel',
+				children: [
+					createPathVariableField({
+						name: 'sub_pair_value_value_'+id+'[]',
+						value: {
+							path_only: typeof key_value.value_depth === 'undefined' ? false : true,
+							value: key_value.source
+						},
+						allow_path_only: true
+					})
+				]
+			})
+		]
+	});
 }
 
 function closePopup() {
