@@ -221,6 +221,8 @@ function createPathVariableField(settings = {}) {
 	}
 	if (typeof settings.force_path_only === 'undefined') {
 		settings.force_path_only = false;
+	} else if (settings.force_path_only) {
+		settings.allow_path_only = false;
 	}
 	if (typeof settings.value === 'undefined') {
 		settings.value = {
@@ -278,7 +280,7 @@ function createPathVariableField(settings = {}) {
 				]
 			}),
 			Create('br', { style: { clear: 'both' }}),
-			(settings.allow_path_only
+			(settings.allow_path_only == true
 				?	Create('div', {
 						className: 'path_var_container',
 						children: [
@@ -307,7 +309,7 @@ function createPathVariableField(settings = {}) {
 						]
 					})
 				: Create('div', {
-						className: 'path_var_container'
+						className: 'path_var_container'+(settings.force_path_only == true ? ' forcing_path_indicator' : '')
 					})
 			)
 		]

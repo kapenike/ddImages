@@ -66,9 +66,19 @@ html, body {
 	margin: 0;
 	overflow-y: auto;
 }
-#popup_form_data label:not(:first-child) {
+#popup_form_data label,
+#popup_form_data .spanlabel {
 	display: block;
 	padding-top: 10px;
+}
+#popup_form_data input[type="text"],
+#popup_form_data input[type="color"],
+#popup_form_data input[type="number"],
+#popup_form_data input[type="file"],
+#popup_form_data input[type="checkbox"],
+#popup_form_data textarea,
+#popup_form_data select {
+	margin-bottom: 0;
 }
 .popup_save_bar {
 	background-color: #000000;
@@ -110,6 +120,10 @@ html, body {
 	color: #ffffff;
 	padding: 4px 10px 4px 10px;
 	border-radius: 0 0 3px 3px;
+}
+
+.forcing_path_indicator {
+	background-color: #005b96 !important;
 }
 
 .path_variable_entry {

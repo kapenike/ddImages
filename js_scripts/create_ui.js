@@ -606,7 +606,7 @@ function createUIEditMenu(x, y, elem) {
 					: [
 						Create('div', {
 							innerHTML: 'Create New Field',
-							onclick: () => { createNewUIField(elem); }
+							onclick: () => { editUIField(elem, true); }
 						}),
 						Create('div', {
 							innerHTML: 'Create New Section',
@@ -665,6 +665,7 @@ function editUISection(elem, is_create = false) {
 				}),
 				Create('span', {
 					innerHTML: 'Section Title',
+					className: 'spanlabel',
 					children: [
 						createPathVariableField({
 							name: 'section_title',
@@ -721,6 +722,137 @@ function removeUISection(elem) {
 	elem.remove();
 	removeUIEditMenu();
 	refreshUIBuild();
+}
+
+function editUIField(elem, is_create = false) {
+	
+	removeUIEditMenu();
+	
+	// locate and grab field data (if is create, dont use data as new data will be pushed as a child to the current section)
+	let current_location = JSON.parse(elem.data);
+	let current_data = !is_create ? GLOBAL.ui.active_data[current_location.section].cols[current_location.column].fields[current_location.field] : null;
+	
+	createPopUp(
+		(is_create ? 'Create New Field' : 'Edit Field'),
+		Create('div', {
+			children: [
+				Create('input', {
+					type: 'hidden',
+					name: 'is_create',
+					value: is_create ? 'true' : 'false'
+				}),
+				Create('input', {
+					type: 'hidden',
+					name: 'current_location',
+					value: elem.data
+				}),
+				Create('label', {
+					innerHTML: 'Input Type',
+					children: [
+						Create('select', {
+							name: 'input_type',
+							onchange: function () {
+								modifyFieldBuilderOptions(this.value.toLowerCase());
+							},
+							children: ['Text', 'Select', 'Radio', 'Checkbox'].map(input_type => {
+								return Create('option', {
+									innerHTML: input_type,
+									value: input_type.toLowerCase(),
+									selected: (is_create ? false : current_data.type == input_type.toLowerCase())
+								});
+							})
+						})
+					]
+				}),
+				Create('span', {
+					innerHTML: 'Save To Path',
+					className: 'spanlabel',
+					children: [
+						createPathVariableField({
+							name: 'source_path',
+							value: {
+								path_only: true,
+								value: is_create ? '' : current_data.source
+							},
+							force_path_only: true
+						})
+					]
+				}),
+				Create('span', {
+					innerHTML: 'Input Label',
+					className: 'spanlabel',
+					children: [
+						createPathVariableField({
+							name: 'input_label',
+							value: {
+								path_only: false,
+								value: is_create ? '' : current_data.title
+							},
+							allow_path_only: false
+						})
+					]
+				}),
+				Create('div', {
+					id: 'input_edit_options'
+				})
+			]
+		}),
+		function (form_data) {
+			
+			if (form_data.source_path == '') {
+				console.error('Save To Path cannot be empty!');
+				return;
+			}
+			
+			let new_field_data = null;
+			if (form_data.input_type == 'text') {
+				new_field_data = {
+					type: 'text',
+					title: form_data.input_label,
+					source: form_data.source_path
+				}
+			}
+			
+			// set new field data or create a new field as the first child of the container section
+			let current_location = JSON.parse(form_data.current_location);
+			if (form_data.is_create == 'true') {
+				GLOBAL.ui.active_data[current_location.section].cols[current_location.column].fields.unshift(new_field_data);
+			} else {
+				GLOBAL.ui.active_data[current_location.section].cols[current_location.column].fields[current_location.field] = new_field_data;
+			}
+			// refresh current ui generation with new data
+			refreshUIBuild();
+			// close popup
+			closePopup();
+		}
+	);
+	
+	// init input options
+	modifyFieldBuilderOptions(is_create ? 'text' : current_data.type);
+}
+
+function modifyFieldBuilderOptions(type) {
+	let is_create = Select('[name="is_create"]').value == "true";
+	let data = is_create ? null : true;
+	
+	// if initial edit data available and of the same time, prepare for import along with builder options
+	if (data != null) {
+		let current_location = JSON.parse(Select('[name="current_location"]').value);
+		let current_data = GLOBAL.ui.active_data[current_location.section].cols[current_location.column].fields[current_location.field];
+		if (current_data.type == type) {
+			data = current_data;
+		} else {
+			data = null;
+		}
+	}
+	
+	if (type == 'text') {
+		// do nothing
+	}
+}
+
+function fieldBuilderForText(data) {
+	
 }
 
 function closePopup() {
