@@ -161,7 +161,7 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 function setRealValue(string_path, value) {
 	
 	// remove path delimiters
-	let path = string_path.slice(1, -1);
+	let path = string_path.slice(5, -6);
 	
 	// split path
 	path = path.split('/');

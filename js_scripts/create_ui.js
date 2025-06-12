@@ -222,10 +222,35 @@ function resetUISection(section) {
 	});
 }
 
-function logSourceChange(field) {
+function logSourceChange(field, is_sub_setter_call = false) {
+	
+	// track source change for text updates
 	trackChangeSource(field.name, field.value);
+	
+	// check if source is logged for overlay regen
 	if (!GLOBAL.source_changes.includes(field.name)) {
 		GLOBAL.source_changes.push(field.name);
+	}
+	
+	// if not a nested sub setter call
+	if (!is_sub_setter_call) {
+	
+		// if type select, get selected option element to check sub setters
+		if (field.tagName.toLowerCase() == 'select') {
+			field = field.options[field.selectedIndex];
+		}
+
+		// check if field had sub setters associated with it then nest a new log source change call on it
+		if (field.sub_setters) {
+			let sub_setters = JSON.parse(field.sub_setters);
+			if (sub_setters) {
+				sub_setters.forEach(sub_setter => {
+					// re call log source change on sub setter values, flag as sub setter call
+					logSourceChange({ name: sub_setter.path, value: getDepthComparisonValue(sub_setter) }, true);
+				});
+			}
+		}
+	
 	}
 }
 
@@ -268,8 +293,6 @@ function updateSourceChanges() {
 					sub_setters.forEach(sub_setter => {
 						// allow depth value setting here as well
 						form_details[sub_setter.path] = getDepthComparisonValue(sub_setter);
-						// add sub setters to global changed sources list
-						logSourceChange({ name: sub_setter.path, value: form_details[sub_setter.path] });
 					});
 				}
 				break;

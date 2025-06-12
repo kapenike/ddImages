@@ -14,7 +14,7 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 		- [ ] restrict setting values to ignored properties like assets and sets during ui field creation
 	[ ] Create contextmenu override for:
 		- [x] Editing, removing and creatings sections
-		- Editing, removing and creating field entries (allow data set entry)
+		- [ ] Editing, removing and creating field entries (allow data set entry)
 		- [x] Create method for selecting data structure element
 		- [ ] Allow new input field of "text only" with tracking allowed for path selection
 - [ ] Allow creation of more data sets like teams `data.sets.teams`
