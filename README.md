@@ -11,12 +11,12 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 	- [x] Allow drag and drop sorting of UI elements
 		- [x] Create hook to reset UI listeners on navigation change
 	- [x] create variable path and variable path + real text input fields
-		- [ ] during "path only" selection, prevent diving past identifier within a set or asset
+		- [x] during "path only" selection, prevent diving past identifier within a set or asset
 		- [ ] during value selecting, allow identification of a saved set identifier and access to its properties
-		- [ ] restrict setting values to ignored properties like assets and sets during ui field creation
+		- [x] restrict setting values to ignored properties like assets and sets during ui field creation
 	[ ] Create contextmenu override for:
 		- [x] Editing, removing and creatings sections
-		- [ ] Editing, removing and creating field entries (allow data set entry)
+		- [ ] Editing, removing and creating field entries (allow data set entry) and remove sub setters on datasets
 		- [x] Create method for selecting data structure element
 		- [ ] Allow new input field of "text only" with tracking allowed for path selection
 - [ ] Allow creation of more data sets like teams `data.sets.teams`
