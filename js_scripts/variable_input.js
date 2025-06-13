@@ -2,11 +2,15 @@ function openPathEditor(elem, use_anchor = true) {
 	if (use_anchor) {
 		//window.getSelection()
 	}
+	
+	// save access to current input id
+	GLOBAL.ui.active_path_field_id = elem.data;
+	
 	closePathEditor(elem.data, elem.contentEditable == 'true');
 	elem.parentNode.appendChild(Create('div', {
 		id: 'path_selection_dialog',
 		data: elem.data,
-		children: createPathListForEditor()
+		children: createPathListForEditor(null)
 	}));
 	toggleSelectionEditorButton(true, elem.data);
 }
@@ -82,7 +86,7 @@ function createPathVariableEntry(path) {
 
 function toggleSelectionEditorButton(is_remove, id) {
 	let elem = Select('#path_insert_button_'+id);
-	elem.innerHTML = is_remove ? '&times;' : '&larr;';
+	elem.innerHTML = is_remove ? '&times;' : '&#8594;';
 	elem.className = is_remove ? 'path_insert_button close_path_selection_editor' : 'path_insert_button';
 	elem.onclick = (
 		is_remove
@@ -98,14 +102,19 @@ function toggleSelectionEditorButton(is_remove, id) {
 function createPathListForEditor(path = null) {
 	let curr_path = GLOBAL.active_tournament.data;
 	let is_data_set = false;
+	let is_asset = false;
 	if (path == '') {
 		path = null;
 	}
 	if (path != null) {
 		let nest = path.split('/');
 		for (let i=0; i<nest.length; i++) {
-			if (i == 0 && nest[i] == 'sets') {
-				is_data_set = true;
+			if (i == 0) {
+				if (nest[i] == 'sets') {
+					is_data_set = true;
+				} else if (nest[i] == 'assets') {
+					is_asset = true;
+				}
 			}
 			curr_path = curr_path[nest[i]];
 		}
@@ -123,6 +132,12 @@ function createPathListForEditor(path = null) {
 			return -1;
 		}
 	});
+	
+	// if at root and input is a source setter, filter ignored paths
+	if (path == null && Select('#input_is_source_setter_'+GLOBAL.ui.active_path_field_id).value == 'true') {
+		list = list.filter(x => !GLOBAL.data_structure.ignored.includes(x));
+	}
+	
 	// filter out any direct image elements
 	list.filter(x => {
 		return (x instanceof ImageBitmap || x instanceof HTMLImageElement ? false : true);
@@ -143,8 +158,14 @@ function createPathListForEditor(path = null) {
 		...list.map(key => {
 			let is_value = typeof curr_path[key] === 'string';
 			let print_key = key;
-			if (is_data_set && curr_path[key] && typeof curr_path[key].display !== 'undefined') {
+			if ((is_data_set || is_asset) && curr_path[key] && typeof curr_path[key].display !== 'undefined') {
 				print_key = curr_path[key].display;
+			}
+			// edge case, if is_asset, check if active path selection input is path only, if so, set as `is_value`
+			if (is_asset) {
+				if (Select('#input_is_path_only_'+GLOBAL.ui.active_path_field_id).value == 'true') {
+					is_value = true;
+				}
 			}
 			return Create('div', {
 				className: 'path_selection_element_'+(is_value ? 'set' : 'extend'),
@@ -258,6 +279,11 @@ function createPathVariableField(settings = {}) {
 						id: 'input_is_path_only_'+GLOBAL.unique_id,
 						name: is_path_only_name,
 						value: settings.value.path_only ? 'true' : 'false'
+					}),
+					Create('input', {
+						type: 'hidden',
+						id: 'input_is_source_setter_'+GLOBAL.unique_id,
+						value: settings.force_path_only ? 'true' : 'false'
 					}),
 					Create('div', {
 						id: 'var_set_input_'+GLOBAL.unique_id,

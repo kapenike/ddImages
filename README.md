@@ -4,7 +4,8 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 > this code is pre-alpha and not fully commented or structured
 
 ## To-DO
-- [ ] After edit to UI field, next data save should send null to generate new overlay sources for all, or at least log the new field as an editted source
+- [ ] After edit to UI field, its source should be logged for change in overlays
+- [ ] Determine if php init can be overriden from init_set for max file upload size or if instructions for setting value is required
 - [ ] Create UI builder with use of data from assets and `data structure` along with data from `data.sets`
 	- [x] Create checkbox form element
 	- [x] Allow drag and drop sorting of UI elements

@@ -19,7 +19,7 @@ class asset {
 			$registry = $this->getRegistry($tournament_uid);
 			
 			$registry->{$data->slug} = (object)[];
-			$registry->{$data->slug}->name = $data->name;
+			$registry->{$data->slug}->display = $data->display;
 			$registry->{$data->slug}->offset_x = $data->offset_x;
 			$registry->{$data->slug}->offset_y = $data->offset_y;
 			
@@ -44,7 +44,7 @@ class asset {
 			
 			// asset slug original is saved in data->type
 			if (isset($registry->{$data->type})) {
-				$registry->{$data->type}->name = $data->name;
+				$registry->{$data->type}->display = $data->display;
 				$registry->{$data->type}->offset_x = $data->offset_x;
 				$registry->{$data->type}->offset_y = $data->offset_y;
 				

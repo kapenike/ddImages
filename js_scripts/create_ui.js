@@ -870,7 +870,7 @@ function modifyFieldBuilderOptions(type) {
 	let is_create = Select('[name="is_create"]').value == "true";
 	let data = is_create ? null : true;
 	
-	// if initial edit data available and of the same time, prepare for import along with builder options
+	// if initial edit data available and of the same type, prepare for import along with builder options
 	if (data != null) {
 		let current_location = JSON.parse(Select('[name="current_location"]').value);
 		let current_data = GLOBAL.ui.active_data[current_location.section].cols[current_location.column].fields[current_location.field];
@@ -1050,7 +1050,7 @@ function appendNewKeyValuePairInput(key_value) {
 							innerHTML: '+ create sub setter',
 							data: sub_setter_parent_id,
 							onclick: function () {
-								Select('#sub_setter_pairs_'+this.data).appendChild(createNewSubSetterField({ display: '', value: ''}, this.data));
+								Select('#sub_setter_pairs_'+this.data).appendChild(createNewSubSetterField({ path: '', source: ''}, this.data));
 							}
 						})
 					]

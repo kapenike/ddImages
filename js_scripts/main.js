@@ -22,7 +22,8 @@ function initGlobal() {
 			drag_clone: null, // shadow clone to animate drag
 			drag_hover: null, // current hovered element while dragging
 			drop_side: null,
-			container: null
+			container: null,
+			active_path_field_id: null
 		},
 		unique_id: 0
 	}

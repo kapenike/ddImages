@@ -211,7 +211,7 @@ function setupAssetEditor(slug = null) {
 							Create('input', {
 								type: 'text',
 								name: 'asset_name',
-								value: asset_data == null ? '' : asset_data.name
+								value: asset_data == null ? '' : asset_data.display
 							})
 						]
 					}),
@@ -293,7 +293,7 @@ function generateAssetSelectionList() {
 		innerHTML: '',
 		children: Object.keys(GLOBAL.active_tournament.data.assets).map(slug => {
 			return Create('div', {
-				innerHTML: GLOBAL.active_tournament.data.assets[slug].name,
+				innerHTML: GLOBAL.active_tournament.data.assets[slug].display,
 				className: 'team_block',
 				onclick: () => { setupAssetEditor(slug); }
 			});

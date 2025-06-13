@@ -96,7 +96,7 @@ switch($_POST['application']) {
 	case 'create_update_asset':
 		echo json_encode(app('asset')->createUpdateAsset($_POST['tournament_id'], (object)[
 			'type' => $_POST['asset_registration_type'],
-			'name' => $_POST['asset_name'],
+			'display' => $_POST['asset_name'],
 			'slug' => $_POST['asset_slug'],
 			'file' => (isset($_FILES['asset_file_0']) ? $_FILES['asset_file_0'] : null),
 			'offset_x' => $_POST['asset_offset_x'],
