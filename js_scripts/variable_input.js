@@ -101,6 +101,7 @@ function toggleSelectionEditorButton(is_remove, id) {
 
 function createPathListForEditor(path = null) {
 	let curr_path = GLOBAL.active_tournament.data;
+	let is_path_only = Select('#input_is_path_only_'+GLOBAL.ui.active_path_field_id).value == 'true';
 	let is_data_set = false;
 	let is_asset = false;
 	if (path == '') {
@@ -115,6 +116,10 @@ function createPathListForEditor(path = null) {
 				} else if (nest[i] == 'assets') {
 					is_asset = true;
 				}
+			}
+			if (!is_path_only && typeof curr_path[nest[i]] === 'string') {
+				curr_path = getRealValue(curr_path[nest[i]]);
+				continue;
 			}
 			curr_path = curr_path[nest[i]];
 		}
@@ -162,10 +167,11 @@ function createPathListForEditor(path = null) {
 				print_key = curr_path[key].display;
 			}
 			// edge case, if is_asset, check if active path selection input is path only, if so, set as `is_value`
-			if (is_asset) {
-				if (Select('#input_is_path_only_'+GLOBAL.ui.active_path_field_id).value == 'true') {
-					is_value = true;
-				}
+			if (is_asset && is_path_only) {
+				is_value = true;
+			} else if (is_value && !is_path_only && typeof getRealValue('$var$'+(path == null ? key : path+'/'+key)+'$/var$') !== 'string') {
+				// edge case, if value and not a path only selection, and value is a path variable that points towards an object rather than string, set as a path value
+				is_value = false;
 			}
 			return Create('div', {
 				className: 'path_selection_element_'+(is_value ? 'set' : 'extend'),
@@ -317,7 +323,7 @@ function createPathVariableField(settings = {}) {
 						className: 'path_var_container',
 						children: [
 							Create('label', {
-								innerHTML: 'Save as Path Variable ',
+								innerHTML: 'Save as Reference Path ',
 								children: [
 									Create('input', {
 										type: 'checkbox',

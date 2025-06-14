@@ -94,24 +94,21 @@ function createUIFromData(container, data, submit_to_application, editor = false
 														})
 													]
 												});
-											} else if (field.type == 'select') {
+											} else if (field.type == 'select' || field.type == 'dataset') {
 												
 												// edge case for handling dataset select
 												let dataset_values = null;
-												if (typeof field.values === 'string') {
+												
+												if (field.type == 'dataset') {
+													
 													// get associated object
-													let dataset = getRealValue(field.values);
-													// generate values and subsetters list from object
+													let dataset = GLOBAL.active_tournament.data.sets[field.set];
+													
+													// generate select list with additional "empty" option
 													dataset_values = [null, ...Object.keys(dataset)].map(key => {
 														return {
-															display: key == null ? '-Empty-' : getRealValue(field.display, null, dataset[key]),
-															value: key == null ? '' : key,
-															sub_setters: field.sub_setters.map(sub_setter => {
-																return {
-																	path: sub_setter.path,
-																	source: (key == null ? '' : getRealValue(sub_setter.source, null, dataset[key]))
-																}
-															})
+															display: key == null ? '-Empty-' : getRealValue(dataset[key].display),
+															value: key == null ? '' : '$var$sets/'+field.set+'/'+key+'$/var$'
 														};
 													});
 												}
@@ -561,6 +558,12 @@ function uiEditRightMouse(event) {
 	let elem = getUpperContainer(event.target);
 	if (elem != null) {
 		createUIEditMenu(event.clientX, event.clientY, elem);
+	} else {
+		// create fake section for reference use
+		createUIEditMenu(event.clientX, event.clientY, Create('div', {
+			className: 'only_create',
+			data: JSON.stringify({ section: 0, column: 0 })
+		}));
 	}
 	
 }
@@ -603,30 +606,42 @@ function createUIEditMenu(x, y, elem) {
 							onclick: () => { removeUIEditMenu(); }
 						})
 					]
-					: [
-						Create('div', {
-							innerHTML: 'Create New Field',
-							onclick: () => { editUIField(elem, true); }
-						}),
-						Create('div', {
-							innerHTML: 'Create New Section',
-							onclick: () => { editUISection(elem, true); }
-						}),
-						Create('div', {
-							innerHTML: 'Edit Section',
-							onclick: () => { editUISection(elem); }
-						}),
-						Create('div', {
-							innerHTML: 'Remove Section',
-							className: 'ui_edit_menu_remove',
-							onclick: () => { removeUISection(elem); }
-						}),
-						Create('div', {
-							innerHTML: 'cancel',
-							className: 'ui_edit_menu_cancel',
-							onclick: () => { removeUIEditMenu(); }
-						})
-					]
+					: elem.className == 'only_create'
+						? [
+								Create('div', {
+									innerHTML: 'Create New Section',
+									onclick: () => { editUISection(elem, true); }
+								}),
+								Create('div', {
+									innerHTML: 'cancel',
+									className: 'ui_edit_menu_cancel',
+									onclick: () => { removeUIEditMenu(); }
+								})
+							]
+						: [
+								Create('div', {
+									innerHTML: 'Create New Field',
+									onclick: () => { editUIField(elem, true); }
+								}),
+								Create('div', {
+									innerHTML: 'Create New Section',
+									onclick: () => { editUISection(elem, true); }
+								}),
+								Create('div', {
+									innerHTML: 'Edit Section',
+									onclick: () => { editUISection(elem); }
+								}),
+								Create('div', {
+									innerHTML: 'Remove Section',
+									className: 'ui_edit_menu_remove',
+									onclick: () => { removeUISection(elem); }
+								}),
+								Create('div', {
+									innerHTML: 'cancel',
+									className: 'ui_edit_menu_cancel',
+									onclick: () => { removeUIEditMenu(); }
+								})
+							]
 			})
 		]
 	});
@@ -754,7 +769,7 @@ function editUIField(elem, is_create = false) {
 							onchange: function () {
 								modifyFieldBuilderOptions(this.value.toLowerCase());
 							},
-							children: ['Text', 'Select', 'Radio', 'Checkbox'].map(input_type => {
+							children: ['Text', 'Select', 'Radio', 'Checkbox', 'Dataset'].map(input_type => {
 								return Create('option', {
 									innerHTML: input_type,
 									value: input_type.toLowerCase(),
@@ -846,6 +861,14 @@ function editUIField(elem, is_create = false) {
 						return key_value;
 					})
 				}
+			} else if (form_data.input_type == 'dataset') {
+				new_field_data = {
+					type: 'dataset',
+					title: form_data.input_label,
+					source: form_data.source_path,
+					set: form_data.input_dataset,
+					value_depth: 1
+				}
 			}
 			
 			// set new field data or create a new field as the first child of the container section
@@ -889,6 +912,8 @@ function modifyFieldBuilderOptions(type) {
 		fieldBuilderForRadio(data);
 	} else if (type == 'select') {
 		fieldBuilderForSelect(data);
+	} else if (type == 'dataset') {
+		fieldBuilderForDataset(data);
 	}
 }
 
@@ -985,6 +1010,29 @@ function fieldBuilderForSelect(data) {
 	
 	key_value.forEach(pair => {
 		appendNewKeyValuePairInput(pair);
+	});
+}
+
+function fieldBuilderForDataset(data) {
+	Select('#input_edit_options', {
+		innerHTML: '',
+		children: [
+			Create('label', {
+				innerHTML: 'Data Set',
+				children: [
+					Create('select', {
+						name: 'input_dataset',
+						children: Object.keys(GLOBAL.active_tournament.data.sets).map(set => {
+							return Create('option', {
+								innerHTML: set,
+								value: set,
+								selected: (data != null && data.set == set)
+							});
+						})
+					})
+				]
+			})
+		]
 	});
 }
 

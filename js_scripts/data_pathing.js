@@ -1,5 +1,5 @@
 function isPathVariable(value) {
-	return typeof value === 'string' && value.indexOf('$var$') > -1 && value.indexOf('$/var$');
+	return typeof value === 'string' && getRealVariableParts(value).filter(x => typeof x.variable !== 'undefined').length > 0;
 }
 
 // not all comparisons are similar, allow ui setup to determine value depth to compare
@@ -112,15 +112,21 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 				// pull from use path
 				while (path.length > 0) {
 					
-					// pathing protection
 					let path_part = path.shift();
+					
+					// pathing protection
 					if (typeof reference_path[path_part] === 'undefined') {
 						console.error('Attempting to access undefined object from variable path: '+value+', Undefined key path starting at: '+[path_part, ...path].join('/'));
 						return '!!Corrupted Data Path!!';
 					}
 					
-					// shift from use path into reference path
-					reference_path = reference_path[path_part];
+					// path forwarding allowed only when depth value search is not enabled
+					if (depth == null && typeof reference_path[path_part] === 'string') {
+						reference_path = getRealValue(reference_path[path_part]);
+					} else {
+						// shift from use path into reference path
+						reference_path = reference_path[path_part];
+					}
 					
 				}
 				
