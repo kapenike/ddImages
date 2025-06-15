@@ -75,8 +75,9 @@ function createUIFromData(container, data, submit_to_application, editor = false
 											]
 										}),
 										...section.fields.map((field, field_index) => {
-											let depth_value = getDepthComparisonValue(field);
+											
 											if (field.type == 'text' || field.type == 'number') {
+												
 												return Create('div', {
 													className: 'ui_field',
 													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
@@ -88,12 +89,13 @@ function createUIFromData(container, data, submit_to_application, editor = false
 																	type: field.type,
 																	name: field.source,
 																	onkeydown: function () { logSourceChange(this); },
-																	value: depth_value
+																	value: getRealValue(field.source)
 																})
 															]
 														})
 													]
 												});
+												
 											} else if (field.type == 'select' || field.type == 'dataset') {
 												
 												// edge case for handling dataset select
@@ -107,8 +109,9 @@ function createUIFromData(container, data, submit_to_application, editor = false
 													// generate select list with additional "empty" option
 													dataset_values = [null, ...Object.keys(dataset)].map(key => {
 														return {
-															display: key == null ? '-Empty-' : getRealValue(dataset[key].display),
-															value: key == null ? '' : '$var$sets/'+field.set+'/'+key+'$/var$'
+															display: key == null ? '-Empty-' : dataset[key].display,
+															value: key == null ? '' : '$var$sets/'+field.set+'/'+key+'$/var$',
+															value_depth: 1
 														};
 													});
 												}
@@ -124,10 +127,20 @@ function createUIFromData(container, data, submit_to_application, editor = false
 																	name: field.source,
 																	onchange: function () { logSourceChange(this); },
 																	children: (dataset_values == null ? field.values : dataset_values).map(option => {
+																		
+																		// check save source value based on 1 extra depth value than its compared option value (because source itself is a reference to the stored value)
+																		let depth_value = getDepthComparisonValue({
+																			source: field.source,
+																			value_depth: (typeof option.value_depth === 'undefined' ? undefined : option.value_depth+1)
+																		});
+																		
+																		// get value of option based on depth value
+																		let option_value = getDepthComparisonValue({ source: option.value, value_depth: option.value_depth });
+																		
 																		return Create('option', {
-																			innerHTML: option.display,
-																			value: option.value,
-																			selected: option.value == depth_value,
+																			innerHTML: getRealValue(option.display),
+																			value: option_value,
+																			selected: option_value == depth_value,
 																			sub_setters: JSON.stringify(option.sub_setters ?? null)
 																		});
 																	})
@@ -136,7 +149,9 @@ function createUIFromData(container, data, submit_to_application, editor = false
 														})
 													]
 												});
+												
 											} else if (field.type == 'radio') {
+												
 												return Create('div', {
 													className: 'ui_field',
 													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
@@ -144,14 +159,24 @@ function createUIFromData(container, data, submit_to_application, editor = false
 														Create('div', {
 															className: 'radio_group',
 															children: field.values.map(radio => {
+																
+																// check save source value based on 1 extra depth value than its compared radio value (because source itself is a reference to the stored value)
+																let depth_value = getDepthComparisonValue({
+																	source: field.source,
+																	value_depth: (typeof radio.value_depth === 'undefined' ? undefined : radio.value_depth+1)
+																});
+																
+																// get value of radio based on depth value
+																let radio_value = getDepthComparisonValue({ source: radio.value, value_depth: radio.value_depth });
+																
 																return Create('label', {
 																	children: [
 																		Create('input', {
 																			type: 'radio',
 																			onclick: function () { logSourceChange(this); },
 																			name: field.source,
-																			value: radio.value,
-																			checked: radio.value == depth_value,
+																			value: radio_value,
+																			checked: radio_value == depth_value,
 																			sub_setters: JSON.stringify(radio.sub_setters ?? null)
 																		}),
 																		Create('span', {
@@ -163,7 +188,12 @@ function createUIFromData(container, data, submit_to_application, editor = false
 														})
 													]
 												});
+												
 											} else if (field.type == 'checkbox') {
+												
+												// get value of field based on depth value, checked status is based on if a value exists at all before depth value search
+												let field_value = getDepthComparisonValue({ source: field.value, value_depth: field.value_depth });
+												
 												return Create('div', {
 													className: 'ui_field',
 													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
@@ -176,8 +206,8 @@ function createUIFromData(container, data, submit_to_application, editor = false
 																	type: field.type,
 																	name: field.source,
 																	onkeydown: function () { logSourceChange(this); },
-																	data: field.value,
-																	checked: depth_value != ''
+																	data: field_value,
+																	checked: field.value != ''
 																}),
 																Create('br')
 															]

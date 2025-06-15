@@ -14,6 +14,9 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 	- [ ] information icons for displaying what tools do
 - BUGS
 	- [ ] UI editor on hover leaves drag borders on some elements (non direct parent references issue)
+	- [ ] UI fields that set the same value will override .. this is logical but maybe notify the user? or let it be incremental
+	- [ ] Prevent infinite loops with new path creation
+- TODO
 - [ ] Create ability to delete assets
 - [ ] Create base layer editor to later expand on for a GUI editor
 - [ ] Create bracket system

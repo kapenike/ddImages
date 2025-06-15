@@ -100,6 +100,11 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 			depth -= 1;
 		}
 		
+		// if depth reached, return now
+		if (depth == 0) {
+			return value;
+		}
+		
 		// loop variable parts and nest continue their chaining if depth allows, then append for final return
 		for (let i=0; i<var_real_parts.length; i++) {
 			let split_part = var_real_parts[i];
@@ -117,7 +122,7 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 					// pathing protection
 					if (typeof reference_path[path_part] === 'undefined') {
 						console.error('Attempting to access undefined object from variable path: '+value+', Undefined key path starting at: '+[path_part, ...path].join('/'));
-						return '!!Corrupted Data Path!!';
+						return '';
 					}
 					
 					// path forwarding allowed only when depth value search is not enabled
@@ -138,18 +143,7 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 					break;
 				}
 				
-				// if proper depth found, append variable path result rather than searching further
-				if (depth == 0) {
-					return_value += reference_path;
-				} else {
-					// duplicate edge case for nested lookup (passing non null depth and object reference)
-					let nested_loopkup = getRealValue(reference_path, depth, base_path);
-					if (typeof nested_loopkup !== 'string') {
-						return_value = nested_loopkup;
-						break;
-					}
-					return_value += nested_loopkup;
-				}
+				return_value += getRealValue(reference_path, depth, base_path);
 				
 			} else {
 				// append real part
