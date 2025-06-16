@@ -270,6 +270,22 @@ function setupAssetEditor(slug = null) {
 							})
 						]
 					}),
+					(asset_data != null
+						?	Create('div', {
+								style: {
+									textAlign: 'right'
+								},
+								children: [
+									Create('button', {
+										type: 'button',
+										className: 'remove_button',
+										innerHTML: 'Delete Asset',
+										onclick: () => { removeAsset(slug) }
+									})
+								]
+							})
+						: Create('div')
+					),
 					(asset_data == null
 						? Create('div')
 						:	Create('div', {
@@ -300,4 +316,31 @@ function generateAssetSelectionList() {
 		})
 	});
 	
+}
+
+function removeAsset(slug) {
+	
+	let form_details = {
+		tournament_uid: GLOBAL.active_tournament.uid,
+		asset_slug: slug,
+		application: 'remove_asset'
+	};
+
+	// remove asset server side
+	ajax('POST', '/requestor.php', form_details, (status, data) => {
+		
+		if (status) {
+			
+			// delete local asset
+			delete GLOBAL.active_tournament.data.assets[slug];
+			
+			// bring up create asset form
+			setupAssetEditor(null);
+			
+			// re-create asset selection list
+			generateAssetSelectionList();
+			
+		}
+		
+	}, 'asset_manager_form_block');
 }

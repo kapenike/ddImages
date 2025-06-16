@@ -80,8 +80,20 @@ class asset {
 		
 	}
 	
-	function removeAsset($tournament_uid, $data) {
+	function removeAsset($tournament_uid, $asset_slug) {
 		
+		// get registry
+		$registry = $this->getRegistry($tournament_uid);
+		
+		// remove asset image file
+		app('files')->remove(getBasePath().'/data/'.$tournament_uid.'/sources/', $registry->{$asset_slug}->file);
+		
+		// delete asset
+		unset($registry->{$asset_slug});
+		
+		// update registry data
+		$this->saveRegistry($tournament_uid, $registry);
+
 	}
 	
 }

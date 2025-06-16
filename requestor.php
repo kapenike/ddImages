@@ -103,6 +103,10 @@ switch($_POST['application']) {
 			'offset_y' => $_POST['asset_offset_y']
 		]));
 		break;
+		
+	case 'remove_asset':
+		app('asset')->removeAsset($_POST['tournament_uid'], $_POST['asset_slug']);
+		break;
 	
 	default:
 		echo json_encode((object)['error_msg' => 'No application defined.']);

@@ -202,6 +202,7 @@ function setupCountdownClockWidget() {
 											})
 										]
 									}),
+									Create('br'),
 									Create('label', {
 										innerHTML: 'Line Break After',
 										children: [
@@ -213,6 +214,7 @@ function setupCountdownClockWidget() {
 											})
 										]
 									}),
+									Create('br'),
 									Create('label', {
 										innerHTML: 'Hide When 0',
 										children: [
@@ -254,6 +256,7 @@ function setupCountdownClockWidget() {
 											})
 										]
 									}),
+									Create('br'),
 									Create('label', {
 										innerHTML: 'Line Break After',
 										children: [
@@ -265,6 +268,7 @@ function setupCountdownClockWidget() {
 											})
 										]
 									}),
+									Create('br'),
 									Create('label', {
 										innerHTML: 'Hide When 0',
 										children: [
@@ -306,6 +310,7 @@ function setupCountdownClockWidget() {
 											})
 										]
 									}),
+									Create('br'),
 									Create('label', {
 										innerHTML: 'Line Break After',
 										children: [
@@ -317,7 +322,7 @@ function setupCountdownClockWidget() {
 											})
 										]
 									}),
-									,
+									Create('br'),
 									Create('label', {
 										innerHTML: 'Hide When 0',
 										children: [
