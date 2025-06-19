@@ -2,6 +2,10 @@ function isPathVariable(value) {
 	return typeof value === 'string' && getRealVariableParts(value).filter(x => typeof x.variable !== 'undefined').length > 0;
 }
 
+function isPathOnlyVariable(value) {
+	return typeof value === 'string' && getRealVariableParts(value).filter(x => typeof x.variable !== 'undefined').length == 1;
+}
+
 // not all comparisons are similar, allow ui setup to determine value depth to compare
 function getDepthComparisonValue(field) {
 	return getRealValue(field.source, (typeof field.value_depth === 'undefined' ? null : field.value_depth));
@@ -30,10 +34,37 @@ function trackChangeSource(source, value) {
 	
 	// loop source / tracking span pairs and update on source change
 	GLOBAL.track_sources.pairs.forEach(tracker => {
-		if (Select('#tracking_source_'+tracker.id) && tracker.source == source) {
-			Select('#tracking_source_'+tracker.id, {
-				innerHTML: value
-			});
+		// if tracker exists
+		if (Select('#tracking_source_'+tracker.id)) {
+			// if source match straight up
+			if (tracker.source == source) {
+				Select('#tracking_source_'+tracker.id, {
+					innerHTML: value
+				});
+			} else if (isPathOnlyVariable(value)) { // if potential data set reference
+
+				// get sub set data from new value
+				let ref_value = getRealValue(value);
+
+				// split tracker source at extension point, then traverse sub set data down path to get real value
+				let true_ref = true;
+				tracker.source.slice(source.slice(0, -6).length+1, -6).split('/').forEach(path => {
+					// if at any point the path fails, not a true reference
+					if (true_ref) {
+						if (typeof ref_value[path] !== 'undefined') {
+							ref_value = ref_value[path];
+						} else {
+							true_ref = false;
+						}
+					}
+				});
+				
+				if (true_ref) {
+					Select('#tracking_source_'+tracker.id, {
+						innerHTML: ref_value
+					});
+				}
+			}
 		}
 	});
 	
@@ -76,7 +107,12 @@ function clearSourceChanges() {
 	GLOBAL.source_changes = [];
 }
 
-function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.data) {
+function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.data, head = null) {
+	
+	// create head that tracks sources and prevents infinite loop
+	if (head == null) {
+		head = [];
+	}
 	
 	// detect if value contains a path variable
 	if (isPathVariable(value)) {
@@ -84,14 +120,25 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 		// identify real and variable path parts
 		let var_real_parts = getRealVariableParts(value);
 		
-		// if global flag, add variable paths to overlay sources
-		if (GLOBAL.generate_sources == true) {
-			var_real_parts.forEach(split_part => {
-				if (split_part.variable) {
+		// loop variable parts
+		var_real_parts.forEach(split_part => {
+			if (split_part.variable) {
+				
+				// if global flag, add variable paths to overlay sources
+				if (GLOBAL.generate_sources == true) {
 					GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_index].sources.push('$var$'+split_part.variable+'$/var$');
 				}
-			});
-		}
+				
+				// if source is already in head, return to prevent infinite loop
+				if (head.includes(split_part.variable)) {
+					return '';
+				} else {
+					// otherwise, log current source
+					head.push(split_part.variable);
+				}
+				
+			}
+		});
 		
 		let return_value = '';
 		
@@ -143,7 +190,7 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 					break;
 				}
 				
-				return_value += getRealValue(reference_path, depth, base_path);
+				return_value += getRealValue(reference_path, depth, base_path, head);
 				
 			} else {
 				// append real part

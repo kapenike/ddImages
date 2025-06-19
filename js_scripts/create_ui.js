@@ -214,7 +214,24 @@ function createUIFromData(container, data, submit_to_application, editor = false
 														})
 													]
 												});
+											} else if (field.type == 'display') {
+												
+												return Create('div', {
+													className: 'ui_field',
+													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
+													children: [
+														Create('label', {
+															style: {
+																marginBottom: '16px',
+																display: 'block'
+															},
+															innerHTML: trackSourceChange(field.title)
+														})
+													]
+												});
+												
 											}
+											
 										})
 									]
 								});
@@ -241,6 +258,8 @@ function resetUISection(section) {
 			case 'radio':
 				elem.checked = true;
 				break;
+			case 'checkbox':
+				elem.checked = false;
 			default:
 				elem.value = '';
 				break;
@@ -436,27 +455,41 @@ function uiDragSetBorder(elem, side = null) {
 // on drag move, highlight possible drop locations and save for use on mouse up
 function uiEditMouseMove(event) {
 	event.preventDefault();
+	
 	if (GLOBAL.ui.drag_clone) {
+		
+		// update drag clone coordinates
 		GLOBAL.ui.drag_clone.style.left = event.clientX+'px';
 		GLOBAL.ui.drag_clone.style.top = event.clientY+'px';
+		
+		// get relevant element being hovered over
 		let hover = getUpperContainer(event.target, GLOBAL.ui.drag_elem.className);
 		if (hover != null) {
+			
+			// get data locations of hovered and moving element
 			let hover_data = JSON.parse(hover.data);
 			let original_data = JSON.parse(GLOBAL.ui.drag_elem.data);
+			
+			// if no previous hover, log as current
 			if (GLOBAL.ui.drag_hover == null) {
 				GLOBAL.ui.drag_hover = hover;
-			} else if (hover.data != GLOBAL.ui.drag_hover.data) {
+			} else {
+				
 				// reset old hover elements borders
 				uiDragSetBorder(GLOBAL.ui.drag_hover);
+				
 				// set new hover element
 				GLOBAL.ui.drag_hover = hover;
+				
 			}
-			// if hover is ui field within an empty area of section, set to left of hover because classification index does not change and pinpoint is at the top of the section (ui_field_above)
+			
+			// if hover is ui field within an empty area of section, set to bottom of hover because classification index does not change and pinpoint is at the top of the section (ui_field_above)
 			if (hover.className == 'ui_field_above') {
 				uiDragSetBorder(hover, 'bottom');
 				GLOBAL.ui.drop_side = 'bottom';
 				return;
 			}
+			
 			if (hover_data.section != original_data.section || hover_data.column != original_data.column || hover_data.field != original_data.field) {
 				let width = hover.offsetWidth;
 				let height = hover.offsetHeight/2;
@@ -799,7 +832,7 @@ function editUIField(elem, is_create = false) {
 							onchange: function () {
 								modifyFieldBuilderOptions(this.value.toLowerCase());
 							},
-							children: ['Text', 'Select', 'Radio', 'Checkbox', 'Dataset'].map(input_type => {
+							children: ['Text', 'Select', 'Radio', 'Checkbox', 'Dataset', 'Display'].map(input_type => {
 								return Create('option', {
 									innerHTML: input_type,
 									value: input_type.toLowerCase(),
@@ -812,12 +845,13 @@ function editUIField(elem, is_create = false) {
 				Create('span', {
 					innerHTML: 'Save To Path',
 					className: 'spanlabel',
+					id: 'save_to_path_input',
 					children: [
 						createPathVariableField({
 							name: 'source_path',
 							value: {
 								path_only: true,
-								value: is_create ? '' : current_data.source
+								value: is_create ? '' : current_data.source ?? ''
 							},
 							force_path_only: true
 						})
@@ -844,7 +878,8 @@ function editUIField(elem, is_create = false) {
 		}),
 		function (form_data) {
 			
-			if (form_data.source_path == '') {
+			// if source path exists (display field it will not) and the path is empty, return error
+			if (form_data.source_path && form_data.source_path == '') {
 				console.error('Save To Path cannot be empty!');
 				return;
 			}
@@ -899,6 +934,11 @@ function editUIField(elem, is_create = false) {
 					set: form_data.input_dataset,
 					value_depth: 1
 				}
+			} else if (form_data.input_type == 'display') {
+				new_field_data = {
+					type: 'display',
+					title: form_data.input_label
+				}
 			}
 			
 			// set new field data or create a new field as the first child of the container section
@@ -944,6 +984,8 @@ function modifyFieldBuilderOptions(type) {
 		fieldBuilderForSelect(data);
 	} else if (type == 'dataset') {
 		fieldBuilderForDataset(data);
+	} else if (type == 'display') {
+		fieldBuilderForDisplay(data);
 	}
 }
 
@@ -1063,6 +1105,13 @@ function fieldBuilderForDataset(data) {
 				]
 			})
 		]
+	});
+}
+
+function fieldBuilderForDisplay(data) {
+	Select('#save_to_path_input').remove();
+	Select('#input_edit_options', {
+		innerHTML: ''
 	});
 }
 

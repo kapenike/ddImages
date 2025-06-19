@@ -48,6 +48,5 @@ document.addEventListener('DOMContentLoaded', function() {
 	</div>
 </div>
 <div id="main"></div>
-<div style="font-family: 'JuanCock';"></div>
 </body>
 </html>
