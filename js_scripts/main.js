@@ -12,7 +12,7 @@ function initGlobal() {
 		},
 		navigation: {}, // data location for navigation
 		data_structure: {
-			ignored: ['bracket', 'assets', 'sets'], // data paths to ignore during structure editor generation,
+			ignored: ['assets', 'sets'], // data paths to ignore during structure editor generation,
 			removed: [], // data keys removed during structure editing
 			new_key_inc: 0 // incrementor used to make new key name values unique
 		},
@@ -53,19 +53,16 @@ function initStreamOverlay() {
 
 function streamDataLoaded(status, data) {
 	
-	if (status) {
+	if (status && data.status) {
 		
 		// save initial tournament data in GLOBAL
-		GLOBAL.active_tournament = data;
-		
-		// TODO: bracket within data
-		GLOBAL.active_tournament.data.bracket = {};
+		GLOBAL.active_tournament = data.msg;
 
 		// load dependent image sources into GLOBAL
 		loadOverlayDependencies();
 		
 	} else {
-		alert('whoops, check your console');
+		alert(data.msg);
 	}
 	
 }

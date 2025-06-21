@@ -94,6 +94,32 @@ class team {
 		return true;
 	}
 	
+	function update($post) {
+		if ($post['team_manager_type'] == 'create') {
+			
+			// create team
+			$uid = $this->register($post['tournament_uid'], $post['team_name']);
+			$data = $this->load($post['tournament_uid'], $uid);
+			$data->primary_color = $post['team_primary_color'];
+			$data->secondary_color = $post['team_secondary_color'];
+			$data->roster = $post['team_roster'];
+			$this->save($post['tournament_uid'], $uid, $data);
+			app('respond')->json(true, $data);
+			
+		} else {
+			
+			// update team
+			$data = $this->load($post['tournament_uid'], $post['team_manager_type']);
+			$data->display = $post['team_name'];
+			$data->primary_color = $post['team_primary_color'];
+			$data->secondary_color = $post['team_secondary_color'];
+			$data->roster = $post['team_roster'];
+			$this->save($post['tournament_uid'], $data->uid, $data);
+			app('respond')->json(true, $data);
+			
+		}
+	}
+	
 	function remove($tournament_uid, $team_uid) {
 		$team_data_path = getBasePath().'/data/'.$tournament_uid.'/teams/'.$team_uid.'/';
 		if (is_dir($team_data_path)) {
@@ -103,9 +129,9 @@ class team {
 			$registry = $this->getRegistry($tournament_uid);
 			unset($registry->$team_uid);
 			$this->saveRegistry($tournament_uid, $registry);
-			return true;
+			app('respond')->json(true, 'Successfully removed team.');
 		}
-		return false;
+		app('respond')->json(false, 'Error locating team data.');
 	}
 	
 }

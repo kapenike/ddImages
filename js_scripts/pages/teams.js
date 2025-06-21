@@ -106,10 +106,10 @@ function updateTeamData() {
 		if (status) {
 			
 			// update / insert new team locally
-			GLOBAL.active_tournament.data.sets.teams[data.uid] = data;
+			GLOBAL.active_tournament.data.sets.teams[data.msg.uid] = data.msg;
 			
 			// load team data into form
-			loadTeamData(data.uid);
+			loadTeamData(data.msg.uid);
 			
 			// re-create team selection list
 			generateTeamSelectionList();

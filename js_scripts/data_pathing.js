@@ -41,7 +41,7 @@ function trackChangeSource(source, value) {
 				Select('#tracking_source_'+tracker.id, {
 					innerHTML: value
 				});
-			} else if (isPathOnlyVariable(value)) { // if potential data set reference
+			} else if (isPathOnlyVariable(value)) { // if potential data set reference (this is a single reference work around, consider larger picture tracking for full reference path)
 
 				// get sub set data from new value
 				let ref_value = getRealValue(value);

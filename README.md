@@ -5,10 +5,10 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 
 ## To-DO
 - TODO
-	- [ ] source tracking for text isnt smart enough to update long chained set references for text display
-	- [ ] Allow creation of more data sets like teams `data.sets.teams`
 	- [ ] overlay editor
 	- [ ] Final rewrite with a TOP for creating new broadcasts
+	- [ ] source tracking for text isnt smart enough to update long chained set references for text display
+	- [ ] Allow creation of more data sets like teams `data.sets.teams`
 	- [ ] notifications
 	- [ ] Documentation
 - FUTURE

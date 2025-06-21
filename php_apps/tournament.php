@@ -53,7 +53,7 @@ class tournament {
 		file_put_contents(getBasePath().'/data/'.$uid.'/asset_registry.json', json_encode((object)[]));
 		
 		// never fail ... plz
-		return true;
+		app('respond')->json(true, 'Registered new tournament successfully.');
 		
 	}
 	
@@ -94,13 +94,13 @@ class tournament {
 				$tournament_data->cwd = getcwd();
 				
 				// return tournament data
-				return $tournament_data;
+				app('respond')->json(true, $tournament_data);
 				
 			}
 			
 		}
 		
-		return json_encode((object)['error_msg' => 'Tournament UID not found.']);
+		app('respond')->json(false, 'Tournament UID not found.');
 		
 	}
 	
@@ -113,6 +113,49 @@ class tournament {
 	function save($tournament_uid, $section, $save) {
 		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/'.$section.'.json', json_encode($save));
 		return true;
+	}
+	
+	function updateTournamentDetails($uid, $post) {
+		
+		// get original tournament data
+		$tournament_data = $this->loadSection($uid, 'data');
+		
+		// loop post keys and attempt to update object paths within tournament object
+		foreach ($_POST as $key => $value) {
+			
+			// if variable path
+			if (substr($key, 0, 5) == '$var$' && substr($key, -6) == '$/var$') {
+				
+				// create base path as reference to tournament data property
+				$base_path = &$tournament_data;
+				
+				// explode and traverse path until empty
+				$path = explode('/', substr($key, 5, -6));
+
+				while(count($path) > 0) {
+					// shift from path into reference path
+					$base_path = &$base_path->{array_shift($path)};
+				}
+				$base_path = $value;
+				
+			}
+		}
+		
+		// update data file with tournament data object
+		$this->save($uid, 'data', $tournament_data);
+		
+		app('respond')->json(true, 'Tournament data successfully updated.');
+		
+	}
+	
+	function updateTournamentDataStructure($uid, $data_structure) {
+		$this->save($uid, 'data', $data_structure);
+		app('respond')->json(true, 'Tournament data structure successfully updated.');
+	}
+	
+	function updateTournamentUI($uid, $data) {
+		file_put_contents(getBasePath().'/data/'.$uid.'/ui.json', $data);
+		app('respond')->json(true, 'Tournament UI successfully updated.');
 	}
 	
 }

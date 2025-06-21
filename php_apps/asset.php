@@ -10,10 +10,21 @@ class asset {
 		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/asset_registry.json', json_encode($data));
 	}
 	
-	function createUpdateAsset($tournament_uid, $data) {
+	function createUpdateAsset($post) {
+		
+		// define structured object for cleaner code
+		$tournament_uid = $_POST['tournament_id'];
+		$data = (object)[
+			'type' => $_POST['asset_registration_type'],
+			'display' => $_POST['asset_name'],
+			'slug' => $_POST['asset_slug'],
+			'file' => (isset($_FILES['asset_file_0']) ? $_FILES['asset_file_0'] : null),
+			'offset_x' => $_POST['asset_offset_x'],
+			'offset_y' => $_POST['asset_offset_y']
+		];
 		
 		if ($data->type == 'create') {
-			// create
+			// create asset
 			
 			// get registry
 			$registry = $this->getRegistry($tournament_uid);
@@ -33,7 +44,7 @@ class asset {
 			$this->saveRegistry($tournament_uid, $registry);
 			
 			// return current data object
-			return $registry->{$data->slug};
+			app('respond')->json(true, $registry->{$data->slug});
 			
 			
 		} else 	{
@@ -69,14 +80,14 @@ class asset {
 				$this->saveRegistry($tournament_uid, $registry);
 				
 				// return current data object
-				return $registry->{$data->slug};
+				app('respond')->json(true, $registry->{$data->slug});
 				
 			} else {
-				return (object)['error_msg' => 'Asset update slug not found.'];
+				app('respond')->json(false, 'Update on asset failed because the asset slug could not be referenced.');
 			}
 		}
 		
-		return (object)['error_msg' => 'Unexpected error.'];
+		app('respond')->json(false, 'Unexpected error on asset '.($data->type == 'create' ? 'creation' : 'update').'.');
 		
 	}
 	
@@ -93,6 +104,9 @@ class asset {
 		
 		// update registry data
 		$this->saveRegistry($tournament_uid, $registry);
+		
+		// success
+		app('respond')->json(true, 'Asset successfully removed.');
 
 	}
 	

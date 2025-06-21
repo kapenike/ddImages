@@ -111,7 +111,7 @@ function updateAssetData() {
 		if (status) {
 
 			// update local asset list
-			GLOBAL.active_tournament.data.assets[form_details.asset_slug] = data;
+			GLOBAL.active_tournament.data.assets[form_details.asset_slug] = data.msg;
 			
 			// if updated slug, remove old path
 			if (form_details.asset_registration_type != 'create' && form_details.asset_registration_type != form_details.asset_slug) {
@@ -130,7 +130,7 @@ function updateAssetData() {
 				// init loader, generateStreamOverlays will clear
 				ajaxInitLoader('body');
 				let image = new Image();
-				image.src = '/data/'+GLOBAL.active_tournament.uid+'/sources/'+data.file;
+				image.src = '/data/'+GLOBAL.active_tournament.uid+'/sources/'+data.msg.file;
 				image.onload = () => {
 					if (GLOBAL.use_vram) {
 						createImageBitmap(image).then(bitmap => {
