@@ -39,9 +39,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </head>
 <body id="body">
-<div class="navigation">
+<div class="navigation" style="display: none;">
 	<div class="row">
-		<div class="col" style="width: 80%;" id="navigation"></div>
+		<div class="col" style="width: 80%; padding-bottom: 0;" id="navigation"></div>
 		<div class="col" style="width: 20%; text-align: right;">
 			<button onclick="onSaveAction();">Save</button>
 		</div>

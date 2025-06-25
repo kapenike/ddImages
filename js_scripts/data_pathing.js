@@ -126,7 +126,7 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 				
 				// if global flag, add variable paths to overlay sources
 				if (GLOBAL.generate_sources == true) {
-					GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_index].sources.push('$var$'+split_part.variable+'$/var$');
+					GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_slug].sources.push('$var$'+split_part.variable+'$/var$');
 				}
 				
 				// if source is already in head, return to prevent infinite loop

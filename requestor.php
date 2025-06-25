@@ -5,6 +5,19 @@ require 'app.php';
 // application switch, defined by string value in $_POST['application']
 switch($_POST['application']) {
 	
+	case 'create_tournament':
+		app('tournament')->register($_POST['tournament_name']);
+		break;
+		
+	case 'update_tournament_settings':
+		app('tournament')->updateSettings($_POST['uid'], $_POST);
+		break;
+	
+	case 'load_tournament_registration':
+		// return tournament registry
+		app('tournament')->returnRegistry();
+		break;
+	
 	case 'load_tournament_data':
 		// returns entire data set of tournament for initial load
 		app('tournament')->load($_POST['uid']);

@@ -3,6 +3,7 @@ var GLOBAL = {};
 
 function initGlobal() {
 	GLOBAL = {
+		tournament_registry: null,
 		use_vram: true, // generate Bitmaps for faster overlay creation at the cost of the GPU
 		generate_sources: true, // flag used by generateStreamOverlays(null) when passed null to update overlay sources (defines what UI value updates will proc a stream overlay image export)
 		source_changes: [], // where to store source changes before an update
@@ -37,16 +38,8 @@ function initStreamOverlay() {
 	// listen for hotkey commands (./js_scripts/hotkeys.js)
 	initHotKeyListeners();
 	
-	/*
-	proof of concept scenario:
-		- CoD Double Tap
-		- UID: uid_0000001
-	*/
-	// request tournament data
-	ajax('POST', '/requestor.php', {
-		application: 'load_tournament_data',
-		uid: 'uid_0000001'
-	}, streamDataLoaded, 'body');
+	// link out to tournament selection screen, this will call back to `streamDataLoaded` on load or creation of new project
+	generateTournamentSelectionScreen();
 	
 	// async path ends with call to initNavigation() to kick off application start (./js_scripts/navigation.js)
 }

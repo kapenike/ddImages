@@ -9,9 +9,28 @@ class tournament {
 		$this->registry = json_decode(file_get_contents(getBasePath().'/php_apps/app_data/tournament_registry.json'));
 	}
 	
+	function returnRegistry() {
+		app('respond')->json(true, $this->registry);
+	}
+	
 	// save current tournament registry
 	function saveRegistry() {
 		file_put_contents(getBasePath().'/php_apps/app_data/tournament_registry.json', json_encode($this->registry));
+	}
+	
+	function updateSettings($uid, $post) {
+		
+		// update registry with new title
+		$this->registry->{$uid} = $post['tournament_title'];
+		$this->saveRegistry();
+		
+		// get settings file, update, then put back
+		$settings = json_decode(file_get_contents(getBasePath().'/data/'.$uid.'/container.json'));
+		$settings->settings->team_size = intval($post['roster_size']);
+		file_put_contents(getBasePath().'/data/'.$uid.'/container.json', json_encode($settings));
+		
+		// all good
+		app('respond')->json(true, 'Tournament settings updated.');
 	}
 	
 	function register($tournament_name) {
@@ -28,7 +47,7 @@ class tournament {
 		// create tournament directory
 		mkdir(getBasePath().'/data/'.$uid);
 		
-		// create tournament overlay directory
+		// create tournament overlay output directory
 		mkdir(getBasePath().'/overlay_output/'.$uid);
 		
 		// create tournament sources directory
@@ -40,8 +59,19 @@ class tournament {
 		// create skeleton teams registry file
 		file_put_contents(getBasePath().'/data/'.$uid.'/teams/team_registry.json', json_encode((object)[]));
 		
+		// create tournament overlay data directory
+		mkdir(getBasePath().'/data/'.$uid.'/overlays');
+		
+		// create skeleton overlay registry file
+		file_put_contents(getBasePath().'/data/'.$uid.'/overlay_registry.json', json_encode([]));
+		
 		// create tournament container json file
-		file_put_contents(getBasePath().'/data/'.$uid.'/container.json', json_encode((object)['uid' => $uid]));
+		file_put_contents(getBasePath().'/data/'.$uid.'/container.json', json_encode((object)[
+			'uid' => $uid,
+			'settings' => [
+				'team_size' => 2
+			]
+		]));
 		
 		// create skeleton data file
 		file_put_contents(getBasePath().'/data/'.$uid.'/data.json', json_encode((object)[]));
@@ -53,7 +83,9 @@ class tournament {
 		file_put_contents(getBasePath().'/data/'.$uid.'/asset_registry.json', json_encode((object)[]));
 		
 		// never fail ... plz
-		app('respond')->json(true, 'Registered new tournament successfully.');
+		app('respond')->json(true, 'Registered new tournament successfully.', [
+			'uid' => $uid
+		]);
 		
 	}
 	
@@ -72,13 +104,16 @@ class tournament {
 				// get tournament data head
 				$tournament_data = json_decode(file_get_contents($data_path.'container.json'));
 				
+				// set tournament title from registry
+				$tournament_data->title = $this->registry->{$tournament_uid};
+				
 				// import tournament data
 				$tournament_data->data = json_decode(file_get_contents($data_path.'data.json'));
 				
 				// import tournament assets as a subset to data
 				$tournament_data->data->assets = app('asset')->getRegistry($tournament_uid);
 				
-				// !!home of data set structure TODO
+				// data set structures
 				$tournament_data->data->sets = (object)[];
 				
 				// import tournament teams dataset
@@ -88,7 +123,7 @@ class tournament {
 				$tournament_data->ui = json_decode(file_get_contents($data_path.'ui.json'));
 				
 				// import tournament overlays
-				$tournament_data->overlays = json_decode(file_get_contents($data_path.'overlay.json'));
+				$tournament_data->overlays = app('overlay')->getAll($tournament_uid);
 				
 				// append cwd
 				$tournament_data->cwd = getcwd();

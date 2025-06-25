@@ -1,8 +1,11 @@
 // accepts list of data sources that have been changed to determine what overlays to regenerate, send null to generate all and set source paths
 function generateStreamOverlays(sources = null, callback = () => {}) {
 
+	// stash overlay keys for itteration use
+	let overlay_keys = Object.keys(GLOBAL.active_tournament.overlays);
+
 	// if no overlays, straight to callback
-	if (GLOBAL.active_tournament.overlays.length == 0) {
+	if (overlay_keys.length == 0) {
 		callback();
 		return;
 	}
@@ -22,8 +25,11 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 		changed: []
 	};
 	
-	// loop currents overlays and detect which to update based on sources change
-	GLOBAL.active_tournament.overlays.forEach((overlay, overlay_index) => {
+	// loop currents overlay keys and detect which to update based on sources change
+	overlay_keys.forEach(slug => {
+		
+		// current overlay
+		let overlay = GLOBAL.active_tournament.overlays[slug];
 
 		// if overlay contains an updated source, or sources is null
 		if (sources == null || overlay.sources.some(x => sources.includes(x))) {
@@ -42,10 +48,10 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 			
 			// if global flag, reset overlay sources
 			if (GLOBAL.generate_sources == true) {
-				GLOBAL.active_tournament.overlays[overlay_index].sources = [];
+				GLOBAL.active_tournament.overlays[slug].sources = [];
 				
-				// also stash overlay index for when layer inserts new sources
-				GLOBAL.active_overlay_index = overlay_index;
+				// also stash overlay slug for when layer inserts new sources
+				GLOBAL.active_overlay_slug = slug;
 			}
 		
 			// log overlay slug for capture with PHP
@@ -82,7 +88,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	
 }
 
-function generateOverlay(ctx, output_overlays, overlay, overlay_index) {
+function generateOverlay(ctx, output_overlays, overlay) {
 	
 	// reset canvas
 	ctx.clearRect(0, 0, 1920, 1080);

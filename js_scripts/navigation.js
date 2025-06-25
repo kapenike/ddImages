@@ -1,4 +1,8 @@
 function initNavigation() {
+	
+	// show naviation
+	Select('.navigation').style.display = 'block';
+	
 	GLOBAL_NAVIGATION = [
 		{
 			name: 'Tournament Data',
@@ -46,6 +50,11 @@ function initNavigation() {
 		{
 			name: 'Browser Sources',
 			app_init: setNavigationBrowserSources,
+		},
+		{
+			name: 'Settings',
+			on_save: updateTournamentSettings,
+			app_init: setNavigationSettings
 		}
 	];
 	
@@ -69,7 +78,7 @@ function generateUI(navigation = null) {
 	}
 	
 	Select('#navigation', {
-		innerHTML: '',
+		innerHTML: '<div id="tournament_title">'+GLOBAL.active_tournament.title+'</div>',
 		children: GLOBAL_NAVIGATION.map(nav_elem => {
 			
 			// nav break
