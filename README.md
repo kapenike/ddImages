@@ -6,8 +6,8 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 ## To-DO
 - TODO
 	- [ ] overlay editor
-	- [ ] Final rewrite with a TOP for creating new broadcasts
 	- [ ] source tracking for text isnt smart enough to update long chained set references for text display
+	- [ ] settings: delete tournament, export / import tournament
 	- [ ] Allow creation of more data sets like teams `data.sets.teams`
 	- [ ] notifications
 	- [ ] Documentation

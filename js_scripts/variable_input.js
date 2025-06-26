@@ -22,33 +22,37 @@ function closePathEditor(id, init = false) {
 	if (!init) {
 		toggleSelectionEditorButton(false, id);
 		// ensure proper text nodes between variable nodes
-		let input_field = Select('#var_set_input_'+id);
-		let nodes = Array.from(input_field.childNodes);
-		for (let i=0; i<nodes.length; i++) {
-			if (nodes[i].nodeName === '#text') {
-				nodes.splice(i, 1, Create('span', { className: 'path_real_entry', innerHTML: nodes[i].nodeValue }));
+		variableFieldProperSpacing(Select('#var_set_input_'+id));
+	}
+}
+
+function variableFieldProperSpacing(elem) {
+	let nodes = Array.from(elem.childNodes);
+	for (let i=0; i<nodes.length; i++) {
+		if (nodes[i].nodeName === '#text') {
+			nodes.splice(i, 1, Create('span', { className: 'path_real_entry', innerHTML: nodes[i].nodeValue }));
+			continue;
+		}
+		if (i == 0 && nodes[0].className != 'path_real_entry') {
+			nodes.unshift(Create('span', { className: 'path_real_entry', innerHTML: '&nbsp;' }));
+			continue;
+		}
+		if (nodes[i].className != 'path_real_entry') {
+			if (nodes[i-1].className != 'path_real_entry') {
+				nodes.splice(i-1, 0, Create('span', { className: 'path_real_entry', innerHTML: '&nbsp;' }));
 				continue;
 			}
-			if (i == 0 && nodes[0].className != 'path_real_entry') {
-				nodes.unshift(Create('span', { className: 'path_real_entry', innerHTML: '&nbsp;' }));
+			if ((i+1) >= nodes.length || nodes[i+1].className != 'path_real_entry') {
+				nodes.splice(i+1, 0, Create('span', { className: 'path_real_entry', innerHTML: '&nbsp;' }));
+				if ((i+1) >= nodes.length) {
+					i++;
+				}
 				continue;
-			}
-			if (nodes[i].className != 'path_real_entry') {
-				if (nodes[i-1].className != 'path_real_entry') {
-					nodes.splice(i-1, 0, Create('span', { className: 'path_real_entry', innerHTML: '&nbsp;' }));
-					continue;
-				}
-				if ((i+1) >= nodes.length || nodes[i+1].className != 'path_real_entry') {
-					nodes.splice(i+1, 0, Create('span', { className: 'path_real_entry', innerHTML: '&nbsp;' }));
-					if ((i+1) >= nodes.length) {
-						i++;
-					}
-					continue;
-				}
 			}
 		}
-		Create(input_field, { innerHTML: '', children: nodes }, true);
 	}
+	Create(elem, { innerHTML: '', children: nodes }, true);
+	return nodes;
 }
 
 function updatePathEditor(path) {
@@ -221,15 +225,22 @@ function getFormValueOfPathSelection(id, value) {
 
 // created with appended string because the document element doesnt exist yet
 function getPathSelectionValueFromFormValue(value) {
-	let output = ''
+	let output = Create('div');
 	getRealVariableParts(value).forEach(entry => {
-		output += (
+		output.appendChild(
 			entry.variable
-				? '<span class="path_variable_entry" contenteditable="false">'+entry.variable+'</span>'
-				: '<span class="path_real_entry">'+entry.real+'</span>'
+				? Create('span', {
+						className: 'path_variable_entry',
+						contentEditable: false,
+						innerHTML: entry.variable
+					})
+				: Create('span', {
+						className: 'path_real_entry',
+						innerHTML: entry.real
+					})
 		);
 	});
-	return output;
+	return variableFieldProperSpacing(output);
 }
 
 function createPathVariableField(settings = {}) {
@@ -304,7 +315,7 @@ function createPathVariableField(settings = {}) {
 						oninput: function () {
 							Select('#var_set_input_form_value_'+this.data, { value: getFormValueOfPathSelection(this.data, this.innerHTML) });
 						},
-						innerHTML: getPathSelectionValueFromFormValue(settings.value.value)
+						children: getPathSelectionValueFromFormValue(settings.value.value)
 					}),
 					Create('div', {
 						id: 'path_insert_button_'+GLOBAL.unique_id,

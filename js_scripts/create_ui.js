@@ -725,7 +725,7 @@ function editUISection(elem, is_create = false) {
 	
 	// locate and grab section data (if is create, dont use data as new data will be pushed as an adjacent column section)
 	let current_location = JSON.parse(elem.data);
-	let current_data = GLOBAL.ui.active_data[current_location.section].cols[current_location.column];
+	let current_data = is_create ? null : GLOBAL.ui.active_data[current_location.section].cols[current_location.column];
 	
 	createPopUp(
 		(is_create ? 'Create New Section' : 'Edit Section'),
@@ -771,11 +771,19 @@ function editUISection(elem, is_create = false) {
 			// set new section data or create a new section adjacent to the one created from
 			let current_location = JSON.parse(form_data.current_location);
 			if (form_data.is_create == 'true') {
-				GLOBAL.ui.active_data[current_location.section].cols.splice(current_location.column, 0, {
+				let new_section = {
 					section: form_data.section_title,
 					reset: form_data.section_has_reset ? true : false,
 					fields: []
-				});
+				};
+				// if UI is empty, push new rather than splice
+				if (GLOBAL.ui.active_data.length == 0) {
+					GLOBAL.ui.active_data.push({
+						cols: [new_section]
+					});
+				} else {
+					GLOBAL.ui.active_data[current_location.section].cols.splice(current_location.column, 0, new_section);
+				}
 			} else {
 				let current_data = GLOBAL.ui.active_data[current_location.section].cols[current_location.column];
 				current_data.section = form_data.section_title;
@@ -1241,11 +1249,17 @@ function createNewSubSetterField(key_value, id) {
 
 function closePopup() {
 	if (Select('#popup')) {
+		// enabled editor
+		toggleUIEditor(true);
+		
 		Select('#popup').remove();
 	}
 }
 
 function createPopUp(title, content, on_save) {
+	// disable editor while popup is active
+	toggleUIEditor(false);
+	
 	Select('#body').appendChild(Create('div', {
 		id: 'popup',
 		children: [
