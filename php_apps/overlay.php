@@ -32,6 +32,75 @@ class overlay {
 		return $overlay_object;
 	}
 	
+	function createUpdate($post) {
+		
+		$tournament_uid = $_POST['tournament_id'];
+		
+		if ($_POST['overlay_registration_type'] == 'create') {
+			
+			// add slug to registry
+			$registry = $this->getRegistry($tournament_uid);
+			$registry[] = $post['overlay_slug'];
+			$this->saveRegistry($tournament_uid, $registry);
+			
+			$overlay = (object)[
+				'title' => $post['overlay_name'],
+				'slug' => $post['overlay_slug'],
+				'dimensions' => [
+					'width' => 0,
+					'height' => 0
+				],
+				'layers' => []
+			];
+			
+			// create new overlay file
+			file_put_contents(getBasePath().'/data/'.$tournament_uid.'/overlays/'.$post['overlay_slug'].'.json', json_encode($overlay));
+			
+			// return current data object
+			app('respond')->json(true, $overlay);
+			
+		} else {
+			
+			$overlay = json_decode(file_get_contents(getBasePath().'/data/'.$tournament_uid.'/overlays/'.$post['overlay_registration_type'].'.json'));
+			$overlay->title = $post['overlay_name'];
+			$overlay->slug = $post['overlay_slug'];
+			
+			// slug change, change file name and update registry
+			if ($post['overlay_registration_type'] != $post['overlay_slug']) {
+				$registry = $this->getRegistry($tournament_uid);
+				for ($i=0; $i<count($registry); $i++) {
+					if ($registry[$i] == $post['overlay_registration_type']) {
+						$registry[$i] = $post['overlay_slug'];
+						break;
+					}
+				}
+				$this->saveRegistry($tournament_uid, $registry);
+				
+				// rename overlay file
+				rename(getBasePath().'/data/'.$tournament_uid.'/overlays/'.$post['overlay_registration_type'].'.json', getBasePath().'/data/'.$tournament_uid.'/overlays/'.$post['overlay_slug'].'.json');
+			}
+			
+			// return current data object
+			app('respond')->json(true, $overlay);
+		}
+		
+	}
+	
+	function remove($tournament_uid, $slug) {
+		unlink(getBasePath().'/data/'.$tournament_uid.'/overlays/'.$slug.'.json');
+		if (file_exists(getBasePath().'/overlay_output/'.$tournament_uid.'/'.$slug.'.png')) {
+			unlink(getBasePath().'/overlay_output/'.$tournament_uid.'/'.$slug.'.png');
+		}
+		$registry = $this->getRegistry($tournament_uid);
+		for ($i=0; $i<count($registry); $i++) {
+			if ($registry[$i] == $slug) {
+				array_splice($registry, $i, 1);
+				break;
+			}
+		}
+		$this->saveRegistry($tournament_uid, $registry);
+	}
+	
 }
 
 ?>

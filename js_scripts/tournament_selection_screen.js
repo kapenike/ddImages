@@ -29,18 +29,22 @@ function generateTournamentSelectionScreen() {
 						className: 'logo',
 						src: 'logo.png'
 					}),
-					Create('select', {
-						id: 'tournament_uid_selection',
-						children: Object.keys(GLOBAL.tournament_registry).map(key => {
-							return Create('option', {
-								innerHTML: GLOBAL.tournament_registry[key],
-								value: key
-							});
-						})
+					Create('label', {
+						innerHTML: 'Tournaments',
+						children: [
+							Create('select', {
+								id: 'tournament_uid_selection',
+								children: Object.keys(GLOBAL.tournament_registry).map(key => {
+									return Create('option', {
+										innerHTML: GLOBAL.tournament_registry[key],
+										value: key
+									});
+								})
+							})
+						]
 					}),
 					Create('button', {
 						type: 'button',
-						className: 'small_button_green',
 						innerHTML: '+ Create New',
 						style: {
 							float: 'left'
@@ -101,7 +105,8 @@ function tournamentCreationDialog() {
 						className: 'small_button',
 						innerHTML: 'Return to Tournament Selection',
 						style: {
-							float: 'left'
+							float: 'left',
+							backgroundColor: '#444444'
 						},
 						onclick: generateTournamentSelectionScreen
 					}),

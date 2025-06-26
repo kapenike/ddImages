@@ -45,7 +45,8 @@ function initNavigation() {
 		},
 		{
 			name: 'Overlays',
-			app_init: setNavigationOverlaySources
+			on_save: updateOverlayData,
+			app_init: setNavigationOverlays
 		},
 		{
 			name: 'Browser Sources',

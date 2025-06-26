@@ -21,6 +21,11 @@ html, body {
 	transform: translate(-50%, -50%);
 }
 
+.tournament_selection_box label {
+	display: block;
+	margin-top: 14px;
+}
+
 .main_button {
 	color: #444444;
 	background-color: #f9a602;

@@ -28,6 +28,14 @@ switch($_POST['application']) {
 		app('overlay')->export($_POST, $_POST['uid']);
 		break;
 		
+	case 'create_update_overlay':
+		app('overlay')->createUpdate($_POST);
+		break;
+		
+	case 'remove_overlay':
+		app('overlay')->remove($_POST['tournament_uid'], $_POST['overlay_slug']);
+		break;
+		
 	case 'update_tournament_details':
 		app('tournament')->updateTournamentDetails($_POST['uid'], $_POST);
 		break;
