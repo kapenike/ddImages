@@ -169,6 +169,24 @@ function setupOverlayEditor(slug = null) {
 						value: overlay_data == null ? 'create' : slug
 					}),
 					(overlay_data != null
+						?	Create('div', {
+								style: {
+									textAlign: 'right'
+								},
+								children: [
+									Create('button', {
+										type: 'button',
+										className: 'main_button',
+										innerHTML: 'Edit Overlay Layers',
+										onclick: () => {
+											editOverlay(slug);
+										}
+									})
+								]
+							})
+						: Create('div')
+					),
+					(overlay_data != null
 						?	Create('label', {
 								innerHTML: 'Overlay Location',
 								children: [

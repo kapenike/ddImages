@@ -6,11 +6,9 @@ function initNavigation() {
 	GLOBAL_NAVIGATION = [
 		{
 			name: 'Tournament Data',
-			default: true,
 			sub_navigation: [
 				{
 					name: 'Data Management',
-					default: true,
 					on_save: updateSourceChanges,
 					app_init: function () {
 						createUIFromData('#sub_main', GLOBAL.active_tournament.ui, 'update_tournament_details')
@@ -45,6 +43,7 @@ function initNavigation() {
 		},
 		{
 			name: 'Overlays',
+			default: true,
 			on_save: updateOverlayData,
 			app_init: setNavigationOverlays
 		},

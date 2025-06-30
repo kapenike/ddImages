@@ -127,8 +127,10 @@ function createDataStructureFromForm(data, form_fields) {
 		if (typeof data_origin_ref_path !== 'undefined' && !isObject(data_origin_ref_path)) {
 			final_value = data_origin_ref_path;
 		}
-		// set final value
-		return_data_ref_path[last_key] = final_value;
+		// if last key not empty and not an ignored key, add final value to data structure
+		if (last_key != '' && !GLOBAL.data_structure.ignored.includes(last_key)) {
+			return_data_ref_path[last_key] = final_value;
+		}
 	});
 
 	return return_data;
@@ -153,8 +155,14 @@ function updateDataStructure() {
 		
 		if (status) {
 			
+			// keys are updated individually as to proc javascripts "pointer style reference" to the original global object that was passed and set to GLOBAL.data_structure.active_data_path
+			
+			// log root keys that have been modified
+			let used_root_keys = [];
+			
 			// loop original data structure and update non-ignored keys, remove unfound root keys
 			Object.keys(GLOBAL.data_structure.active_data_path).forEach(root_key => {
+				used_root_keys.push(root_key);
 				if (!GLOBAL.data_structure.ignored.includes(root_key)) {
 					if (typeof local_data[root_key] === 'undefined') {
 						delete GLOBAL.data_structure.active_data_path[root_key];
@@ -163,6 +171,13 @@ function updateDataStructure() {
 					}
 				}
 			});
+			
+			// loop new potential root keys and add to global data
+			Object.keys(local_data).forEach(root_key => {
+				if (!used_root_keys.includes(root_key)) {
+					GLOBAL.data_structure.active_data_path[root_key] = local_data[root_key];
+				}
+			})
 		
 		}
 		

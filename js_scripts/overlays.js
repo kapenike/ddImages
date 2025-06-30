@@ -252,6 +252,11 @@ function printText(ctx, layer) {
 	// get real value
 	let value = getRealValue(layer.value);
 	
+	// if not a string, exit
+	if (typeof value !== 'string') {
+		return;
+	}
+	
 	// caps
 	if (layer.style.caps) {
 		value = value.toUpperCase();

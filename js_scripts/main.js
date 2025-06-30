@@ -26,6 +26,7 @@ function initGlobal() {
 			container: null,
 			active_path_field_id: null
 		},
+		overlay_editor: {},
 		unique_id: 0
 	}
 }
