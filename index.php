@@ -14,11 +14,13 @@ forEach(app('directoryFileList')->get([], './js_scripts') as $file) {
 <?php app('fonts')->generateFontCSS(); ?>
 
 <script>
+const custom_font_list = [];
 document.addEventListener('DOMContentLoaded', function() {
 	// on document ready, import custom fonts into document.fonts, then run initStreamOverlay()
 	let custom_fonts = JSON.parse('<?php echo str_replace("\r\n", "", file_get_contents('./fonts/font_registry.json')); ?>');
 	let loaded_fonts = 0;
 	custom_fonts.forEach(font => {
+		custom_font_list.push(font.name);
 		new FontFace(font.name, 'url(./fonts/'+font.filename+')', {
 			style: font.style,
 			weight: font.weight ?? 400

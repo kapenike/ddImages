@@ -204,7 +204,7 @@ function printRect(ctx, layer) {
 function printImage(ctx, layer) {
 
 	// get real source
-	let value = getRealValue(layer.source);
+	let value = getRealValue(layer.value);
 	
 	// if layer toggle and value not falsey, draw image
 	if (toggleTrue(layer) && value) {
@@ -213,8 +213,8 @@ function printImage(ctx, layer) {
 		let output_height = value.height;
 		
 		// determine if scaling of original image based on layer is needed
-		let width_scale = layer.dimensions.width != null;
-		let height_scale = layer.dimensions.height != null;
+		let width_scale = layer.dimensions.width != '';
+		let height_scale = layer.dimensions.height != '';
 		if (width_scale || height_scale) {
 			if (width_scale && height_scale) {
 				// if both scaling
@@ -242,7 +242,7 @@ function printImage(ctx, layer) {
 }
 
 function printText(ctx, layer) {
-	ctx.font = layer.style.font;
+	ctx.font = layer.style.fontStyle+' '+layer.style.fontWeight+' '+layer.style.fontSize+layer.style.fontMeasure+' '+layer.style.font;
 	ctx.fillStyle = getRealValue(layer.style.color);
 	
 	// default align left

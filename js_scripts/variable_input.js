@@ -70,6 +70,7 @@ function setPathEditorValue(path) {
 	}
 	input_field.appendChild(createPathVariableEntry(path));
 	Select('#var_set_input_form_value_'+id).value = getFormValueOfPathSelection(id, input_field.innerHTML);
+	Select('#var_set_input_form_value_'+id).onedit();
 	closePathEditor(id);
 }
 
@@ -206,6 +207,7 @@ function stripAndEnsureSinglePath(id) {
 		children[i].remove();
 	}
 	Select('#var_set_input_form_value_'+id).value = getFormValueOfPathSelection(id, input_field.innerHTML);
+	Select('#var_set_input_form_value_'+id).onedit();
 }
 
 function getFormValueOfPathSelection(id, value) {
@@ -271,6 +273,9 @@ function createPathVariableField(settings = {}) {
 	if (typeof settings.show_setters === 'undefined') {
 		settings.show_setters = false;
 	}
+	if (typeof settings.on_edit === 'undefined') {
+		settings.on_edit = function(){};
+	}
 	
 	let is_content_editable = !settings.force_path_only && !settings.value.path_only;
 	let is_path_only_name = settings.name;
@@ -289,7 +294,8 @@ function createPathVariableField(settings = {}) {
 						type: 'hidden',
 						id: 'var_set_input_form_value_'+GLOBAL.unique_id,
 						name: settings.name,
-						value: settings.value.value
+						value: settings.value.value,
+						onedit: settings.on_edit
 					}),
 					Create('input', {
 						type: 'hidden',
@@ -314,6 +320,7 @@ function createPathVariableField(settings = {}) {
 						},
 						oninput: function () {
 							Select('#var_set_input_form_value_'+this.data, { value: getFormValueOfPathSelection(this.data, this.innerHTML) });
+							Select('#var_set_input_form_value_'+this.data).onedit();
 						},
 						children: getPathSelectionValueFromFormValue(settings.value.value)
 					}),

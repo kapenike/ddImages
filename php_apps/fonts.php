@@ -21,10 +21,12 @@ class fonts {
 		
 		// print font faces
 		foreach ($font_registry as $font) {
+			$get_ext = explode('.',$font->filename);
+			$get_ext = strtolower(array_pop($get_ext));
 			echo '
 			@font-face {
 				font-family: \''.$font->name.'\';
-				src: url(\'/fonts/'.$font->filename.'\') format(\''.$ext_to_format->{strtolower(array_pop(explode('.',$font->filename)))}.'\');
+				src: url(\'/fonts/'.$font->filename.'\') format(\''.$ext_to_format->{$get_ext}.'\');
 				font-style: '.$font->style.';
 				font-weight: '.($font->weight ?? '400').';
 			}
