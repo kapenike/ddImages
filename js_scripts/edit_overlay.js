@@ -110,9 +110,17 @@ function setupLayerInfo() {
 	Select('#upper_editor', {
 		innerHTML: '',
 		children: [
-			Create('label', {
-				innerHTML: 'Layer Title',
+			Create('div', {
+				className: 'editor_section_block',
+				style: {
+					marginTop: '6px',
+					paddingTop: '6px'
+				},
 				children: [
+					Create('div', {
+						className: 'editor_section_title',
+						innerHTML: 'Layer Title'
+					}),
 					Create('input', {
 						type: 'text',
 						value: layer.title ?? '',
@@ -151,19 +159,22 @@ function setupLayerInfo() {
 								]
 							})
 						: (layer.type == 'image'
-								? Create('label', {
-										innerHTML: 'Image',
+								? Create('span', {
+										innerHTML: 'Source',
+										className: 'editor_spanlabel',
 										children: [
-											Create('select', {
-												onchange: function () {
-													GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer].value = this.value;
+											createPathVariableField({
+												name: 'editor_value',
+												override_source_setter: true,
+												value: {
+													path_only: false,
+													value: layer.value
 												},
-												children: Object.keys(GLOBAL.active_tournament.data.assets).map(key => {
-													return Create('option', {
-														innerHTML: GLOBAL.active_tournament.data.assets[key].display,
-														value: '$var$assets/'+key+'$/var$'
-													})
-												})
+												force_path_only: true,
+												on_edit: function () {
+													GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer].value = this.value;
+													printCurrentCanvas();
+												}
 											})
 										]
 									})

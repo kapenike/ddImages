@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	let custom_fonts = JSON.parse('<?php echo str_replace("\r\n", "", file_get_contents('./fonts/font_registry.json')); ?>');
 	let loaded_fonts = 0;
 	custom_fonts.forEach(font => {
-		custom_font_list.push(font.name);
+		if (!custom_font_list.includes(font.name)) {
+			custom_font_list.push(font.name);
+		}
 		new FontFace(font.name, 'url(./fonts/'+font.filename+')', {
 			style: font.style,
 			weight: font.weight ?? 400
