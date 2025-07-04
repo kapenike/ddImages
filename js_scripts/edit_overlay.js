@@ -93,10 +93,21 @@ function editOverlay(slug) {
 	setupLayersUI();
 	
 	printCurrentCanvas();
+	
+	createImageEditorListeners();
 }
 
 function closeOverlayEditor() {
+	removeImageEditorListeners();
 	Select('#image_editor').remove();
+}
+
+function createImageEditorListeners() {
+	
+}
+
+function removeImageEditorListeners() {
+	
 }
 
 function setupLayersUI() {
@@ -642,6 +653,8 @@ function removeLayer(index) {
 // removeUIEditMenu(); hijacked from create_ui.js
 
 function setImageEditorDialog(event, menu_items) {
+	removeUIEditMenu();
+	
 	let x = event.clientX;
 	let y = event.clientY;
 	
@@ -680,6 +693,120 @@ function setImageEditorDialog(event, menu_items) {
 		]
 	});
 	
+}
+
+function createImageEditorListeners() {
+	window.addEventListener('mousedown', imageEditorMouseDown);
+	window.addEventListener('mousemove', imageEditorMouseMove);
+	window.addEventListener('mouseup', imageEditorMouseUp);
+	window.addEventListener('contextmenu', imageEditorMouseCTX);
+}
+
+function removeImageEditorListeners() {
+	window.removeEventListener('mousedown', imageEditorMouseDown);
+	window.removeEventListener('mousemove', imageEditorMouseMove);
+	window.removeEventListener('mouseup', imageEditorMouseUp);
+	window.removeEventListener('contextmenu', imageEditorMouseCTX);
+}
+
+var image_editor_drag = null;
+
+function targetIsLayerElem(elem) {
+	return elem.className.split(' ').includes('editor_layer');
+}
+
+function imageEditorMouseCTX(event) {
+	// if not a layer element, prevent context menu click
+	if (!targetIsLayerElem(event.target)) {
+		event.preventDefault();
+	}
+}
+
+function imageEditorMouseDown(event) {
+	if (image_editor_drag == null && targetIsLayerElem(event.target)) {
+		image_editor_drag = {
+			id: event.target.id,
+			elem: event.target,
+			active_hover: event.target.id,
+			dragging: false
+		};
+		return
+	} 
+	
+	let translate_scale_x = event.clientX;
+	let translate_scale_y = event.clientY;
+	
+	/*(GLOBAL.overlay_editor.dimensions.width/2) - ((GLOBAL.overlay_editor.current.dimensions.width/2)*GLOBAL.overlay_editor.scale),
+		(GLOBAL.overlay_editor.dimensions.height/2) - ((GLOBAL.overlay_editor.current.dimensions.height/2)*GLOBAL.overlay_editor.scale)*/
+	
+	if (
+		GLOBAL.overlay_editor.active_layer_selection &&
+		translate_scale_x > GLOBAL.overlay_editor.active_layer_selection.x &&
+		translate_scale_y > GLOBAL.overlay_editor.active_layer_selection.y &&
+		translate_scale_x < GLOBAL.overlay_editor.active_layer_selection.x + GLOBAL.overlay_editor.active_layer_selection.width &&
+		translate_scale_y < GLOBAL.overlay_editor.active_layer_selection.y + GLOBAL.overlay_editor.active_layer_selection.height
+	) {
+		console.log('hazzah');
+	}
+}
+
+function imageEditorMouseMove(event) {
+	if (image_editor_drag != null) {
+		if (image_editor_drag.dragging == false) {
+			// create draggable ui indicator element
+			Select('#body', {
+				children: [
+					Create('div', {
+						id: 'drag_clone',
+						style: {
+							width: event.target.offsetWidth+'px',
+							height: event.target.offsetHeight+'px'
+						}
+					})
+				]
+			});
+			image_editor_drag.dragging = true;
+		}
+		
+		// update drag clone location
+		Select('#drag_clone', {
+			style: {
+				top: event.clientY+'px',
+				left: event.clientX+'px'
+			}
+		});
+		
+		// layer drag border indicator
+		if (targetIsLayerElem(event.target)) {
+			// reset past drop element border
+			Select('#'+image_editor_drag.active_hover).style.borderTop = '';
+			// set new drop element
+			event.target.style.borderTop = '4px solid #0469e2';
+			image_editor_drag.active_hover = event.target.id;
+		}
+	}
+}
+
+function imageEditorMouseUp() {
+	if (image_editor_drag != null) {
+		if (image_editor_drag.dragging == true) {
+			if (image_editor_drag.id != image_editor_drag.active_hover) {
+				let insert_index = parseInt(image_editor_drag.active_hover.split('_')[1]);
+				let pull_index = parseInt(image_editor_drag.id.split('_')[1]);
+				// if pull from index is less than insert index, decrement insert index because of splice index change to array
+				if (pull_index < insert_index) {
+					insert_index--;
+				}
+				GLOBAL.overlay_editor.current.layers.splice(insert_index, 0, ...GLOBAL.overlay_editor.current.layers.splice(pull_index, 1));
+				// set new active layer
+				setActiveLayer(insert_index);
+			}
+			// remove drag clone
+			Select('#drag_clone').remove();
+		}
+		// reset drag state
+		image_editor_drag = null;
+	}
 }
 
 function printCurrentCanvas() {
@@ -773,6 +900,14 @@ function printCurrentCanvas() {
 			ctx.setLineDash([6, 8]);
 			ctx.strokeStyle = '#0051ff';
 			ctx.strokeRect(output_x, output_y, output_width, output_height);
+			
+			// save selection area for dragging logic
+			GLOBAL.overlay_editor.active_layer_selection = {
+				x: output_x,
+				y: output_y,
+				width: output_width,
+				height: output_height
+			}
 		}
 		
 	}

@@ -54,6 +54,8 @@ html, body {
 	z-index: 999;
 	background-color: #eeeeee70;
 	cursor: grabbing;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
 }
 
 /* popup styling */
@@ -501,6 +503,12 @@ button, input[type="submit"] {
 	height: 100%;
 	overflow: hidden;
 	background-color: #ffffff;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 #image_editor .editor_info_bar {

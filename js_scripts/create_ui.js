@@ -531,6 +531,7 @@ function resetDrag() {
 
 function uiEditMouseUp(event) {
 	event.preventDefault();
+
 	if (GLOBAL.ui.drop_side != null) {
 		let current_location = JSON.parse(GLOBAL.ui.drag_elem.data);
 		let new_location = JSON.parse(GLOBAL.ui.drag_hover.data);
