@@ -406,6 +406,11 @@ button, input[type="submit"] {
 	background-color: #444444;
 	color: #ffffff;
 }
+.ui_edit_menu .ui_edit_menu_title {
+	background-color: #444444;
+	color: #ffffff;
+	cursor: default;
+}
 .ui_edit_menu .ui_edit_menu_remove {
 	background-color: red;
 	color: #ffffff;
@@ -553,14 +558,30 @@ button, input[type="submit"] {
 	height: 100%;
 }
 
+#image_editor #upper_editor {
+	height: 50%;
+}
+
+#image_editor #lower_editor {
+	height: calc(50% - 24px);
+}
+
+#image_editor .layer_manager {
+	height: 24px;
+	position: relative;
+	background-color: #666666;
+	color: #ffffff;
+	border-left: 2px solid #444444;
+	font-size: 14px;
+}
+
 #image_editor #upper_editor,
 #image_editor #lower_editor {
-	height: 50%;
 	overflow-x: hidden;
 	overflow-y: auto;
 	box-sizing: border-box;
 	background-color: #dddddd;
-	border-left: 2px solid #cccccc;
+	border-left: 2px solid #444444;
 }
 
 #image_editor #upper_editor {
@@ -615,3 +636,16 @@ button, input[type="submit"] {
 	top: -10px;
 	left: 4px;
 }
+
+#image_editor .layer_manager .layer_manager_title {
+	position: absolute;
+	left: 5px;
+	top: 3px;
+}	
+
+#image_editor .layer_manager .layer_manager_add {
+	position: absolute;
+	right: 5px;
+	top: 3px;
+	cursor: pointer;
+}	

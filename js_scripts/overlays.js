@@ -134,7 +134,7 @@ function toggleTrue(layer) {
 			
 			let value = getRealValue(layer.toggle);
 			// check truthfulness of toggle value
-			if (value || value === '0' || value === 0) {
+			if (value || value === '0' || value === 0 || layer.toggle == '') {
 				return true;
 			}
 			

@@ -41,6 +41,22 @@ function editOverlay(slug) {
 							id: 'upper_editor'
 						}),
 						Create('div', {
+							className: 'layer_manager',
+							children: [
+								Create('div', {
+									className: 'layer_manager_title',
+									innerHTML: 'Layers'
+								}),
+								Create('div', {
+									className: 'layer_manager_add',
+									innerHTML: '+ New Layer',
+									onclick: function () {
+										addNewLayer();
+									}
+								})
+							]
+						}),
+						Create('div', {
 							id: 'lower_editor'
 						})
 					]
@@ -91,7 +107,8 @@ function setupLayersUI() {
 				id: 'layer_'+index,
 				className: 'editor_layer'+(index == GLOBAL.overlay_editor.active_layer ? ' active_editor_layer' : ''),
 				innerHTML: layer.title ?? 'Untitled Layer',
-				onclick: () => { setActiveLayer(index); }
+				onclick: () => { setActiveLayer(index); },
+				oncontextmenu: function () { editLayer(this); }
 			})
 		})
 	});
@@ -295,7 +312,7 @@ function setupLayerInfo() {
 									Create('div', {
 										className: 'col',
 										style: {
-											width: '50%'
+											width: '35%'
 										},
 										children: [
 											Create('label', {
@@ -347,11 +364,41 @@ function setupLayerInfo() {
 									Create('div', {
 										className: 'col',
 										style: {
-											width: '20%'
+											width: '35%'
 										},
 										children: [
 											Create('label', {
-												innerHTML: 'CAPS',
+												innerHTML: 'Color',
+												children: [
+													Create('input', {
+														style: {
+															backgroundColor: layer.style.color,
+															height: '41px'
+														},
+														type: 'color',
+														value: layer.style.color,
+														onchange: function () {
+															GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer].style.color = this.value;
+															this.style.backgroundColor = this.value;
+															printCurrentCanvas();
+														}
+													})
+												]
+											})
+										]
+									})
+								]
+							}),
+							Create('div', {
+								className: 'row',
+								children: [
+									Create('div', {
+										className: 'col',
+										style: {
+											width: '40%'
+										},
+										children: [
+											Create('label', {
 												children: [
 													Create('input', {
 														type: 'checkbox',
@@ -360,7 +407,8 @@ function setupLayerInfo() {
 															GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer].style.caps = this.checked;
 															printCurrentCanvas();
 														}
-													})
+													}),
+													Create('span', { innerHTML: 'CAPS' })
 												]
 											})
 										]
@@ -482,6 +530,155 @@ function setupLayerInfo() {
 		]
 	})
 
+}
+
+function editLayer(elem) {
+	event.preventDefault();
+	let index = elem.id.split('_')[1];
+	setImageEditorDialog(event, {
+		title: 'Edit Layer',
+		items: [
+			{
+				title: 'Duplicate',
+				click: () => { addNewTypeLayer('text', index, true); }
+			},
+			{
+				title: 'Remove',
+				click: () => { removeLayer(index); },
+				remove: true
+			}
+		]
+	});
+}
+
+function addNewLayer(index = null) {
+	setImageEditorDialog(event, {
+		title: 'New Layer Type',
+		items: [
+			{
+				title: 'Text',
+				click: () => { addNewTypeLayer('text', index); }
+			},
+			{
+				title: 'Image',
+				click: () => { addNewTypeLayer('image', index); }
+			},
+			{
+				title: 'Rectangle',
+				click: () => { addNewTypeLayer('rect', index); }
+			},
+			{
+				title: 'Clipping Group',
+				click: () => { addNewTypeLayer('clip_path', index); }
+			}
+		]
+	});
+}
+
+function addNewTypeLayer(type, index, duplicate = false) {
+	let ref = index == null ? null : GLOBAL.overlay_editor.current.layers[index];
+	let new_layer = null;
+	if (duplicate == false) {
+		if (type == 'text') {
+			new_layer = {
+				type: 'text',
+				toggle: '',
+				title: 'Untitled Text Layer',
+				value: '',
+				style: {
+					font: 'Arial',
+					fontStyle: 'normal',
+					fontWeight: '400',
+					fontSize: '22',
+					fontMeasure: 'px',
+					color: '#000000',
+					align: 'left',
+					caps: false
+				},
+				offset: {
+					x: GLOBAL.overlay_editor.current.dimensions.width/2,
+					y: GLOBAL.overlay_editor.current.dimensions.height/2
+				},
+				dimensions: {
+					width: 300
+				}
+			};
+		} else if (type == 'image') {
+			new_layer = {
+				type: 'image',
+				toggle: '',
+				title: 'Untitled Image Layer',
+				value: '',
+				offset: {
+					x: GLOBAL.overlay_editor.current.dimensions.width/2,
+					y: GLOBAL.overlay_editor.current.dimensions.height/2
+				},
+				dimensions: {
+					width: '',
+					height: ''
+				}
+			};
+		}
+	} else {
+		new_layer = JSON.parse(JSON.stringify(ref));
+		new_layer.title += ' (duplicate)';
+	}
+	if (index == null) {
+		GLOBAL.overlay_editor.current.layers.unshift(new_layer);
+		setActiveLayer(0);
+	} else {
+		GLOBAL.overlay_editor.current.layers.splice(index, 0, new_layer);
+		setActiveLayer(index);
+	}
+	removeUIEditMenu();
+}
+
+function removeLayer(index) {
+	GLOBAL.overlay_editor.current.layers.splice(index, 1);
+	setActiveLayer(index);
+	removeUIEditMenu();
+}
+
+// removeUIEditMenu(); hijacked from create_ui.js
+
+function setImageEditorDialog(event, menu_items) {
+	let x = event.clientX;
+	let y = event.clientY;
+	
+	Select('#body', {
+		children: [
+			Create('div', {
+				className: 'ui_edit_menu',
+				id: 'ui_edit_menu',
+				style: {
+					left: x,
+					top: y,
+					transform: 'translate('+(x < (screen.width/2) ? '0' : '-100%')+', '+(y > (screen.height/2) ? '-100%' : '0')+')'
+				},
+				children: [
+					(typeof menu_items.title !== 'undefined' && menu_items.title != '' 
+						?	Create('div', {
+								className: 'ui_edit_menu_title',
+								innerHTML: menu_items.title
+							})
+						: Create('span')
+					),
+					...menu_items.items.map(item => {
+						return Create('div', {
+							innerHTML: item.title,
+							onclick: item.click,
+							className: typeof item.remove === 'undefined' ? '' : 'ui_edit_menu_remove' 
+						});
+					}),
+					Create('div', {
+						innerHTML: 'cancel',
+						className: 'ui_edit_menu_cancel',
+						onclick: () => { removeUIEditMenu(); }
+					})
+				]
+			})
+		]
+	});
 	
 }
 
@@ -527,8 +724,8 @@ function printCurrentCanvas() {
 		// active layer indicator
 		if (i == GLOBAL.overlay_editor.active_layer) {
 			
-			let output_width = 0;
-			let output_height = 0;
+			let output_width = 10;
+			let output_height = 10;
 			let output_x = layer.offset.x;
 			let output_y = layer.offset.y;
 			
@@ -547,26 +744,28 @@ function printCurrentCanvas() {
 				let height_scale = layer.dimensions.height != '';
 				
 				let value = getRealValue(layer.value);
-				output_width = value.width;
-				output_height = value.height;
-				
-				if (width_scale || height_scale) {
-					if (width_scale && height_scale) {
-						// if both scaling
-						output_width = layer.dimensions.width;
-						output_height = layer.dimensions.height;
-					} else if (width_scale) {
-						// if only scaling width
-						output_width = layer.dimensions.width;
-						output_height = (layer.dimensions.width / value.width) * output_height;
-					} else if (height_scale) {
-						// if only scaling height
-						output_height = layer.dimensions.height;
-						output_width = (layer.dimensions.height / value.height) * output_width;
-					}
-				} else {
+				if (value.width && value.height) {
 					output_width = value.width;
 					output_height = value.height;
+					
+					if (width_scale || height_scale) {
+						if (width_scale && height_scale) {
+							// if both scaling
+							output_width = layer.dimensions.width;
+							output_height = layer.dimensions.height;
+						} else if (width_scale) {
+							// if only scaling width
+							output_width = layer.dimensions.width;
+							output_height = (layer.dimensions.width / value.width) * output_height;
+						} else if (height_scale) {
+							// if only scaling height
+							output_height = layer.dimensions.height;
+							output_width = (layer.dimensions.height / value.height) * output_width;
+						}
+					} else {
+						output_width = value.width;
+						output_height = value.height;
+					}
 				}
 			}
 
