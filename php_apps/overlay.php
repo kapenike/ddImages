@@ -47,8 +47,8 @@ class overlay {
 				'title' => $post['overlay_name'],
 				'slug' => $post['overlay_slug'],
 				'dimensions' => [
-					'width' => 0,
-					'height' => 0
+					'width' => 1920,
+					'height' => 1080
 				],
 				'layers' => []
 			];
