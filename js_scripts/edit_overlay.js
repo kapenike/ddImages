@@ -109,7 +109,7 @@ function setupLayersUI() {
 			return Create('div', {
 				id: 'layer_'+index,
 				className: 'editor_layer'+(index == GLOBAL.overlay_editor.active_layer ? ' active_editor_layer' : ''),
-				innerHTML: layer.title ?? 'Untitled Layer',
+				innerHTML: layer.title,
 				onclick: () => { setActiveLayer(index); },
 				oncontextmenu: function () { editLayer(this); }
 			})
@@ -125,6 +125,15 @@ function setActiveLayer(index) {
 }
 
 function setupLayerInfo() {
+	
+	// if no active layer, remove info instead
+	if (GLOBAL.overlay_editor.active_layer == null) {
+		Select('#upper_editor', {
+			innerHTML: ''
+		});
+		return;
+	}
+	
 	let layer = GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer];
 	
 	Select('#upper_editor', {
@@ -143,7 +152,7 @@ function setupLayerInfo() {
 					}),
 					Create('input', {
 						type: 'text',
-						value: layer.title ?? '',
+						value: layer.title,
 						onkeyup: function () {
 							GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer].title = this.value;
 							Select('#layer_'+GLOBAL.overlay_editor.active_layer).innerHTML = this.value;
@@ -638,7 +647,7 @@ function addNewTypeLayer(type, index, duplicate = false) {
 
 function removeLayer(index) {
 	GLOBAL.overlay_editor.current.layers.splice(index, 1);
-	setActiveLayer(index);
+	setActiveLayer(null);
 	removeUIEditMenu();
 }
 
