@@ -102,14 +102,6 @@ function closeOverlayEditor() {
 	Select('#image_editor').remove();
 }
 
-function createImageEditorListeners() {
-	
-}
-
-function removeImageEditorListeners() {
-	
-}
-
 function setupLayersUI() {
 	Select('#lower_editor', {
 		innerHTML: '',

@@ -127,8 +127,10 @@ function updateAssetData() {
 			
 			// if file was included in the form submission, load file into source and update affected overlays
 			if (form_details.asset_file.length > 0) {
-				// init loader, generateStreamOverlays will clear
-				ajaxInitLoader('body');
+				if (Object.keys(GLOBAL.active_tournament.overlays).length > 0) {
+					// init loader, generateStreamOverlays will clear
+					ajaxInitLoader('body');
+				}
 				let image = new Image();
 				image.src = '/data/'+GLOBAL.active_tournament.uid+'/sources/'+data.msg.file;
 				image.onload = () => {
