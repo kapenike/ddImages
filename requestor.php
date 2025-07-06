@@ -32,6 +32,10 @@ switch($_POST['application']) {
 		app('overlay')->createUpdate($_POST);
 		break;
 		
+	case 'update_overlay_layers':
+		app('overlay')->updateLayers($_POST);
+		break;
+		
 	case 'remove_overlay':
 		app('overlay')->remove($_POST['tournament_uid'], $_POST['overlay_slug']);
 		break;

@@ -51,7 +51,7 @@ html, body {
 }
 #drag_clone {
 	position: absolute;
-	z-index: 999;
+	z-index: 888;
 	background-color: #eeeeee70;
 	cursor: grabbing;
 	transform: translate(-50%, -50%);
@@ -61,7 +61,7 @@ html, body {
 /* popup styling */
 #popup {
 	position: absolute;
-	z-index: 999;
+	z-index: 888;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -393,7 +393,7 @@ button, input[type="submit"] {
 	border-radius: 3px;
 	text-align: center;
 	position: absolute;
-	z-index: 999;
+	z-index: 888;
 }
 .ui_edit_menu > div {
 	box-sizing: border-box;
@@ -415,6 +415,10 @@ button, input[type="submit"] {
 }
 .ui_edit_menu .ui_edit_menu_remove {
 	background-color: red;
+	color: #ffffff;
+}
+.ui_edit_menu .ui_edit_menu_save {
+	background-color: green;
 	color: #ffffff;
 }
 
@@ -485,6 +489,7 @@ button, input[type="submit"] {
 	position: absolute;
 	top: 0;
 	left: 0;
+	z-index: 999;
 	width: 100%;
 	height: 100%;
 	background-color: #cccccc90;
@@ -541,6 +546,15 @@ button, input[type="submit"] {
 	color: #ffffff;
 	padding: 4px 8px;
 	margin: -4px -4px -4px 0;
+	float: right;
+	cursor: pointer;
+}
+
+#image_editor .editor_tab {
+	background-color: #444444;
+	color: #ffffff;
+	padding: 4px 8px;
+	margin: -4px 0;
 	float: right;
 	cursor: pointer;
 }
@@ -616,17 +630,17 @@ button, input[type="submit"] {
 }
 
 #image_Editor #lower_editor .editor_layer {
-	background-color: #388ff9;
-	color: #444444;
+	background-color: #444444;
+	color: #ffffff;
 	text-align: center;
 	padding: 12px 24px;
-	border-bottom: 1px solid #0469e2;
+	border-bottom: 1px solid #333333;
 	cursor: pointer;
 }
 
 #image_editor #lower_editor .active_editor_layer {
-	background-color: #444444;
-	color: #ffffff;
+	background-color: #388ff9;
+	color: #444444;
 }
 
 #image_editor #upper_editor .editor_section_block {

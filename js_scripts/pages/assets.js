@@ -151,13 +151,17 @@ function updateAssetData() {
 	}, 'asset_manager_form_block');
 }
 
-function checkForAssetSlug(slug) {
+function checkForAssetSlug(slug, live_update = true) {
 	// ensure slug is not being used (unless it is the current slug of the active asset object)
 	if (slug != '' && (typeof GLOBAL.active_tournament.data.assets[slug] === 'undefined' || Select('[name="asset_registration_type"]').value == slug)) {
-		Select('#valid_asset_slug').innerHTML = '';
+		if (live_update) {
+			Select('#valid_asset_slug').innerHTML = '';
+		}
 		return true;
 	} else {
-		Select('#valid_asset_slug').innerHTML = 'Asset slug is currently in use. Consider xXx'+slug+'xXx';
+		if (live_update) {
+			Select('#valid_asset_slug').innerHTML = 'Asset slug is currently in use. Consider xXx'+slug+'xXx';
+		}
 		return false;
 	}
 }
@@ -180,6 +184,18 @@ function checkForFile(file) {
 		Select('#valid_asset_file').innerHTML = 'Asset image required for creation';
 		return false;
 	}
+}
+
+function autoGenerateAssetSlug(v) {
+	v = v.toLowerCase().replaceAll(' ', '_');
+	let add = 1;
+	while (!checkForAssetSlug(v+(add == 1 ? '' : '_'+add), true)) {
+		add++;
+	}
+	if (add > 1) {
+		v = v+'_'+add;
+	}
+	Select('[name="asset_slug"]').value = v;
 }
 
 function setupAssetEditor(slug = null) {
@@ -213,7 +229,10 @@ function setupAssetEditor(slug = null) {
 							Create('input', {
 								type: 'text',
 								name: 'asset_name',
-								value: asset_data == null ? '' : asset_data.display
+								value: asset_data == null ? '' : asset_data.display,
+								onkeyup: function () {
+									autoGenerateAssetSlug(this.value)
+								}
 							})
 						]
 					}),

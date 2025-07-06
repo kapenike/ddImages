@@ -31,8 +31,8 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 		// current overlay
 		let overlay = GLOBAL.active_tournament.overlays[slug];
 
-		// if overlay contains an updated source, or sources is null
-		if (sources == null || overlay.sources.some(x => sources.includes(x))) {
+		// if overlay contains an updated source, or sources is null, or is set to generate specific overlay
+		if (sources == null || (isObject(sources) && sources.slug == slug) || overlay.sources.some(x => sources.includes(x))) {
 			
 			// define output canvas
 			let canvas = Create('canvas', {

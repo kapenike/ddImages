@@ -130,13 +130,17 @@ function updateOverlayData() {
 	}, 'overlay_manager_form_block');
 }
 
-function checkForOverlaySlug(slug) {
+function checkForOverlaySlug(slug, live_update = true) {
 	// ensure slug is not being used (unless it is the current slug of the active asset object)
 	if (slug != '' && (typeof GLOBAL.active_tournament.overlays[slug] === 'undefined' || Select('[name="overlay_registration_type"]').value == slug)) {
-		Select('#valid_overlay_slug').innerHTML = '';
+		if (live_update) {
+			Select('#valid_overlay_slug').innerHTML = '';
+		}
 		return true;
 	} else {
-		Select('#valid_overlay_slug').innerHTML = 'Overlay slug is currently in use. Consider xXx'+slug+'xXx';
+		if (live_update) {
+			Select('#valid_overlay_slug').innerHTML = 'Overlay slug is currently in use. Consider xXx'+slug+'xXx';
+		}
 		return false;
 	}
 }
@@ -149,6 +153,18 @@ function checkForOverlayName(name) {
 		Select('#valid_overlay_name').innerHTML = 'Overlay name cannot be empty';
 		return false;
 	}
+}
+
+function autoGenerateOverlaySlug(v) {
+	v = v.toLowerCase().replaceAll(' ', '_');
+	let add = 1;
+	while (!checkForOverlaySlug(v+(add == 1 ? '' : '_'+add), true)) {
+		add++;
+	}
+	if (add > 1) {
+		v = v+'_'+add;
+	}
+	Select('[name="overlay_slug"]').value = v;
 }
 
 function setupOverlayEditor(slug = null) {
@@ -214,7 +230,10 @@ function setupOverlayEditor(slug = null) {
 							Create('input', {
 								type: 'text',
 								name: 'overlay_name',
-								value: overlay_data == null ? '' : overlay_data.title
+								value: overlay_data == null ? '' : overlay_data.title,
+								onkeyup: function () {
+									autoGenerateOverlaySlug(this.value);
+								}
 							})
 						]
 					}),

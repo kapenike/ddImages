@@ -23,6 +23,37 @@ function editOverlay(slug) {
 						Create('div', {
 							className: 'editor_save',
 							innerHTML: 'save',
+							onclick: saveOverlay
+						}),
+						Create('div', {
+							className: 'editor_tab',
+							innerHTML: 'Image Dimensions',
+							onclick: function () {
+								setImageEditorDialog(event, {
+									title: 'Image Dimensions',
+									items: [
+										{
+											title: 'Width <input type="text" id="canvas_width" value="'+GLOBAL.overlay_editor.current.dimensions.width+'"/>',
+											click: () => {}
+										},
+										{
+											title: 'Height <input type="text" id="canvas_height" value="'+GLOBAL.overlay_editor.current.dimensions.height+'"/>',
+											click: () => {}
+										},
+										{
+											title: 'Update',
+											click: function () {
+												GLOBAL.overlay_editor.current.dimensions.width = parseInt(Select('#canvas_width').value);
+												GLOBAL.overlay_editor.current.dimensions.height = parseInt(Select('#canvas_height').value);
+												removeUIEditMenu();
+												setupScalingFactor();
+												printCurrentCanvas();
+											},
+											action: true
+										}
+									]
+								});
+							}
 						})
 					]
 				}),
@@ -84,22 +115,58 @@ function editOverlay(slug) {
 	// setup scaling factor
 	GLOBAL.overlay_editor.scale = 1;
 	
-	if (GLOBAL.overlay_editor.current.dimensions.width > GLOBAL.overlay_editor.dimensions.width) {
-		GLOBAL.overlay_editor.scale = GLOBAL.overlay_editor.dimensions.width / GLOBAL.overlay_editor.current.dimensions.width;
-	} else if (GLOBAL.overlay_editor.current.dimensions.height > GLOBAL.overlay_editor.dimensions.height) {
-		GLOBAL.overlay_editor.scale = GLOBAL.overlay_editor.dimensions.height / GLOBAL.overlay_editor.current.dimensions.width;
-	}
+	setupScalingFactor();
 	
 	setupLayersUI();
 	
 	printCurrentCanvas();
 	
 	createImageEditorListeners();
+	
+	// override global save and stash old
+	GLOBAL.overlay_editor.old_save = GLOBAL.navigation.on_save;
+	GLOBAL.navigation.on_save = saveOverlay;
 }
 
 function closeOverlayEditor() {
+	GLOBAL.navigation.on_save = GLOBAL.overlay_editor.old_save;
 	removeImageEditorListeners();
 	Select('#image_editor').remove();
+}
+
+function saveOverlay() {
+	
+	let form_details = {
+		uid: GLOBAL.active_tournament.uid,
+		application: 'update_overlay_layers',
+		slug: GLOBAL.overlay_editor.slug,
+		overlay: JSON.stringify(GLOBAL.overlay_editor.current)
+	}
+	
+	ajax('POST', '/requestor.php', form_details, (status, data) => {
+		if (status) {
+			
+			// update local overlay
+			GLOBAL.active_tournament.overlays[GLOBAL.overlay_editor.slug] = GLOBAL.overlay_editor.current;
+			
+			// update overlay output
+			generateStreamOverlays({ slug: GLOBAL.overlay_editor.slug });
+			
+			// refresh overlay image on previous editor screen
+			let img = Select('.asset_preview').children[0];
+			img.src = img.src+'?'+new Date().getTime();
+			
+		}
+	}, 'body');
+	
+}
+
+function setupScalingFactor() {
+	if (GLOBAL.overlay_editor.current.dimensions.width > GLOBAL.overlay_editor.dimensions.width) {
+		GLOBAL.overlay_editor.scale = GLOBAL.overlay_editor.dimensions.width / GLOBAL.overlay_editor.current.dimensions.width;
+	} else if (GLOBAL.overlay_editor.current.dimensions.height > GLOBAL.overlay_editor.dimensions.height) {
+		GLOBAL.overlay_editor.scale = GLOBAL.overlay_editor.dimensions.height / GLOBAL.overlay_editor.current.dimensions.width;
+	}
 }
 
 function setupLayersUI() {
@@ -244,7 +311,7 @@ function setupLayerInfo() {
 									Create('div', {
 										className: 'col',
 										style: {
-											width: '50%'
+											width: '44%'
 										},
 										children: [
 											Create('label', {
@@ -293,7 +360,7 @@ function setupLayerInfo() {
 									Create('div', {
 										className: 'col',
 										style: {
-											width: '20%'
+											width: '26%'
 										},
 										children: [
 											Create('label', {
@@ -411,6 +478,34 @@ function setupLayerInfo() {
 										},
 										children: [
 											Create('label', {
+												innerHTML: 'Align',
+												children: [
+													Create('select', {
+														children: ['Left','Center','Right'].map(alignment => {
+															let lower_case_align = alignment.toLowerCase();
+															return Create('option', {
+																innerHTML: alignment,
+																value: lower_case_align,
+																selected: lower_case_align == layer.style.align
+															})
+														}),
+														onchange: function () {
+															GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer].style.align = this.value;
+															printCurrentCanvas();
+														}
+													})
+												]
+											})
+										]
+									}),
+									Create('div', {
+										className: 'col',
+										style: {
+											width: '40%'
+										},
+										children: [
+											Create('label', {
+												innerHTML: 'CAPS<br />',
 												children: [
 													Create('input', {
 														type: 'checkbox',
@@ -419,8 +514,7 @@ function setupLayerInfo() {
 															GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer].style.caps = this.checked;
 															printCurrentCanvas();
 														}
-													}),
-													Create('span', { innerHTML: 'CAPS' })
+													})
 												]
 											})
 										]
@@ -681,7 +775,7 @@ function setImageEditorDialog(event, menu_items) {
 						return Create('div', {
 							innerHTML: item.title,
 							onclick: item.click,
-							className: typeof item.remove === 'undefined' ? '' : 'ui_edit_menu_remove' 
+							className: (typeof item.remove === 'undefined' ? (typeof item.action === 'undefined' ? '' : 'ui_edit_menu_save') : 'ui_edit_menu_remove')
 						});
 					}),
 					Create('div', {
@@ -737,8 +831,25 @@ function imageEditorMouseDown(event) {
 	let translate_scale_x = event.clientX;
 	let translate_scale_y = event.clientY;
 	
-	/*(GLOBAL.overlay_editor.dimensions.width/2) - ((GLOBAL.overlay_editor.current.dimensions.width/2)*GLOBAL.overlay_editor.scale),
-		(GLOBAL.overlay_editor.dimensions.height/2) - ((GLOBAL.overlay_editor.current.dimensions.height/2)*GLOBAL.overlay_editor.scale)*/
+	let canvas_elem = Select('#workspace');
+	let canvas_dimensions = {
+		offset_y: canvas_elem.getBoundingClientRect().top,
+		width: canvas_elem.width,
+		height: canvas_elem.height
+	}
+	
+	// relate y to canvas origin
+	translate_scale_y -= canvas_dimensions.offset_y;
+	// relate y to translated origins within drawn canvas
+	translate_scale_y -= (GLOBAL.overlay_editor.dimensions.height/2) - ((GLOBAL.overlay_editor.current.dimensions.height/2)*GLOBAL.overlay_editor.scale);
+	// scale y up for 1 to 1 in overlay comparison
+	translate_scale_y = translate_scale_y/GLOBAL.overlay_editor.scale;
+	
+	// x already at canvas origin
+	// relate x to translate origins within drawn canvas
+	translate_scale_x -= (GLOBAL.overlay_editor.dimensions.width/2) - ((GLOBAL.overlay_editor.current.dimensions.width/2)*GLOBAL.overlay_editor.scale);
+	// scale x up for 1 to 1 in overlay comparison
+	translate_scale_x = translate_scale_x/GLOBAL.overlay_editor.scale;
 	
 	if (
 		GLOBAL.overlay_editor.active_layer_selection &&
@@ -747,7 +858,16 @@ function imageEditorMouseDown(event) {
 		translate_scale_x < GLOBAL.overlay_editor.active_layer_selection.x + GLOBAL.overlay_editor.active_layer_selection.width &&
 		translate_scale_y < GLOBAL.overlay_editor.active_layer_selection.y + GLOBAL.overlay_editor.active_layer_selection.height
 	) {
-		console.log('hazzah');
+		GLOBAL.overlay_editor.layer_selection_drag = {
+			origin: {
+				x: event.clientX,
+				y: event.clientY
+			},
+			layer_origin: {
+				x: GLOBAL.overlay_editor.active_layer_selection.layer_x,
+				y: GLOBAL.overlay_editor.active_layer_selection.layer_y
+			}
+		}
 	}
 }
 
@@ -785,6 +905,15 @@ function imageEditorMouseMove(event) {
 			event.target.style.borderTop = '4px solid #0469e2';
 			image_editor_drag.active_hover = event.target.id;
 		}
+	} else if (GLOBAL.overlay_editor.layer_selection_drag) {
+		// cursor move layer and reprint
+		let x_diff = (GLOBAL.overlay_editor.layer_selection_drag.origin.x - event.clientX)/GLOBAL.overlay_editor.scale;
+		let y_diff = (GLOBAL.overlay_editor.layer_selection_drag.origin.y - event.clientY)/GLOBAL.overlay_editor.scale;
+		GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer].offset = {
+			x: GLOBAL.overlay_editor.layer_selection_drag.layer_origin.x - x_diff,
+			y: GLOBAL.overlay_editor.layer_selection_drag.layer_origin.y - y_diff
+		}
+		printCurrentCanvas();
 	}
 }
 
@@ -807,6 +936,10 @@ function imageEditorMouseUp() {
 		}
 		// reset drag state
 		image_editor_drag = null;
+	} else if (GLOBAL.overlay_editor.layer_selection_drag) {
+		// end cursor drag
+		GLOBAL.overlay_editor.layer_selection_drag = null;
+		setupLayerInfo();
 	}
 }
 
@@ -830,7 +963,7 @@ function printCurrentCanvas() {
 	ctx.scale(GLOBAL.overlay_editor.scale, GLOBAL.overlay_editor.scale);
 	
 	// print backdrop over current overlay size
-	ctx.fillStyle = '#444444';
+	ctx.fillStyle = '#555555';
 	ctx.fillRect(0, 0, GLOBAL.overlay_editor.current.dimensions.width, GLOBAL.overlay_editor.current.dimensions.height);
 	
 	// loop layers from back to front
@@ -859,7 +992,7 @@ function printCurrentCanvas() {
 			
 			if (layer.type == 'text') {
 				output_width = layer.dimensions.width;
-				output_height = layer.style.fontSize;
+				output_height = parseInt(layer.style.fontSize);
 				if (layer.style.align == 'center') {
 					output_x -= output_width/2;
 				} else if (layer.style.align == 'right') {
@@ -907,7 +1040,9 @@ function printCurrentCanvas() {
 				x: output_x,
 				y: output_y,
 				width: output_width,
-				height: output_height
+				height: output_height,
+				layer_x: layer.offset.x,
+				layer_y: layer.offset.y
 			}
 		}
 		

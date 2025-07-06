@@ -86,6 +86,11 @@ class overlay {
 		
 	}
 	
+	function updateLayers($post) {
+		file_put_contents(getBasePath().'/data/'.$post['uid'].'/overlays/'.$post['slug'].'.json', $post['overlay']);
+		app('respond')->json(true, 'Overlay layers updated successfully.');
+	}
+	
 	function remove($tournament_uid, $slug) {
 		unlink(getBasePath().'/data/'.$tournament_uid.'/overlays/'.$slug.'.json');
 		if (file_exists(getBasePath().'/overlay_output/'.$tournament_uid.'/'.$slug.'.png')) {
