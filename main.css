@@ -441,6 +441,11 @@ button, input[type="submit"] {
 	background-color: red;
 }
 
+#structure_list {
+	padding: 20px;
+	background-color: #444444;
+}
+
 .team_block {
 	padding: 14px;
 	margin-bottom: 4px;

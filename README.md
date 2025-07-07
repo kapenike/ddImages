@@ -18,7 +18,7 @@ hot list
 		- hotkeys for moving layer on x / y axis or by a smaller pixel per dpi margin
 		- allow moving and zooming of current project with mouse wheel and hotkeys
 		- allow move / duplicate / remove multiple layers at once
-	- [ ] trackChangeSource use list of all associated path variable to determine when to recalculate a value path result during form edit display
+		- allow data management and asset upload from within the editor
 	- [ ] settings: delete tournament, export / import tournament
 	- [ ] notifications
 	- [ ] Documentation

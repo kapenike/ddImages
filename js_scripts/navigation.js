@@ -44,6 +44,11 @@ function initNavigation() {
 			app_init: setNavigationAssets,
 		},
 		{
+			name: 'Data Sets',
+			on_save: updateDataset,
+			app_init: setNavigationDatasets,
+		},
+		{
 			name: 'Overlays',
 			on_save: updateOverlayData,
 			app_init: setNavigationOverlays

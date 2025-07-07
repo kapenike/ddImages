@@ -53,6 +53,12 @@ class tournament {
 		// create tournament sources directory
 		mkdir(getBasePath().'/data/'.$uid.'/sources');
 		
+		// create tournament data sets directory
+		mkdir(getBasePath().'/data/'.$uid.'/teams');
+		
+		// create skeleton data set registry file
+		file_put_contents(getBasePath().'/data/'.$uid.'/datasets/registry.json', json_encode((object)[]));
+		
 		// create tournament teams directory
 		mkdir(getBasePath().'/data/'.$uid.'/teams');
 		
@@ -114,7 +120,7 @@ class tournament {
 				$tournament_data->data->assets = app('asset')->getRegistry($tournament_uid);
 				
 				// data set structures
-				$tournament_data->data->sets = (object)[];
+				$tournament_data->data->sets = app('dataset')->loadAll($tournament_uid);
 				
 				// import tournament teams dataset
 				$tournament_data->data->sets->teams = app('team')->loadAll($tournament_uid);
