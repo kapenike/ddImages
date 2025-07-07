@@ -52,7 +52,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 							className: 'row',
 							children: upper_section.cols.map((section, col_index) => {
 								return Create('div', {
-									innerHTML: '<h3>'+trackSourceChange(section.section)+'</h3>',
+									innerHTML: '<h3>'+getRealValue(section.section)+'</h3>',
 									data: JSON.stringify({ section: section_index, column: col_index }),
 									className: 'col block',
 									style: {
@@ -83,7 +83,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
 													children: [
 														Create('label', {
-															innerHTML: trackSourceChange(field.title),
+															innerHTML: getRealValue(field.title),
 															children: [
 																Create('input', {
 																	type: field.type,
@@ -121,7 +121,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
 													children: [
 														Create('label', {
-															innerHTML: trackSourceChange(field.title),
+															innerHTML: getRealValue(field.title),
 															children: [
 																Create('select', {
 																	name: field.source,
@@ -180,7 +180,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 																			sub_setters: JSON.stringify(radio.sub_setters ?? null)
 																		}),
 																		Create('span', {
-																			innerHTML: trackSourceChange(radio.display)+'&nbsp;'
+																			innerHTML: getRealValue(radio.display)+'&nbsp;'
 																		})
 																	]
 																});
@@ -199,7 +199,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
 													children: [
 														Create('label', {
-															innerHTML: trackSourceChange(field.title),
+															innerHTML: getRealValue(field.title),
 															children: [
 																Create('br'),
 																Create('input', {
@@ -225,7 +225,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 																marginBottom: '16px',
 																display: 'block'
 															},
-															innerHTML: trackSourceChange(field.title)
+															innerHTML: getRealValue(field.title)
 														})
 													]
 												});
@@ -269,9 +269,6 @@ function resetUISection(section) {
 }
 
 function logSourceChange(field, is_sub_setter_call = false) {
-	
-	// track source change for text updates
-	trackChangeSource(field.name, field.value);
 	
 	// check if source is logged for overlay regen
 	if (!GLOBAL.source_changes.includes(field.name)) {
@@ -367,6 +364,9 @@ function updateSourceChanges() {
 			generateStreamOverlays(GLOBAL.source_changes, () => {
 				GLOBAL.source_changes = [];
 			});
+			
+			// rather than attempting to rebuild portions of UI, just reprint it
+			refreshUIBuild(false);
 		
 		}
 		
@@ -798,8 +798,8 @@ function editUISection(elem, is_create = false) {
 	);
 }
 
-function refreshUIBuild() {
-	createUIFromData(GLOBAL.ui.container, GLOBAL.ui.active_data, Select('#form_capture').data, true);
+function refreshUIBuild(is_editor = true) {
+	createUIFromData(GLOBAL.ui.container, GLOBAL.ui.active_data, Select('#form_capture').data, is_editor);
 }
 
 function removeUISection(elem) {
