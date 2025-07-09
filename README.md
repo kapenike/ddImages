@@ -8,9 +8,9 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 hot list
 - overlay editor
 	- create clipping paths and allow background fill color
-
-- Allow creation of more data sets like teams `data.sets.teams`
-
+	
+	- save and load data sets through requestor.php
+	 - prevent duplcate data set names and structure keys `preventDuplicate`
 
 - TODO
 	- [ ] overlay editor

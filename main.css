@@ -446,6 +446,20 @@ button, input[type="submit"] {
 	background-color: #444444;
 }
 
+.dataset_entry {
+	background-color: #555555;
+	padding: 10px;
+	margin-bottom: 10px;
+	box-sizing: border-box;
+}
+
+.dataset_entry_title {
+	background-color: #444444;
+	cursor: pointer;
+	padding-left: 4px;
+	min-height: 20px;
+}
+
 .team_block {
 	padding: 14px;
 	margin-bottom: 4px;

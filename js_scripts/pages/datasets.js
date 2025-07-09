@@ -151,11 +151,24 @@ function loadDataset(dataset = null) {
 }
 
 function setupDatasetEditor(data = null) {
+	
+	let create = false;
+	if (data == null) {
+		create = true;
+		data = {
+			display: '',
+			structure: [
+				'display'
+			],
+			entries: []
+		};
+	}
+	
 	Select('#dataset_management_form_block', {
 		innerHTML: '',
 		children: [
 			Create('h3', {
-				innerHTML: (data == null ? 'Create New Data Set' : 'Update Data Set')
+				innerHTML: (create == true ? 'Create New Data Set' : 'Update Data Set')
 			}),
 			Create('form', {
 				id: 'dataset_creation_form',
@@ -163,7 +176,7 @@ function setupDatasetEditor(data = null) {
 					Create('input', {
 						type: 'hidden',
 						name: 'dataset_manager_type',
-						value: data == null ? 'create' : data.uid
+						value: create == true ? 'create' : data.uid
 					}),
 					Create('div', {
 						className: 'row',
@@ -181,85 +194,27 @@ function setupDatasetEditor(data = null) {
 												style: {
 													marginTop: '0'
 												},
+												innerHTML: 'Data Set Title'
+											}),
+											Create('input', {
+												type: 'text',
+												name: 'dataset_title',
+												value: data.display,
+												onkeyup: function () {
+													preventDuplicate('dataset_title', this);
+												}
+											}),
+											Create('h3', {
 												innerHTML: 'Structure'
 											}),
-											...(data == null ? ['display'] : data.structure).map((key, index) => {
-												return Create('div', {
-													className: 'row',
-													children: [
-														Create('div', {
-															className: 'col',
-															style: {
-																width: '86%'
-															},
-															children: [
-																Create('input', {
-																	type: 'text',
-																	name: 'structure[]',
-																	value: key
-																})
-															]
-														}),
-														Create('div', {
-															className: 'col',
-															style: {
-																width: '14%'
-															},
-															children: [
-																(index > 0 
-																	?	Create('div', {
-																			className: 'remove_data_key',
-																			innerHTML: '&times;',
-																			onclick: function () {
-																				this.parentNode.parentNode.remove();
-																			}
-																		})
-																	: Create('div')
-																)
-															]
-														})
-													]
-												});
+											...data.structure.map((key, index) => {
+												return newStructureKey(key, index);
 											}),
 											Create('div', {
 												className: 'create_data_key',
 												innerHTML: '+ New Structure Key',
 												onclick: function () {
-													this.insertAdjacentElement('beforebegin',
-														Create('div', {
-															className: 'row',
-															children: [
-																Create('div', {
-																	className: 'col',
-																	style: {
-																		width: '86%'
-																	},
-																	children: [
-																		Create('input', {
-																			type: 'text',
-																			name: 'structure[]',
-																			value: ''
-																		})
-																	]
-																}),
-																Create('div', {
-																	className: 'col',
-																	style: {
-																		width: '14%'
-																	},
-																	children: [
-																		Create('div', {
-																			className: 'remove_data_key',
-																			innerHTML: '&times;',
-																			onclick: function () {
-																				this.parentNode.parentNode.remove();
-																			}
-																		})
-																	]
-																})
-															]
-														})
-													);
+													this.insertAdjacentElement('beforebegin', newStructureKey());
 												}
 											})
 										]
@@ -271,7 +226,31 @@ function setupDatasetEditor(data = null) {
 								style: {
 									width: '60%'
 								},
-								children: []
+								children: [
+									Create('div', {
+										id: 'dataset_values',
+										children: [
+											Create('div', {
+												className: 'dataset_entry',
+												children: [
+													Create('h3', {
+														innerHTML: 'Entries'
+													}),
+													Create('div', {
+														className: 'create_data_key',
+														innerHTML: '+ create new entry',
+														onclick: function () {
+															this.parentNode.insertAdjacentElement('afterend', newDatasetEntry());
+														}
+													})
+												]
+											}),
+											...data.entries.map(entry => {
+												return newDatasetEntry(entry);
+											})
+										]
+									})
+								]
 							})
 						]
 					})
@@ -279,6 +258,182 @@ function setupDatasetEditor(data = null) {
 			})
 		]
 	});
+}
+
+function preventDuplicate(type, input) {
+	// dataset_title, dataset_structure_key
+	let inc = 0;
+	if (type == 'dataset_title') {
+		while (Object.keys(GLOBAL.active_tournament.data.sets).filter(input.value).) {
+			
+		}
+	}
+}
+
+function newStructureKey(key = null, index = 1) {
+		
+	// if new key, append new value to existing entries
+	// doithere
+	
+	return Create('div', {
+		className: 'row',
+		children: [
+			Create('div', {
+				className: 'col',
+				style: {
+					width: '86%'
+				},
+				children: [
+					Create('input', {
+						type: 'text',
+						className: 'dataset_structure_keys',
+						name: 'structure[]',
+						value: key == null ? '' : key,
+						readOnly: key == 'display',
+						onchange: function () {
+							
+							// get position of key in structure, then itterate all content and replace key data within that content sub data index
+							let position = Array.from(MSelect('.dataset_structure_keys')).reduce((a,c,i) => {
+								return c.value == this.value ? i : a
+							}, -1);
+							let assoc_content = MSelect('.dataset_entry_content');
+							if (assoc_content) {
+								Array.from(assoc_content).forEach(block => {
+									// pos set to one to skip ignored display key 
+									let pos = 1;
+									Array.from(block.children).forEach(input => {
+										if (input.className == 'spanlabel') {
+											if (pos == position) {
+												let pointer_to_data = input.children[0].children[0].children;
+												Create(input, {
+													innerHTML: this.value,
+													children: [
+														createPathVariableField({
+															name: 'dataset_value_'+this.value+'[]',
+															value: {
+																path_only: pointer_to_data[1].value == 'true',
+																value: pointer_to_data[0].value
+															},
+															allow_path_only: true
+														})
+													]
+												}, true);
+											}
+											pos++;
+										}
+									});
+								});
+							}
+						},
+						onkeyup: function () {
+							preventDuplicate('dataset_structure_key', this);
+						}
+					})
+				]
+			}),
+			Create('div', {
+				className: 'col',
+				style: {
+					width: '14%'
+				},
+				children: [
+					(index > 0 
+						?	Create('div', {
+								className: 'remove_data_key',
+								innerHTML: '&times;',
+								onclick: function () {
+									this.parentNode.parentNode.remove();
+								}
+							})
+						: Create('div')
+					)
+				]
+			})
+		]
+	});
+}
+
+function newDatasetEntry(entry = null) {
+	
+	let structure = Array.from(MSelect('.dataset_structure_keys')).map(v => v.value);
+
+	return Create('div', {
+		className: 'dataset_entry',
+		children: [
+			Create('div', {
+				className: 'dataset_entry_title',
+				onclick: function () {
+					let elem = this.parentNode.children[1];
+					if (elem.style.height == '0px') {
+						elem.removeAttribute('style');
+					} else {
+						elem.style.height = '0px';
+						elem.style.overflow = 'hidden';
+					}
+				},
+				children: [
+					Create('span', {
+						innerHTML: entry == null ? '' : entry.display,
+					}),
+					Create('div', {
+						className: 'remove_data_key',
+						style: {
+							float: 'right'
+						},
+						innerHTML: '&times;',
+						onclick: function () {
+							this.parentNode.parentNode.remove();
+							event.preventDefault();
+						}
+					})
+				]
+			}),
+			Create('div', {
+				className: 'dataset_entry_content',
+				children: structure.map(key => {
+					return (key == 'display'
+						? Create('label', {
+								innerHTML: key,
+								style: {
+									display: 'block',
+									paddingTop: '10px'
+								},
+								children: [
+									Create('input', {
+										type: 'hidden',
+										name: 'dataset_value_uid',
+										value: entry == null ? 'create' : entry.uid
+									}),
+									Create('input', {
+										type: 'text',
+										name: 'dataset_value_'+key+'[]',
+										value: entry == null ? '' : entry[key],
+										onkeyup: function () {
+											this.parentNode.parentNode.parentNode.children[0].children[0].innerHTML = this.value;
+										}
+									})
+								]
+							})
+						: Create('span', {
+								innerHTML: key,
+								className: 'spanlabel',
+								children: [
+									createPathVariableField({
+										name: 'dataset_value_'+key+'[]',
+										value: {
+											path_only: false,
+											value: entry == null ? '' : entry[key]
+										},
+										allow_path_only: true
+									})
+								]
+							})
+					);
+				})
+			})
+		]
+	});
+	
 }
 
 function generateDatasetSelectionList() {
