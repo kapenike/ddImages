@@ -11,6 +11,7 @@ hot list
 	
 	- save and load data sets through requestor.php
 	 - prevent duplcate data set names and structure keys `preventDuplicate`
+	 - new dataset format usable in UI
 
 - TODO
 	- [ ] overlay editor

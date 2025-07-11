@@ -34,7 +34,7 @@ class dataset {
 			'uid' => $uid,
 			'display' => $set_name,
 			'structure' => [
-				'Display'
+				'display'
 			],
 			'entries' => (object)[]
 		]));
@@ -80,7 +80,7 @@ class dataset {
 		
 		$sets = (object)[];
 		foreach($registry as $key=>$value) {
-			$sets[$value] = $this->load($tournament_uid, $key)->entries;
+			$sets->{$value} = $this->load($tournament_uid, $key);
 		}
 		return $sets;
 	}
@@ -92,29 +92,47 @@ class dataset {
 	
 	function update($post) {
 		
-		/*if ($post['dataset_type'] == 'create') {
+		// create and / or load dataset
+		$dataset = ($_POST['dataset_manager_type'] == 'create' 
+			? $this->load($_POST['tournament_uid'], $this->register($_POST['tournament_uid'], $_POST['dataset_title']))
+			: $this->load($_POST['tournament_uid'], $_POST['dataset_manager_type'])
+		);
+		
+		// load all entries against saved and determine if create / update / or remove of sub values
+		foreach($_POST['dataset_value_uid'] as $index => $entry_uid) {
 			
-			// create team
-			$uid = $this->register($post['tournament_uid'], $post['team_name']);
-			$data = $this->load($post['tournament_uid'], $uid);
-			$data->primary_color = $post['team_primary_color'];
-			$data->secondary_color = $post['team_secondary_color'];
-			$data->roster = $post['team_roster'];
-			$this->save($post['tournament_uid'], $uid, $data);
-			app('respond')->json(true, $data);
+			// load or create entry uid
+			$uid = $entry_uid == 'create' ? app('uid')->generate($_POST['tournament_uid']) : $entry_uid;
+			if (!isset($dataset->entries->{$uid})) {
+				$dataset->entries->{$uid} = (object)[];
+			}
 			
-		} else {
+			// update values in dataset and log updated keys
+			foreach($_POST['structure'] as $key) {
+				foreach($_POST['dataset_value_'.$key] as $index_2 => $value) {
+					if ($index == $index_2) {
+						$dataset->entries->{$uid}->{$key} = $value;
+					}
+				}
+			}
 			
-			// update team
-			$data = $this->load($post['tournament_uid'], $post['dataset_type']);
-			$data->display = $post['team_name'];
-			$data->primary_color = $post['team_primary_color'];
-			$data->secondary_color = $post['team_secondary_color'];
-			$data->roster = $post['team_roster'];
-			$this->save($post['tournament_uid'], $data->uid, $data);
-			app('respond')->json(true, $data);
+			// remove any dataset key values not present in the posted structure
+			foreach (get_object_vars($dataset->entries->{$uid}) as $existing_key) {
+				if (!array_search($existing_key, $_POST['structure'])) {
+					unset($dataset->entries->{$uid}->{$existing_key});
+				}
+			}
 			
-		}*/
+			// update structure array in dataset
+			$dataset->structure = $_POST['structure'];
+			
+		}
+		
+		// save dataset
+		$this->save($_POST['tournament_uid'], $dataset->uid, $dataset);
+		
+		// return dataset
+		app('respond')->json(true, $dataset);
 	}
 	
 	function remove($tournament_uid, $uid) {

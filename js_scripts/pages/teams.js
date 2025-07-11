@@ -106,7 +106,7 @@ function updateTeamData() {
 		if (status) {
 			
 			// update / insert new team locally
-			GLOBAL.active_tournament.data.sets.teams[data.msg.uid] = data.msg;
+			GLOBAL.active_tournament.data.sets.teams.entries[data.msg.uid] = data.msg;
 			
 			// load team data into form
 			loadTeamData(data.msg.uid);
@@ -133,7 +133,7 @@ function removeTeam(team) {
 		if (status) {
 			
 			// delete local team
-			delete GLOBAL.active_tournament.data.sets.teams[team.uid];
+			delete GLOBAL.active_tournament.data.sets.teams.entries[team.uid];
 			
 			// bring up create team form
 			loadTeamData();
@@ -147,7 +147,7 @@ function removeTeam(team) {
 }
 
 function loadTeamData(uid) {
-	setupTeamEditor(GLOBAL.active_tournament.data.sets.teams[uid]);
+	setupTeamEditor(GLOBAL.active_tournament.data.sets.teams.entries[uid]);
 }
 
 function setupTeamEditor(team_data = null) {
@@ -224,8 +224,8 @@ function generateTeamSelectionList() {
 	
 	Select('#team_list', {
 		innerHTML: '',
-		children: Object.keys(GLOBAL.active_tournament.data.sets.teams).map(team_uid => {
-			let team = GLOBAL.active_tournament.data.sets.teams[team_uid];
+		children: Object.keys(GLOBAL.active_tournament.data.sets.teams.entries).map(team_uid => {
+			let team = GLOBAL.active_tournament.data.sets.teams.entries[team_uid];
 			return Create('div', {
 				innerHTML: team.display,
 				className: 'team_block',

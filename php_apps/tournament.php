@@ -123,7 +123,10 @@ class tournament {
 				$tournament_data->data->sets = app('dataset')->loadAll($tournament_uid);
 				
 				// import tournament teams dataset
-				$tournament_data->data->sets->teams = app('team')->loadAll($tournament_uid);
+				$tournament_data->data->sets->teams = (object)[
+					'display' => 'teams',
+					'entries' => app('team')->loadAll($tournament_uid)
+				];
 				
 				// import tournament data ui
 				$tournament_data->ui = json_decode(file_get_contents($data_path.'ui.json'));

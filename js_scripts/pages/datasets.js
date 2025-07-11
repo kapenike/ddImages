@@ -95,7 +95,7 @@ function updateDataset() {
 	let form_details = formToObj('dataset_creation_form');
 	
 	// append application
-	form_details.application = 'update_team';
+	form_details.application = 'update_create_dataset';
 	
 	// append tournament uid
 	form_details.tournament_uid = GLOBAL.active_tournament.uid;
@@ -106,10 +106,10 @@ function updateDataset() {
 		if (status) {
 			
 			// update / insert new team locally
-			GLOBAL.active_tournament.data.sets[data.display][data.uid] = data.entries;
+			GLOBAL.active_tournament.data.sets[data.msg.display] = data.msg;
 			
 			// load dataset into form
-			loadDataset(data.uid);
+			loadDataset(data.msg);
 			
 			// re-create dataset selection list
 			generateDatasetSelectionList();
@@ -123,7 +123,7 @@ function removeDataset(dataset) {
 	
 	let form_details = {
 		tournament_uid: GLOBAL.active_tournament.uid,
-		team_uid: dataset.uid,
+		uid: dataset.uid,
 		application: 'remove_team'
 	};
 	
@@ -245,8 +245,8 @@ function setupDatasetEditor(data = null) {
 													})
 												]
 											}),
-											...data.entries.map(entry => {
-												return newDatasetEntry(entry);
+											...Object.keys(data.entries).map(uid => {
+												return newDatasetEntry(uid, data.entries[uid], data.structure);
 											})
 										]
 									})
@@ -262,19 +262,38 @@ function setupDatasetEditor(data = null) {
 
 function preventDuplicate(type, input) {
 	// dataset_title, dataset_structure_key
-	let inc = 0;
+	/*let inc = 0;
 	if (type == 'dataset_title') {
 		while (Object.keys(GLOBAL.active_tournament.data.sets).filter(input.value).) {
 			
 		}
-	}
+	}*/
 }
 
 function newStructureKey(key = null, index = 1) {
-		
-	// if new key, append new value to existing entries
-	// doithere
 	
+	if (key == null) {
+		// insert new path variable field for new key block
+		Array.from(MSelect('.dataset_entry_content')).forEach(content => {
+			content.appendChild(
+				Create('span', {
+					className: 'spanlabel',
+					innerHTML: 'untitled',
+					children: [
+						createPathVariableField({
+							name: 'dataset_value_untitled[]',
+							value: {
+								path_only: false,
+								value: ''
+							},
+							allow_path_only: true
+						})
+					]
+				})
+			);
+		});
+	}
+
 	return Create('div', {
 		className: 'row',
 		children: [
@@ -342,7 +361,7 @@ function newStructureKey(key = null, index = 1) {
 								className: 'remove_data_key',
 								innerHTML: '&times;',
 								onclick: function () {
-									this.parentNode.parentNode.remove();
+									removeStructureKey(this);
 								}
 							})
 						: Create('div')
@@ -353,9 +372,22 @@ function newStructureKey(key = null, index = 1) {
 	});
 }
 
-function newDatasetEntry(entry = null) {
+function removeStructureKey(elem) {
+	let value = elem.parentNode.parentNode.children[0].children[0].value;
+	let i=0;
+	let list = Array.from(MSelect('.dataset_structure_keys'));
+	while (list[i].value != value) {
+		i++;
+	}
+	Array.from(MSelect('.dataset_entry_content')).forEach(content => {
+		content.children[i].remove();
+	});
+	elem.parentNode.parentNode.remove();
+}
+
+function newDatasetEntry(uid = null, entry = null, structure_override = null) {
 	
-	let structure = Array.from(MSelect('.dataset_structure_keys')).map(v => v.value);
+	let structure = structure_override != null ? structure_override : Array.from(MSelect('.dataset_structure_keys')).map(v => v.value);
 
 	return Create('div', {
 		className: 'dataset_entry',
@@ -401,8 +433,8 @@ function newDatasetEntry(entry = null) {
 								children: [
 									Create('input', {
 										type: 'hidden',
-										name: 'dataset_value_uid',
-										value: entry == null ? 'create' : entry.uid
+										name: 'dataset_value_uid[]',
+										value: entry == null ? 'create' : uid
 									}),
 									Create('input', {
 										type: 'text',

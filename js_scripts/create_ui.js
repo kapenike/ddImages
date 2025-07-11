@@ -104,13 +104,13 @@ function createUIFromData(container, data, submit_to_application, editor = false
 												if (field.type == 'dataset') {
 													
 													// get associated object
-													let dataset = GLOBAL.active_tournament.data.sets[field.set];
+													let dataset = GLOBAL.active_tournament.data.sets[field.set].entries;
 													
 													// generate select list with additional "empty" option
 													dataset_values = [null, ...Object.keys(dataset)].map(key => {
 														return {
 															display: key == null ? '-Empty-' : dataset[key].display,
-															value: key == null ? '' : '$var$sets/'+field.set+'/'+key+'$/var$',
+															value: key == null ? '' : '$var$sets/'+field.set+'/entries/'+key+'$/var$',
 															value_depth: 1
 														};
 													});
