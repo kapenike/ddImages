@@ -198,6 +198,7 @@ function setupDatasetEditor(data = null) {
 											}),
 											Create('input', {
 												type: 'text',
+												data: data.display,
 												name: 'dataset_title',
 												value: data.display,
 												onkeyup: function () {
@@ -261,13 +262,25 @@ function setupDatasetEditor(data = null) {
 }
 
 function preventDuplicate(type, input) {
-	// dataset_title, dataset_structure_key
-	/*let inc = 0;
+	let inc = 0;
 	if (type == 'dataset_title') {
-		while (Object.keys(GLOBAL.active_tournament.data.sets).filter(input.value).) {
-			
+		let original_display = input.data;
+		let running_value = input.value;
+		while (Object.keys(GLOBAL.active_tournament.data.sets).filter(key => 
+			(GLOBAL.active_tournament.data.sets[key].display == running_value && GLOBAL.active_tournament.data.sets[key].display != original_display)).length > 0
+			) {
+			inc++;
+			running_value = input.value + '_' + inc;
 		}
-	}*/
+		input.value = running_value;
+	} else if (type == 'dataset_structure_key') {
+		let running_value = input.value;
+		while (Array.from(MSelect('.dataset_structure_keys')).filter(v => v.value == running_value).length > 1) {
+			inc++;
+			running_value = input.value + '_' + inc;
+		}
+		input.value = running_value;
+	}
 }
 
 function newStructureKey(key = null, index = 1) {

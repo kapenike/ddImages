@@ -8,8 +8,6 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 hot list
 - overlay editor
 	- create clipping paths and allow background fill color
-	
-	- prevent duplicate dataset names and key names within a dataset
 
 - TODO
 	- [ ] overlay editor
@@ -27,3 +25,4 @@ hot list
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
+	- [ ] Detecting duplicate naming conventions on datasets can be fooled
