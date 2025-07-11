@@ -9,9 +9,7 @@ hot list
 - overlay editor
 	- create clipping paths and allow background fill color
 	
-	- save and load data sets through requestor.php
-	 - prevent duplcate data set names and structure keys `preventDuplicate`
-	 - new dataset format usable in UI
+	- prevent duplicate dataset names and key names within a dataset
 
 - TODO
 	- [ ] overlay editor
