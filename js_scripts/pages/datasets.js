@@ -105,6 +105,11 @@ function updateDataset() {
 		
 		if (status) {
 			
+			// remove original reference if display changes
+			if (Select('[name="dataset_title"]').data != data.msg.display) {
+				delete GLOBAL.active_tournament.data.sets[Select('[name="dataset_title"]').data];
+			}
+			
 			// update / insert new team locally
 			GLOBAL.active_tournament.data.sets[data.msg.display] = data.msg;
 			
@@ -119,12 +124,12 @@ function updateDataset() {
 	}, 'dataset_management_form_block');
 }
 
-function removeDataset(dataset) {
+function removeDataset(uid) {
 	
 	let form_details = {
 		tournament_uid: GLOBAL.active_tournament.uid,
-		uid: dataset.uid,
-		application: 'remove_team'
+		uid: uid,
+		application: 'remove_dataset'
 	};
 	
 	// remove dataset server side
@@ -219,7 +224,16 @@ function setupDatasetEditor(data = null) {
 												}
 											})
 										]
-									})
+									}),
+									(create != true
+										?	Create('button', {
+												className: 'remove_button',
+												innerHTML: 'Remove Dataset',
+												type: 'button',
+												onclick: () => { removeDataset(data.uid); }
+											})
+										: Create('div')
+									)
 								]
 							}),
 							Create('div', {
@@ -274,10 +288,15 @@ function preventDuplicate(type, input) {
 		}
 		input.value = running_value;
 	} else if (type == 'dataset_structure_key') {
+		// holy shit im so tired no one look at this method
 		let running_value = input.value;
-		while (Array.from(MSelect('.dataset_structure_keys')).filter(v => v.value == running_value).length > 1) {
+		let lazy = 1;
+		while (Array.from(MSelect('.dataset_structure_keys')).filter(v => v.value == running_value).length > lazy) {
 			inc++;
 			running_value = input.value + '_' + inc;
+			if (lazy == 1) {
+				lazy = 0;
+			}
 		}
 		input.value = running_value;
 	}

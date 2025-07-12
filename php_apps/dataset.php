@@ -123,9 +123,19 @@ class dataset {
 				}
 			}
 			
-			// update structure array in dataset
-			$dataset->structure = $_POST['structure'];
+		}
+		
+		// update structure array in dataset
+		$dataset->structure = $_POST['structure'];
 			
+		// update display title if different and change registry
+		if ($dataset->display != $_POST['dataset_title']) {
+			$dataset->display = $_POST['dataset_title'];
+			if ($_POST['dataset_manager_type'] != 'create') {
+				$registry = $this->getRegistry($_POST['tournament_uid']);
+				$registry->{$dataset->uid} = $dataset->display;
+				$this->saveRegistry($_POST['tournament_uid'], $registry);
+			}
 		}
 		
 		// save dataset
@@ -141,9 +151,12 @@ class dataset {
 			unlink($data_path.'/data.json');
 			rmdir($data_path);
 			$registry = $this->getRegistry($tournament_uid);
-			unset($registry->$uid);
+			$registry_name = $registry->{$uid};
+			unset($registry->{$uid});
 			$this->saveRegistry($tournament_uid, $registry);
-			app('respond')->json(true, 'Successfully removed data set entry.');
+			app('respond')->json(true, 'Successfully removed data set entry.', [
+				'display' => $registry_name
+			]);
 		}
 		app('respond')->json(false, 'Error locating data set.');
 	}

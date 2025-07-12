@@ -70,6 +70,11 @@ switch($_POST['application']) {
 		app('dataset')->update($_POST);
 		break;
 		
+	case 'remove_dataset':
+		// remove dataset
+		app('dataset')->remove($_POST['tournament_uid'], $_POST['uid']);
+		break;
+		
 	case 'create_update_asset':
 		// create or update an asset
 		app('asset')->createUpdateAsset($_POST);

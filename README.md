@@ -25,4 +25,3 @@ hot list
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
-	- [ ] Detecting duplicate naming conventions on datasets can be fooled
