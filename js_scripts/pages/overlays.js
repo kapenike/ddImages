@@ -277,7 +277,7 @@ function setupOverlayEditor(slug = null) {
 								className: 'asset_preview',
 								children: [
 									Create('img', {
-										src: '/overlay_output/'+GLOBAL.active_tournament.uid+'/'+slug+'.png'
+										src: '/overlay_output/'+GLOBAL.active_tournament.uid+'/'+slug+'.png?'+new Date().getTime()
 									})
 								]
 							})

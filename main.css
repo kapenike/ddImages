@@ -648,7 +648,7 @@ button, input[type="submit"] {
 	font-size: 14px;
 }
 
-#image_Editor #lower_editor .editor_layer {
+#image_editor #lower_editor .editor_layer {
 	background-color: #444444;
 	color: #ffffff;
 	text-align: center;
@@ -657,9 +657,23 @@ button, input[type="submit"] {
 	cursor: pointer;
 }
 
+#image_editor #lower_editor .editor_layer span {
+	pointer-events: none;
+}
+
+#image_editor #lower_editor .editor_layer .editor_layer_group {
+	min-height: 20px;
+	margin-left: 8px;
+	border-left: 2px solid #eeeeee;
+}
+
 #image_editor #lower_editor .active_editor_layer {
 	background-color: #388ff9;
 	color: #444444;
+}
+
+#image_editor #lower_editor .active_editor_layer .editor_layer_group {
+	border-left: 2px solid #444444;
 }
 
 #image_editor #upper_editor .editor_section_block {
