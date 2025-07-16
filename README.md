@@ -7,7 +7,9 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 
 hot list
 - overlay editor
-	- create clipping square only paths and allow background fill color
+	- print layer groups
+	- allow clipping using square format
+	- allow background fill color
 
 - BETA release
 	- overlay editor

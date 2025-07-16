@@ -553,113 +553,293 @@ function setupLayerInfo() {
 			),
 			(layer.type != 'clip_path'
 				? Create('div', {
-					className: 'editor_section_block',
-					children: [
-						Create('div', {
-							className: 'editor_section_title',
-							innerHTML: 'Dimensions and Position'
-						}),
-						Create('div', {
-							className: 'row',
-							children: [
-								Create('div', {
-									className: 'col',
-									style: {
-										width: '50%'
-									},
-									children: [
-										Create('label', {
-											innerHTML: 'x',
-											children: [
-												Create('input', {
-													type: 'number',
-													value: layer.offset.x,
-													onchange: function () {
-														getLayerById(GLOBAL.overlay_editor.active_layer).offset.x = parseFloat(this.value);
-														printCurrentCanvas();
-													}
-												})
-											]
-										})
-									]
-								}),
-								Create('div', {
-									className: 'col',
-									style: {
-										width: '50%'
-									},
-									children: [
-										Create('label', {
-											innerHTML: 'y',
-											children: [
-												Create('input', {
-													type: 'number',
-													value: layer.offset.y,
-													onchange: function () {
-														getLayerById(GLOBAL.overlay_editor.active_layer).offset.y = parseFloat(this.value);
-														printCurrentCanvas();
-													}
-												})
-											]
-										})
-									]
-								})
-							]
-						}),
-						Create('div', {
-							className: 'row',
-							children: [
-								Create('div', {
-									className: 'col',
-									style: {
-										width: '50%'
-									},
-									children: [
-										Create('label', {
-											innerHTML: 'Width',
-											children: [
-												Create('input', {
-													id: 'layer_width',
-													type: 'number',
-													value: layer.dimensions.width,
-													onchange: function () {
-														getLayerById(GLOBAL.overlay_editor.active_layer).dimensions.width = parseFloat(this.value);
-														printCurrentCanvas();
-													}
-												})
-											]
-										})
-									]
-								}),
-								(layer.type != 'text'
-									? Create('div', {
-											className: 'col',
-											style: {
-												width: '50%'
-											},
-											children: [
-												Create('label', {
-													innerHTML: 'Height',
-													children: [
-														Create('input', {
-															type: 'number',
-															id: 'layer_height',
-															value: layer.dimensions.height,
-															onchange: function () {
-																getLayerById(GLOBAL.overlay_editor.active_layer).dimensions.height = parseFloat(this.value);
-																printCurrentCanvas();
-															}
-														})
-													]
-												})
-											]
-										})
-									: Create('div')
-								)
-							]
-						})
-					]
-				})
+						className: 'editor_section_block',
+						children: [
+							Create('div', {
+								className: 'editor_section_title',
+								innerHTML: 'Dimensions and Position'
+							}),
+							Create('div', {
+								className: 'row',
+								children: [
+									Create('div', {
+										className: 'col',
+										style: {
+											width: '50%'
+										},
+										children: [
+											Create('label', {
+												innerHTML: 'x',
+												children: [
+													Create('input', {
+														type: 'number',
+														value: layer.offset.x,
+														onchange: function () {
+															getLayerById(GLOBAL.overlay_editor.active_layer).offset.x = parseFloat(this.value);
+															printCurrentCanvas();
+														}
+													})
+												]
+											})
+										]
+									}),
+									Create('div', {
+										className: 'col',
+										style: {
+											width: '50%'
+										},
+										children: [
+											Create('label', {
+												innerHTML: 'y',
+												children: [
+													Create('input', {
+														type: 'number',
+														value: layer.offset.y,
+														onchange: function () {
+															getLayerById(GLOBAL.overlay_editor.active_layer).offset.y = parseFloat(this.value);
+															printCurrentCanvas();
+														}
+													})
+												]
+											})
+										]
+									})
+								]
+							}),
+							Create('div', {
+								className: 'row',
+								children: [
+									Create('div', {
+										className: 'col',
+										style: {
+											width: '50%'
+										},
+										children: [
+											Create('label', {
+												innerHTML: 'Width',
+												children: [
+													Create('input', {
+														id: 'layer_width',
+														type: 'number',
+														value: layer.dimensions.width,
+														onchange: function () {
+															getLayerById(GLOBAL.overlay_editor.active_layer).dimensions.width = parseFloat(this.value);
+															printCurrentCanvas();
+														}
+													})
+												]
+											})
+										]
+									}),
+									(layer.type != 'text'
+										? Create('div', {
+												className: 'col',
+												style: {
+													width: '50%'
+												},
+												children: [
+													Create('label', {
+														innerHTML: 'Height',
+														children: [
+															Create('input', {
+																type: 'number',
+																id: 'layer_height',
+																value: layer.dimensions.height,
+																onchange: function () {
+																	getLayerById(GLOBAL.overlay_editor.active_layer).dimensions.height = parseFloat(this.value);
+																	printCurrentCanvas();
+																}
+															})
+														]
+													})
+												]
+											})
+										: Create('div')
+									)
+								]
+							})
+						]
+					})
+				: Create('div')
+			),
+			(layer.type == 'clip_path'
+				? Create('div', {
+						children: [
+							Create('div', {
+								className: 'editor_section_block',
+								children: [
+									Create('div', {
+										className: 'editor_section_title',
+										innerHTML: 'Clipping Path Type'
+									}),
+									Create('select', {
+										children: [
+											Create('option', {
+												innerHTML: '- None -',
+												value: 'none',
+												selected: layer.clip_path.type == 'none'
+											}),
+											Create('option', {
+												innerHTML: 'Square',
+												value: 'square',
+												selected: layer.clip_path.type == 'square'
+											}),
+											Create('option', {
+												innerHTML: 'Custom',
+												disabled: true,
+												value: 'custom',
+												selected: layer.clip_path.type == 'custom'
+											}),
+										],
+										onchange: function () {
+											getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.type = this.value;
+											Select('#square_clip_editor_section').style.display = (this.value == 'none' || this.value == 'custom' ? 'none' : 'block');
+											Select('#clip_editor_background_color').style.display = (this.value == 'none' ? 'none' : 'block');
+											printCurrentCanvas();
+										}
+									})
+								]
+							}),
+							Create('div', {
+								className: 'editor_section_block',
+								id: 'clip_editor_background_color',
+								style: {
+									display: (layer.clip_path.type == 'none' ? 'none' : 'block')
+								},
+								children: [
+									Create('div', {
+										className: 'editor_section_title',
+										innerHTML: 'Clip Path Background Color'
+									}),
+									Create('label', {
+										innerHTML: 'Color',
+										children: [
+											Create('input', {
+												style: {
+													backgroundColor: layer.clip_path.color,
+													height: '41px'
+												},
+												type: 'color',
+												value: layer.clip_path.color,
+												onchange: function () {
+													getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.color = this.value;
+													this.style.backgroundColor = this.value;
+													printCurrentCanvas();
+												}
+											})
+										]
+									})
+								]
+							}),
+							Create('div', {
+								className: 'editor_section_block',
+								id: 'square_clip_editor_section',
+								style: {
+									display: (layer.clip_path.type == 'square' ? 'block' : 'none')
+								},
+								children: [
+									Create('div', {
+										className: 'editor_section_title',
+										innerHTML: 'Square Clip Dimensions'
+									}),
+									Create('div', {
+										className: 'row',
+										children: [
+											Create('div', {
+												className: 'col',
+												style: {
+													width: '50%'
+												},
+												children: [
+													Create('label', {
+														innerHTML: 'x',
+														children: [
+															Create('input', {
+																type: 'number',
+																value: layer.clip_path.offset.x,
+																onchange: function () {
+																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.offset.x = parseFloat(this.value);
+																	printCurrentCanvas();
+																}
+															})
+														]
+													})
+												]
+											}),
+											Create('div', {
+												className: 'col',
+												style: {
+													width: '50%'
+												},
+												children: [
+													Create('label', {
+														innerHTML: 'y',
+														children: [
+															Create('input', {
+																type: 'number',
+																value: layer.clip_path.offset.y,
+																onchange: function () {
+																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.offset.y = parseFloat(this.value);
+																	printCurrentCanvas();
+																}
+															})
+														]
+													})
+												]
+											})
+										]
+									}),
+									Create('div', {
+										className: 'row',
+										children: [
+											Create('div', {
+												className: 'col',
+												style: {
+													width: '50%'
+												},
+												children: [
+													Create('label', {
+														innerHTML: 'Width',
+														children: [
+															Create('input', {
+																type: 'number',
+																value: layer.clip_path.dimensions.width,
+																onchange: function () {
+																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.dimensions.width = parseFloat(this.value);
+																	printCurrentCanvas();
+																}
+															})
+														]
+													})
+												]
+											}),
+											Create('div', {
+												className: 'col',
+												style: {
+													width: '50%'
+												},
+												children: [
+													Create('label', {
+														innerHTML: 'Height',
+														children: [
+															Create('input', {
+																type: 'number',
+																value: layer.clip_path.dimensions.height,
+																onchange: function () {
+																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.dimensions.height = parseFloat(this.value);
+																	printCurrentCanvas();
+																}
+															})
+														]
+													})
+												]
+											})
+										]
+									})
+								]
+							})
+						]
+					})
 				: Create('div')
 			)
 		]
@@ -761,7 +941,8 @@ function addNewTypeLayer(type, index, duplicate = false) {
 				toggle: '',
 				title: 'Untitled Group',
 				clip_path: {
-					type: 'Group Only',
+					type: 'none',
+					color: '',
 					offset: {
 						x: GLOBAL.overlay_editor.current.dimensions.width/2,
 						y: GLOBAL.overlay_editor.current.dimensions.height/2
@@ -1091,7 +1272,41 @@ function printCurrentCanvas() {
 		} else if (layer.type == 'text') {
 			printText(ctx, layer);
 		} else if (layer.type == 'clip_path') {
-			//manageClipPath(ctx, layer);
+			
+			// square clipping path
+			if (layer.clip_path.type == 'square') {
+				ctx.beginPath();
+				ctx.moveTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
+				ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
+				ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
+				ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y);
+				ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
+				ctx.closePath();
+				if (layer.clip_path.color) {
+					ctx.fillStyle = layer.clip_path.color;
+					ctx.fill();
+				}
+				ctx.save();
+				ctx.clip();
+			}
+			
+			// print sub layers
+			for (let i2=layer.layers.length-1; i2>-1; i2--) {
+				let sub_layer = layer.layers[i2];
+				if (sub_layer.type == 'image') {
+					printImage(ctx, sub_layer);
+				} else if (sub_layer.type == 'text') {
+					printText(ctx, sub_layer);
+				} else if (sub_layer.type == 'rect') {
+					printRect(ctx, sub_layer);
+				}
+			} 
+			
+			// if clipping path, restore
+			if (layer.clip_path.type != 'none') {
+				ctx.restore();
+			}
+			
 		} else if (layer.type == 'rect') {
 			printRect(ctx, layer);
 		}
