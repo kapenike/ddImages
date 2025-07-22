@@ -111,6 +111,7 @@ function toggleSelectionEditorButton(is_remove, id) {
 function createPathListForEditor(path = null, base_path = null) {
 	let curr_path = GLOBAL.active_tournament.data;
 	let is_path_only = Select('#input_is_path_only_'+GLOBAL.ui.active_path_field_id).value == 'true';
+	let is_image_search = Select('#input_is_image_search_'+GLOBAL.ui.active_path_field_id).value == 'true';
 	let is_data_set = false;
 	let is_asset = false;
 	if (path == '') {
@@ -183,6 +184,16 @@ function createPathListForEditor(path = null, base_path = null) {
 				// edge case, if value and not a path only selection, and value is a path variable that points towards an object rather than string, set as a path value
 				is_value = false;
 			}
+			
+			// during image search, look ahead and see if is object and contains image property, update path key that is set when selected
+			// use case: image property within a data set
+			if (is_value == true && is_path_only && is_image_search) {
+				let upcoming_dir = getRealValue(curr_path[key]);
+				if (isObject(upcoming_dir) && typeof upcoming_dir.image !== 'undefined') {
+					key += '/image';
+				}
+			}
+			
 			return Create('div', {
 				className: 'path_selection_element_'+(is_value ? 'set' : 'extend'),
 				innerHTML: (is_value ? '&nbsp;&nbsp;&#9900;' : '&#8594; ')+print_key,
@@ -305,6 +316,12 @@ function createPathVariableField(settings = {}) {
 						name: settings.name,
 						value: settings.value.value,
 						onedit: settings.on_edit
+					}),
+					Create('input', {
+						type: 'hidden',
+						id: 'input_is_image_search_'+GLOBAL.unique_id,
+						name: '',
+						value: settings.value.image_search ? 'true' : 'false'
 					}),
 					Create('input', {
 						type: 'hidden',

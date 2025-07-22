@@ -290,7 +290,8 @@ function setupLayerInfo() {
 												override_source_setter: true,
 												value: {
 													path_only: false,
-													value: layer.value
+													value: layer.value,
+													image_search: true
 												},
 												force_path_only: true,
 												on_edit: function () {
@@ -711,19 +712,19 @@ function setupLayerInfo() {
 										className: 'editor_section_title',
 										innerHTML: 'Clip Path Background Color'
 									}),
-									Create('label', {
+									Create('span', {
 										innerHTML: 'Color',
+										className: 'editor_spanlabel',
 										children: [
-											Create('input', {
-												style: {
-													backgroundColor: layer.clip_path.color,
-													height: '41px'
+											createPathVariableField({
+												name: 'editor_clip_path_bg_color',
+												value: {
+													path_only: false,
+													value: layer.clip_path.color
 												},
-												type: 'color',
-												value: layer.clip_path.color,
-												onchange: function () {
+												allow_path_only: false,
+												on_edit: function () {
 													getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.color = this.value;
-													this.style.backgroundColor = this.value;
 													printCurrentCanvas();
 												}
 											})
@@ -1273,38 +1274,45 @@ function printCurrentCanvas() {
 			printText(ctx, layer);
 		} else if (layer.type == 'clip_path') {
 			
-			// square clipping path
-			if (layer.clip_path.type == 'square') {
-				ctx.beginPath();
-				ctx.moveTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
-				ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
-				ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
-				ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y);
-				ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
-				ctx.closePath();
-				if (layer.clip_path.color) {
-					ctx.fillStyle = layer.clip_path.color;
-					ctx.fill();
-				}
-				ctx.save();
-				ctx.clip();
-			}
+			if (toggleTrue(layer)) {
 			
-			// print sub layers
-			for (let i2=layer.layers.length-1; i2>-1; i2--) {
-				let sub_layer = layer.layers[i2];
-				if (sub_layer.type == 'image') {
-					printImage(ctx, sub_layer);
-				} else if (sub_layer.type == 'text') {
-					printText(ctx, sub_layer);
-				} else if (sub_layer.type == 'rect') {
-					printRect(ctx, sub_layer);
+				// square clipping path
+				if (layer.clip_path.type == 'square') {
+					ctx.beginPath();
+					ctx.moveTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
+					ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
+					ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
+					ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y);
+					ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
+					ctx.closePath();
+					if (layer.clip_path.color) {
+						let clip_color = getRealValue(layer.clip_path.color);
+						if (clip_color.length == 7 || clip_color.length == 9) {
+							ctx.fillStyle = clip_color;
+							ctx.fill();
+						}
+					}
+					ctx.save();
+					ctx.clip();
 				}
-			} 
-			
-			// if clipping path, restore
-			if (layer.clip_path.type != 'none') {
-				ctx.restore();
+				
+				// print sub layers
+				for (let i2=layer.layers.length-1; i2>-1; i2--) {
+					let sub_layer = layer.layers[i2];
+					if (sub_layer.type == 'image') {
+						printImage(ctx, sub_layer);
+					} else if (sub_layer.type == 'text') {
+						printText(ctx, sub_layer);
+					} else if (sub_layer.type == 'rect') {
+						printRect(ctx, sub_layer);
+					}
+				} 
+				
+				// if clipping path, restore
+				if (layer.clip_path.type != 'none') {
+					ctx.restore();
+				}
+				
 			}
 			
 		} else if (layer.type == 'rect') {

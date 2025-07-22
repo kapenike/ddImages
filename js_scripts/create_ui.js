@@ -56,7 +56,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 									data: JSON.stringify({ section: section_index, column: col_index }),
 									className: 'col block',
 									style: {
-										width: parseFloat((100/upper_section.cols.length).toFixed(2))+'%' // precision round off
+										width: (Math.trunc((100/upper_section.cols.length) * 100) / 100)+'%'
 									},
 									children: [
 										Create('div', {
@@ -124,6 +124,13 @@ function createUIFromData(container, data, submit_to_application, editor = false
 															};
 														});
 														
+													}
+												} else {
+													if (field.values[0].value != '') {
+														field.values.unshift({
+															display: '- empty -',
+															value: ''
+														});
 													}
 												}
 												

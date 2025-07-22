@@ -32,7 +32,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 		let overlay = GLOBAL.active_tournament.overlays[slug];
 
 		// if overlay contains an updated source, or sources is null, or is set to generate specific overlay
-		if (sources == null || (isObject(sources) && sources.slug == slug) || overlay.sources.some(x => sources.includes(x))) {
+		if (sources == null || (isObject(sources) && sources.slug == slug) || (overlay.sources.length > 0 && sources.length > 0 && overlay.sources.some(x => sources.includes(x)))) {
 			
 			// define output canvas
 			let canvas = Create('canvas', {
@@ -104,7 +104,48 @@ function generateOverlay(ctx, output_overlays, overlay) {
 		} else if (layer.type == 'text') {
 			printText(ctx, layer);
 		} else if (layer.type == 'clip_path') {
-			manageClipPath(ctx, layer);
+			
+			if (toggleTrue(layer)) {
+				
+				// square clipping path
+				if (layer.clip_path.type == 'square') {
+					ctx.beginPath();
+					ctx.moveTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
+					ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
+					ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
+					ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y);
+					ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
+					ctx.closePath();
+					if (layer.clip_path.color) {
+						let clip_color = getRealValue(layer.clip_path.color);
+						if (clip_color.length == 7 || clip_color.length == 9) {
+							ctx.fillStyle = clip_color;
+							ctx.fill();
+						}
+					}
+					ctx.save();
+					ctx.clip();
+				}
+				
+				// print sub layers
+				for (let i2=layer.layers.length-1; i2>-1; i2--) {
+					let sub_layer = layer.layers[i2];
+					if (sub_layer.type == 'image') {
+						printImage(ctx, sub_layer);
+					} else if (sub_layer.type == 'text') {
+						printText(ctx, sub_layer);
+					} else if (sub_layer.type == 'rect') {
+						printRect(ctx, sub_layer);
+					}
+				} 
+				
+				// if clipping path, restore
+				if (layer.clip_path.type != 'none') {
+					ctx.restore();
+				}
+				
+			}
+			
 		} else if (layer.type == 'rect') {
 			printRect(ctx, layer);
 		}
@@ -143,31 +184,6 @@ function toggleTrue(layer) {
 	}
 	
 	return false;
-	
-}
-
-function manageClipPath(ctx, layer) {
-	
-	// set or remove a clip path
-	if (layer.action == 'end') {
-		ctx.restore();
-	} else if (layer.action == 'start') {
-		ctx.beginPath();
-		let next = 0;
-		for (let i=0; i<layer.path.length; i++) {
-			next = i+1;
-			if (next == layer.path.length) {
-				next = 0;
-			}
-			if (i == 0) {
-				ctx.moveTo(layer.path[i].x, layer.path[i].y);
-			}
-			ctx.lineTo(layer.path[next].x, layer.path[next].y);
-		}
-		ctx.closePath();		
-		ctx.save();
-		ctx.clip();
-	}
 	
 }
 
@@ -213,8 +229,8 @@ function printImage(ctx, layer) {
 		let output_height = value.height;
 		
 		// determine if scaling of original image based on layer is needed
-		let width_scale = layer.dimensions.width != '';
-		let height_scale = layer.dimensions.height != '';
+		let width_scale = layer.dimensions.width != '' && layer.dimensions.width != null;
+		let height_scale = layer.dimensions.height != '' && layer.dimensions.height != null;
 		if (width_scale || height_scale) {
 			if (width_scale && height_scale) {
 				// if both scaling

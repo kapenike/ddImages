@@ -54,14 +54,14 @@ class tournament {
 		mkdir(getBasePath().'/data/'.$uid.'/sources');
 		
 		// create tournament data sets directory
-		mkdir(getBasePath().'/data/'.$uid.'/teams');
+		mkdir(getBasePath().'/data/'.$uid.'/datasets');
 		
 		// create skeleton data set registry file
 		file_put_contents(getBasePath().'/data/'.$uid.'/datasets/registry.json', json_encode((object)[]));
 		
 		// create tournament teams directory
 		mkdir(getBasePath().'/data/'.$uid.'/teams');
-		
+
 		// create skeleton teams registry file
 		file_put_contents(getBasePath().'/data/'.$uid.'/teams/team_registry.json', json_encode((object)[]));
 		

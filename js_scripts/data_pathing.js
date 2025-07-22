@@ -53,7 +53,20 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 				
 				// if global flag, add variable paths to overlay sources
 				if (GLOBAL.generate_sources == true) {
-					GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_slug].sources.push('$var$'+split_part.variable+'$/var$');
+					if (!GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_slug].sources.includes('$var$'+split_part.variable+'$/var$')) {
+						GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_slug].sources.push('$var$'+split_part.variable+'$/var$');
+					}
+					// due to the variable nature of the application and not being able to 100% determine if a source will be or become a dataset, a crude method must be used here
+					// if a field element saves a dataset path and the editor uses a property of that dataset, the sources will mismatch and not generate the associated overlay
+					// fix by also logging sub path
+					let variable_split_path = split_part.variable.split('/');
+					if (variable_split_path.length > 1) {
+						variable_split_path.pop();
+						let sub_path = variable_split_path.join('/');
+						if (!GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_slug].sources.includes('$var$'+sub_path+'$/var$')) {
+							GLOBAL.active_tournament.overlays[GLOBAL.active_overlay_slug].sources.push('$var$'+sub_path+'$/var$');
+						}
+					}
 				}
 				
 				// if source is already in head, return to prevent infinite loop
