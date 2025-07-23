@@ -376,7 +376,8 @@ function setupLayerInfo() {
 														step: 0.5,
 														value: layer.style.fontSize,
 														onchange: function () {
-															getLayerById(GLOBAL.overlay_editor.active_layer).style.fontSize = parseFloat(this.value);
+															getLayerById(GLOBAL.overlay_editor.active_layer).style.fontSize = precise(this.value);
+															this.value = preciseAndTrim(this.value);
 															printCurrentCanvas();
 														}
 													})
@@ -576,7 +577,8 @@ function setupLayerInfo() {
 														type: 'number',
 														value: layer.offset.x,
 														onchange: function () {
-															getLayerById(GLOBAL.overlay_editor.active_layer).offset.x = parseFloat(this.value);
+															getLayerById(GLOBAL.overlay_editor.active_layer).offset.x = precise(this.value);
+															this.value = preciseAndTrim(this.value);
 															printCurrentCanvas();
 														}
 													})
@@ -597,7 +599,8 @@ function setupLayerInfo() {
 														type: 'number',
 														value: layer.offset.y,
 														onchange: function () {
-															getLayerById(GLOBAL.overlay_editor.active_layer).offset.y = parseFloat(this.value);
+															getLayerById(GLOBAL.overlay_editor.active_layer).offset.y = precise(this.value);
+															this.value = preciseAndTrim(this.value);
 															printCurrentCanvas();
 														}
 													})
@@ -624,7 +627,8 @@ function setupLayerInfo() {
 														type: 'number',
 														value: layer.dimensions.width,
 														onchange: function () {
-															getLayerById(GLOBAL.overlay_editor.active_layer).dimensions.width = parseFloat(this.value);
+															getLayerById(GLOBAL.overlay_editor.active_layer).dimensions.width = precise(this.value);
+															this.value = preciseAndTrim(this.value);
 															printCurrentCanvas();
 														}
 													})
@@ -647,7 +651,8 @@ function setupLayerInfo() {
 																id: 'layer_height',
 																value: layer.dimensions.height,
 																onchange: function () {
-																	getLayerById(GLOBAL.overlay_editor.active_layer).dimensions.height = parseFloat(this.value);
+																	getLayerById(GLOBAL.overlay_editor.active_layer).dimensions.height = precise(this.value);
+																	this.value = preciseAndTrim(this.value);
 																	printCurrentCanvas();
 																}
 															})
@@ -759,7 +764,8 @@ function setupLayerInfo() {
 																type: 'number',
 																value: layer.clip_path.offset.x,
 																onchange: function () {
-																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.offset.x = parseFloat(this.value);
+																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.offset.x = precise(this.value);
+																	this.value = preciseAndTrim(this.value);
 																	printCurrentCanvas();
 																}
 															})
@@ -780,7 +786,8 @@ function setupLayerInfo() {
 																type: 'number',
 																value: layer.clip_path.offset.y,
 																onchange: function () {
-																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.offset.y = parseFloat(this.value);
+																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.offset.y = precise(this.value);
+																	this.value = preciseAndTrim(this.value);
 																	printCurrentCanvas();
 																}
 															})
@@ -806,7 +813,8 @@ function setupLayerInfo() {
 																type: 'number',
 																value: layer.clip_path.dimensions.width,
 																onchange: function () {
-																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.dimensions.width = parseFloat(this.value);
+																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.dimensions.width = precise(this.value);
+																	this.value = preciseAndTrim(this.value);
 																	printCurrentCanvas();
 																}
 															})
@@ -827,7 +835,8 @@ function setupLayerInfo() {
 																type: 'number',
 																value: layer.clip_path.dimensions.height,
 																onchange: function () {
-																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.dimensions.height = parseFloat(this.value);
+																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.dimensions.height = precise(this.value);
+																	this.value = preciseAndTrim(this.value);
 																	printCurrentCanvas();
 																}
 															})
@@ -1108,7 +1117,18 @@ function imageEditorMouseDown(event) {
 			layer_origin: {
 				x: GLOBAL.overlay_editor.active_layer_selection.layer_x,
 				y: GLOBAL.overlay_editor.active_layer_selection.layer_y
-			}
+			},
+			sub_layer_origins: null
+		}
+		// stash group layer children origins
+		let layer = getLayerById(GLOBAL.overlay_editor.active_layer);
+		if (typeof layer.clip_path !== 'undefined') {
+			GLOBAL.overlay_editor.layer_selection_drag.sub_layer_origins = layer.layers.map(v => {
+				return {
+					x: v.offset.x,
+					y: v.offset.y
+				};
+			});
 		}
 	}
 }
@@ -1151,10 +1171,35 @@ function imageEditorMouseMove(event) {
 		// cursor move layer and reprint
 		let x_diff = (GLOBAL.overlay_editor.layer_selection_drag.origin.x - event.clientX)/GLOBAL.overlay_editor.scale;
 		let y_diff = (GLOBAL.overlay_editor.layer_selection_drag.origin.y - event.clientY)/GLOBAL.overlay_editor.scale;
-		GLOBAL.overlay_editor.current.layers[GLOBAL.overlay_editor.active_layer].offset = {
-			x: GLOBAL.overlay_editor.layer_selection_drag.layer_origin.x - x_diff,
-			y: GLOBAL.overlay_editor.layer_selection_drag.layer_origin.y - y_diff
+		
+		// set reference incase of sub layer movement
+		let selection_layer_reference = getLayerById(GLOBAL.overlay_editor.active_layer);
+		
+		// group movement
+		if (selection_layer_reference.type == 'clip_path') {
+			for (let i=0; i<selection_layer_reference.layers.length; i++) {
+				let group_move_layer = selection_layer_reference.layers[i];
+				let assoc_origin = GLOBAL.overlay_editor.layer_selection_drag.sub_layer_origins[i];
+				group_move_layer.offset = {
+					x: preciseAndTrim(assoc_origin.x - x_diff),
+					y: preciseAndTrim(assoc_origin.y - y_diff)
+				}
+			}
 		}
+		
+		// if group container, change reference for container movement
+		if (selection_layer_reference.type == 'clip_path' && selection_layer_reference.clip_path.type == 'square') {
+			selection_layer_reference = selection_layer_reference.clip_path;
+		}
+		
+		// if a moveable layer
+		if (GLOBAL.overlay_editor.layer_selection_drag.layer_origin.x != null) {
+			selection_layer_reference.offset = {
+				x: preciseAndTrim(GLOBAL.overlay_editor.layer_selection_drag.layer_origin.x - x_diff),
+				y: preciseAndTrim(GLOBAL.overlay_editor.layer_selection_drag.layer_origin.y - y_diff)
+			}
+		}
+		
 		printCurrentCanvas();
 	}
 }
@@ -1262,11 +1307,18 @@ function printCurrentCanvas() {
 	ctx.fillStyle = '#555555';
 	ctx.fillRect(0, 0, GLOBAL.overlay_editor.current.dimensions.width, GLOBAL.overlay_editor.current.dimensions.height);
 	
+	let selection_layer = null;
+	
 	// loop layers from back to front
 	for (let i=overlay.layers.length-1; i>-1; i--) {
 		
 		// active layer
 		let layer = overlay.layers[i];
+		
+		// current selection layer
+		if (i == GLOBAL.overlay_editor.active_layer) {
+			selection_layer = layer;
+		}
 		
 		if (layer.type == 'image') {
 			printImage(ctx, layer);
@@ -1298,7 +1350,14 @@ function printCurrentCanvas() {
 				
 				// print sub layers
 				for (let i2=layer.layers.length-1; i2>-1; i2--) {
+					
 					let sub_layer = layer.layers[i2];
+					
+					// current selection layer
+					if (i+'_'+i2 == GLOBAL.overlay_editor.active_layer) {
+						selection_layer = sub_layer;
+					}
+					
 					if (sub_layer.type == 'image') {
 						printImage(ctx, sub_layer);
 					} else if (sub_layer.type == 'text') {
@@ -1319,70 +1378,136 @@ function printCurrentCanvas() {
 			printRect(ctx, layer);
 		}
 		
-		// active layer indicator
-		if (i == GLOBAL.overlay_editor.active_layer) {
-			
-			let output_width = 10;
-			let output_height = 10;
-			let output_x = layer?.offset?.x ?? 0;
-			let output_y = layer?.offset?.y ?? 0;
-			
-			if (layer.type == 'text') {
-				output_width = layer.dimensions.width;
-				output_height = parseInt(layer.style.fontSize);
-				if (layer.style.align == 'center') {
-					output_x -= output_width/2;
-				} else if (layer.style.align == 'right') {
-					output_x -= output_width;
-				}
-			} else if (layer.type == 'image') {
-				
-				// detect image output size by ratio if set
-				let width_scale = layer.dimensions.width != '';
-				let height_scale = layer.dimensions.height != '';
-				
-				let value = getRealValue(layer.value);
-				if (value.width && value.height) {
-					output_width = value.width;
-					output_height = value.height;
-					
-					if (width_scale || height_scale) {
-						if (width_scale && height_scale) {
-							// if both scaling
-							output_width = layer.dimensions.width;
-							output_height = layer.dimensions.height;
-						} else if (width_scale) {
-							// if only scaling width
-							output_width = layer.dimensions.width;
-							output_height = (layer.dimensions.width / value.width) * output_height;
-						} else if (height_scale) {
-							// if only scaling height
-							output_height = layer.dimensions.height;
-							output_width = (layer.dimensions.height / value.height) * output_width;
-						}
-					} else {
-						output_width = value.width;
-						output_height = value.height;
-					}
-				}
-			}
+	}
+	
+	// active layer indicator
+	if (selection_layer != null) {
+		
+		let out_dim = getLayerOutputDimensions(selection_layer);
 
+		if (out_dim != null) {
 			ctx.lineWidth = 2;
 			ctx.setLineDash([6, 8]);
 			ctx.strokeStyle = '#0051ff';
-			ctx.strokeRect(output_x, output_y, output_width, output_height);
-			
+			ctx.strokeRect(out_dim.x, out_dim.y, out_dim.width, out_dim.height);
 			// save selection area for dragging logic
-			GLOBAL.overlay_editor.active_layer_selection = {
-				x: output_x,
-				y: output_y,
-				width: output_width,
-				height: output_height,
-				layer_x: layer?.offset?.x ?? 0,
-				layer_y: layer?.offset?.y ?? 0
+			GLOBAL.overlay_editor.active_layer_selection = out_dim;
+		} else {
+			GLOBAL.overlay_editor.active_layer_selection = null;
+		}
+	}
+	
+}
+
+function getLayerOutputDimensions(layer) {
+	let output = {
+		x: null,
+		y: null,
+		width: 0,
+		height: 0,
+		layer_x: null,
+		layer_y: null
+	};
+	
+	if (layer.type == 'text') {
+		
+		output.width = layer.dimensions.width;
+		output.height = parseInt(layer.style.fontSize);
+		output.x = layer.offset.x;
+		output.y = layer.offset.y;
+		output.layer_x = layer.offset.x;
+		output.layer_y = layer.offset.y;
+		if (layer.style.align == 'center') {
+			output.x -= output.width/2;
+		} else if (layer.style.align == 'right') {
+			output.x -= output.width;
+		}
+		
+	} else if (layer.type == 'image') {
+		
+		output.x = layer.offset.x;
+		output.y = layer.offset.y;
+		output.layer_x = layer.offset.x;
+		output.layer_y = layer.offset.y;
+		output.width = layer.dimensions.width;
+		output.height = layer.dimensions.height;
+		
+		// detect image output size by ratio if set
+		let width_scale = layer.dimensions.width != '' && layer.dimensions.width != null;
+		let height_scale = layer.dimensions.height != '' && layer.dimensions.height != null;
+		
+		let value = getRealValue(layer.value);
+		if (value.width && value.height) {
+			output.width = value.width;
+			output.height = value.height;
+			if (width_scale || height_scale) {
+				if (width_scale && height_scale) {
+					// if both scaling
+					output.width = layer.dimensions.width;
+					output.height = layer.dimensions.height;
+				} else if (width_scale) {
+					// if only scaling width
+					output.width = layer.dimensions.width;
+					output.height = (layer.dimensions.width / value.width) * output.height;
+				} else if (height_scale) {
+					// if only scaling height
+					output.height = layer.dimensions.height;
+					output.width = (layer.dimensions.height / value.height) * output.width;
+				}
+			} else {
+				output.width = value.width;
+				output.height = value.height;
+			}
+		}
+		
+	} else if (layer.type == 'clip_path') {
+		
+		// no children or clip path, exit
+		if (layer.layers.length == 0 && layer.clip_path.type == 'none') {
+			return null;
+		} else {
+			
+			// if a true clipping path, use layer dimensions and positions
+			if (layer.clip_path.type == 'square') {
+				output.x = layer.clip_path.offset.x;
+				output.y = layer.clip_path.offset.y;
+				output.layer_x = layer.clip_path.offset.x;
+				output.layer_y = layer.clip_path.offset.y;
+				output.width = layer.clip_path.dimensions.width;
+				output.height = layer.clip_path.dimensions.height;
+			} else {
+				
+				let max_x = null;
+				let max_y = null;
+				
+				// expand bounding rect by children if just a layer group
+				layer.layers.forEach(sub_layer => {
+					let sub_dim = getLayerOutputDimensions(sub_layer);
+					if (output.x == null || sub_dim.x < output.x) {
+						output.x = sub_dim.x;
+					}
+					if (output.y == null || sub_dim.y < output.y) {
+						output.y = sub_dim.y;
+					}
+					if (max_x == null || (sub_dim.x + sub_dim.width) > max_x) {
+						max_x = sub_dim.x + sub_dim.width;
+					}
+					if (max_y == null || (sub_dim.y + sub_dim.height) > max_y) {
+						max_y = sub_dim.y + sub_dim.height;
+					}
+				});
+				
+				if (max_x == null || max_y == null) {
+					return null;
+				} else {
+					output.width = max_x - output.x;
+					output.height = max_y - output.y;
+				}
+				
 			}
 		}
 		
 	}
 	
+	return output;
 }

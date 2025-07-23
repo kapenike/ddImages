@@ -108,7 +108,8 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_tournament.
 					
 					// pathing protection
 					if (typeof reference_path[path_part] === 'undefined') {
-						console.error('Attempting to access undefined object from variable path: '+value+', Undefined key path starting at: '+[path_part, ...path].join('/'));
+						// allow logging in case of attempt to fix large chaining logical errors in a project
+						// console.info('Attempting to access undefined object from variable path: '+value+', Undefined key path starting at: '+[path_part, ...path].join('/'));
 						return '';
 					}
 					
