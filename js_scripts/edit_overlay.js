@@ -1135,7 +1135,9 @@ function imageEditorMouseDown(event) {
 
 function imageEditorMouseMove(event) {
 	if (image_editor_drag != null) {
+		
 		if (image_editor_drag.dragging == false) {
+			
 			// create draggable ui indicator element
 			Select('#body', {
 				children: [
@@ -1167,10 +1169,22 @@ function imageEditorMouseMove(event) {
 			event.target.style.borderTop = '4px solid #0469e2';
 			image_editor_drag.active_hover = event.target.id;
 		}
+		
 	} else if (GLOBAL.overlay_editor.layer_selection_drag) {
+		
 		// cursor move layer and reprint
 		let x_diff = (GLOBAL.overlay_editor.layer_selection_drag.origin.x - event.clientX)/GLOBAL.overlay_editor.scale;
 		let y_diff = (GLOBAL.overlay_editor.layer_selection_drag.origin.y - event.clientY)/GLOBAL.overlay_editor.scale;
+		
+		// drag hotkeys
+		// ctrl - allow vertical only
+		// shift - allow horizontal only
+		if (GLOBAL.held_keys.ctrl) {
+			x_diff = 0;
+		}
+		if (GLOBAL.held_keys.shift) {
+			y_diff = 0;
+		}
 		
 		// set reference incase of sub layer movement
 		let selection_layer_reference = getLayerById(GLOBAL.overlay_editor.active_layer);
@@ -1202,6 +1216,7 @@ function imageEditorMouseMove(event) {
 		
 		printCurrentCanvas();
 	}
+	
 }
 
 function imageEditorMouseUp(event) {
@@ -1211,8 +1226,15 @@ function imageEditorMouseUp(event) {
 				
 				let drag_layer = getLayerById(image_editor_drag.id);
 				let hover_layer = getLayerById(image_editor_drag.active_hover);
+				
 				// ensure drag is not a drop into a group
-				if (drag_layer.type == 'clip_path' && (hover_layer.type == 'clip_path' || image_editor_drag.active_hover.split('_').filter(v => v != 'layer').length > 1)) {
+				if (
+					drag_layer.type == 'clip_path' &&
+					(
+						(hover_layer.type == 'clip_path' && event.target.className.split(' ').includes('editor_layer_group')) ||
+						image_editor_drag.active_hover.split('_').filter(v => v != 'layer').length > 1
+					)
+				) {
 					
 					// not allowed
 					
@@ -1268,19 +1290,27 @@ function imageEditorMouseUp(event) {
 					} else {
 						GLOBAL.overlay_editor.current.layers.splice(insert_index, 0, ...pull_base.layers.splice(pull_index, 1));
 					}
+					
 					// set new active layer
 					setActiveLayer(insert_ids.join('_'));
+					
 				}
 			}
+			
 			// remove drag clone
 			Select('#drag_clone').remove();
+			
 		}
+		
 		// reset drag state
 		image_editor_drag = null;
+		
 	} else if (GLOBAL.overlay_editor.layer_selection_drag) {
+		
 		// end cursor drag
 		GLOBAL.overlay_editor.layer_selection_drag = null;
 		setupLayerInfo();
+		
 	}
 }
 
