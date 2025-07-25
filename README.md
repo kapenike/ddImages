@@ -14,7 +14,8 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 		- [ ] allow any static input to be converted to a variable input on the fly, revert color field from static variable input (change for recent tournament)
 		- [ ] create shapes
 		- [x] hotkeys for moving layer on x / y axis or by a smaller pixel per dpi margin
-		- [ ] allow moving and zooming of current project with mouse wheel and hotkeys
+		- [x] allow moving and zooming of current project with mouse wheel and hotkeys
+			- [x] added ctrl + d as layer selection removal
 		- ez
 			- [x] precision round off on positioning
 			- [ ] UI element for settings position of x and y based on percentage of screen

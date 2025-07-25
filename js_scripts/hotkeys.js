@@ -4,6 +4,7 @@ function initHotKeyListeners() {
 	GLOBAL.held_keys = { 
 		ctrl: false,
 		s: false,
+		d: false,
 		reset: false
 	};
 	
@@ -18,11 +19,23 @@ function initHotKeyListeners() {
 			GLOBAL.held_keys.ctrl = true;
 		} else if (event.keyCode == 83) {
 			GLOBAL.held_keys.s = true;
+		} else if (event.keyCode == 68) {
+			GLOBAL.held_keys.d = true;
 		}
+		
+		// hotkey actions
 		if (GLOBAL.held_keys.ctrl && GLOBAL.held_keys.s) {
+			// save
 			event.preventDefault();
 			GLOBAL.held_keys.reset = true;
 			onSaveAction();
+		} else if (GLOBAL.held_keys.ctrl && GLOBAL.held_keys.d) {
+			// remove layer selection
+			event.preventDefault();
+			GLOBAL.held_keys.reset = true;
+			if (GLOBAL.overlay_editor.active_layer != null) {
+				setActiveLayer(null);
+			}
 		}
 	});
 	
@@ -33,6 +46,8 @@ function initHotKeyListeners() {
 			GLOBAL.held_keys.ctrl = false;
 		} else if (event.keyCode == 83) {
 			GLOBAL.held_keys.s = false;
+		} else if (event.keyCode == 68) {
+			GLOBAL.held_keys.d = false;
 		}
 		GLOBAL.held_keys.reset = false;
 	});

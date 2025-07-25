@@ -109,6 +109,13 @@ function editOverlay(slug) {
 		height: canvas.height
 	};
 	
+	// offset for project drag window
+	GLOBAL.overlay_editor.canvas_window = {
+		x: 0,
+		y: 0,
+		origins: null
+	};
+	
 	// setup active layer index
 	GLOBAL.overlay_editor.active_layer = null;
 	
@@ -129,6 +136,7 @@ function editOverlay(slug) {
 }
 
 function closeOverlayEditor() {
+	GLOBAL.overlay_editor.active_layer = null;
 	GLOBAL.navigation.on_save = GLOBAL.overlay_editor.old_save;
 	removeImageEditorListeners();
 	Select('#image_editor').remove();
@@ -1046,6 +1054,7 @@ function createImageEditorListeners() {
 	window.addEventListener('mousemove', imageEditorMouseMove);
 	window.addEventListener('mouseup', imageEditorMouseUp);
 	window.addEventListener('contextmenu', imageEditorMouseCTX);
+	window.addEventListener('wheel', imageEditorZoom);
 }
 
 function removeImageEditorListeners() {
@@ -1053,6 +1062,7 @@ function removeImageEditorListeners() {
 	window.removeEventListener('mousemove', imageEditorMouseMove);
 	window.removeEventListener('mouseup', imageEditorMouseUp);
 	window.removeEventListener('contextmenu', imageEditorMouseCTX);
+	window.removeEventListener('wheel', imageEditorZoom);
 }
 
 var image_editor_drag = null;
@@ -1068,7 +1078,17 @@ function imageEditorMouseCTX(event) {
 	}
 }
 
+function imageEditorZoom(event) {
+	if (event.target.id == 'workspace') {
+		let delta = event.deltaY > 0 ? 1 : -1;
+		GLOBAL.overlay_editor.scale *= event.deltaY < 0 ? 1.09 : .81;
+		printCurrentCanvas();
+	}
+}
+
 function imageEditorMouseDown(event) {
+	
+	// init layer drag
 	if (image_editor_drag == null && targetIsLayerElem(event.target)) {
 		image_editor_drag = {
 			id: event.target.id,
@@ -1076,61 +1096,78 @@ function imageEditorMouseDown(event) {
 			active_hover: event.target.id,
 			dragging: false
 		};
-		return
+		return;
 	} 
+
+	// init canvas drags
+	if (event.target.id == 'workspace') {
+		
+		// if active selection
+		if (GLOBAL.overlay_editor.active_layer_selection) {
+			let translate_scale_x = event.clientX;
+			let translate_scale_y = event.clientY;
+			
+			let canvas_elem = Select('#workspace');
+			let canvas_dimensions = {
+				offset_y: canvas_elem.getBoundingClientRect().top,
+				width: canvas_elem.width,
+				height: canvas_elem.height
+			}
+			
+			// relate y to canvas origin
+			translate_scale_y -= canvas_dimensions.offset_y;
+			// relate y to translated origins within drawn canvas
+			translate_scale_y -= (GLOBAL.overlay_editor.dimensions.height/2) - ((GLOBAL.overlay_editor.current.dimensions.height/2)*GLOBAL.overlay_editor.scale) - GLOBAL.overlay_editor.canvas_window.y;
+			// scale y up for 1 to 1 in overlay comparison
+			translate_scale_y = translate_scale_y/GLOBAL.overlay_editor.scale;
+			
+			// x already at canvas origin
+			// relate x to translate origins within drawn canvas
+			translate_scale_x -= (GLOBAL.overlay_editor.dimensions.width/2) - ((GLOBAL.overlay_editor.current.dimensions.width/2)*GLOBAL.overlay_editor.scale) - GLOBAL.overlay_editor.canvas_window.x;
+			// scale x up for 1 to 1 in overlay comparison
+			translate_scale_x = translate_scale_x/GLOBAL.overlay_editor.scale;
+			
+			if (
+				translate_scale_x > GLOBAL.overlay_editor.active_layer_selection.x &&
+				translate_scale_y > GLOBAL.overlay_editor.active_layer_selection.y &&
+				translate_scale_x < GLOBAL.overlay_editor.active_layer_selection.x + GLOBAL.overlay_editor.active_layer_selection.width &&
+				translate_scale_y < GLOBAL.overlay_editor.active_layer_selection.y + GLOBAL.overlay_editor.active_layer_selection.height
+			) {
+				GLOBAL.overlay_editor.layer_selection_drag = {
+					origin: {
+						x: event.clientX,
+						y: event.clientY
+					},
+					layer_origin: {
+						x: GLOBAL.overlay_editor.active_layer_selection.layer_x,
+						y: GLOBAL.overlay_editor.active_layer_selection.layer_y
+					},
+					sub_layer_origins: null
+				}
+				// stash group layer children origins
+				let layer = getLayerById(GLOBAL.overlay_editor.active_layer);
+				if (typeof layer.clip_path !== 'undefined') {
+					GLOBAL.overlay_editor.layer_selection_drag.sub_layer_origins = layer.layers.map(v => {
+						return {
+							x: v.offset.x,
+							y: v.offset.y
+						};
+					});
+				}
+				
+				// prevent canvas drag is selection drag true
+				return;
+			}
+		}
+		
+		// init project drag
+		GLOBAL.overlay_editor.canvas_window.origins = {
+			x: GLOBAL.overlay_editor.canvas_window.x + event.clientX,
+			y: GLOBAL.overlay_editor.canvas_window.y + event.clientY
+		};
 	
-	let translate_scale_x = event.clientX;
-	let translate_scale_y = event.clientY;
-	
-	let canvas_elem = Select('#workspace');
-	let canvas_dimensions = {
-		offset_y: canvas_elem.getBoundingClientRect().top,
-		width: canvas_elem.width,
-		height: canvas_elem.height
 	}
 	
-	// relate y to canvas origin
-	translate_scale_y -= canvas_dimensions.offset_y;
-	// relate y to translated origins within drawn canvas
-	translate_scale_y -= (GLOBAL.overlay_editor.dimensions.height/2) - ((GLOBAL.overlay_editor.current.dimensions.height/2)*GLOBAL.overlay_editor.scale);
-	// scale y up for 1 to 1 in overlay comparison
-	translate_scale_y = translate_scale_y/GLOBAL.overlay_editor.scale;
-	
-	// x already at canvas origin
-	// relate x to translate origins within drawn canvas
-	translate_scale_x -= (GLOBAL.overlay_editor.dimensions.width/2) - ((GLOBAL.overlay_editor.current.dimensions.width/2)*GLOBAL.overlay_editor.scale);
-	// scale x up for 1 to 1 in overlay comparison
-	translate_scale_x = translate_scale_x/GLOBAL.overlay_editor.scale;
-	
-	if (
-		GLOBAL.overlay_editor.active_layer_selection &&
-		translate_scale_x > GLOBAL.overlay_editor.active_layer_selection.x &&
-		translate_scale_y > GLOBAL.overlay_editor.active_layer_selection.y &&
-		translate_scale_x < GLOBAL.overlay_editor.active_layer_selection.x + GLOBAL.overlay_editor.active_layer_selection.width &&
-		translate_scale_y < GLOBAL.overlay_editor.active_layer_selection.y + GLOBAL.overlay_editor.active_layer_selection.height
-	) {
-		GLOBAL.overlay_editor.layer_selection_drag = {
-			origin: {
-				x: event.clientX,
-				y: event.clientY
-			},
-			layer_origin: {
-				x: GLOBAL.overlay_editor.active_layer_selection.layer_x,
-				y: GLOBAL.overlay_editor.active_layer_selection.layer_y
-			},
-			sub_layer_origins: null
-		}
-		// stash group layer children origins
-		let layer = getLayerById(GLOBAL.overlay_editor.active_layer);
-		if (typeof layer.clip_path !== 'undefined') {
-			GLOBAL.overlay_editor.layer_selection_drag.sub_layer_origins = layer.layers.map(v => {
-				return {
-					x: v.offset.x,
-					y: v.offset.y
-				};
-			});
-		}
-	}
 }
 
 function imageEditorMouseMove(event) {
@@ -1215,6 +1252,14 @@ function imageEditorMouseMove(event) {
 		}
 		
 		printCurrentCanvas();
+		
+	} else if (GLOBAL.overlay_editor.canvas_window.origins) {
+		
+		// project drag
+		GLOBAL.overlay_editor.canvas_window.x = GLOBAL.overlay_editor.canvas_window.origins.x - event.clientX;
+		GLOBAL.overlay_editor.canvas_window.y = GLOBAL.overlay_editor.canvas_window.origins.y - event.clientY;
+		printCurrentCanvas();
+		
 	}
 	
 }
@@ -1311,6 +1356,11 @@ function imageEditorMouseUp(event) {
 		GLOBAL.overlay_editor.layer_selection_drag = null;
 		setupLayerInfo();
 		
+	} else if (GLOBAL.overlay_editor.canvas_window.origins != null) {
+		
+		// reset project drag
+		GLOBAL.overlay_editor.canvas_window.origins = null;
+		
 	}
 }
 
@@ -1326,8 +1376,8 @@ function printCurrentCanvas() {
 	
 	// set print from location to scaled down area start
 	ctx.translate(
-		(GLOBAL.overlay_editor.dimensions.width/2) - ((GLOBAL.overlay_editor.current.dimensions.width/2)*GLOBAL.overlay_editor.scale),
-		(GLOBAL.overlay_editor.dimensions.height/2) - ((GLOBAL.overlay_editor.current.dimensions.height/2)*GLOBAL.overlay_editor.scale)
+		(GLOBAL.overlay_editor.dimensions.width/2) - ((GLOBAL.overlay_editor.current.dimensions.width/2)*GLOBAL.overlay_editor.scale) - GLOBAL.overlay_editor.canvas_window.x,
+		(GLOBAL.overlay_editor.dimensions.height/2) - ((GLOBAL.overlay_editor.current.dimensions.height/2)*GLOBAL.overlay_editor.scale) - GLOBAL.overlay_editor.canvas_window.y
 	);
 	
 	// scale canvas
