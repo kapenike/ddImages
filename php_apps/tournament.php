@@ -25,9 +25,11 @@ class tournament {
 		$this->saveRegistry();
 		
 		// get settings file, update, then put back
+		/*
 		$settings = json_decode(file_get_contents(getBasePath().'/data/'.$uid.'/container.json'));
-		$settings->settings->team_size = intval($post['roster_size']);
+		$settings->settings->update some setting
 		file_put_contents(getBasePath().'/data/'.$uid.'/container.json', json_encode($settings));
+		*/
 		
 		// all good
 		app('respond')->json(true, 'Tournament settings updated.');
@@ -59,12 +61,6 @@ class tournament {
 		// create skeleton data set registry file
 		file_put_contents(getBasePath().'/data/'.$uid.'/datasets/registry.json', json_encode((object)[]));
 		
-		// create tournament teams directory
-		mkdir(getBasePath().'/data/'.$uid.'/teams');
-
-		// create skeleton teams registry file
-		file_put_contents(getBasePath().'/data/'.$uid.'/teams/team_registry.json', json_encode((object)[]));
-		
 		// create tournament overlay data directory
 		mkdir(getBasePath().'/data/'.$uid.'/overlays');
 		
@@ -74,9 +70,7 @@ class tournament {
 		// create tournament container json file
 		file_put_contents(getBasePath().'/data/'.$uid.'/container.json', json_encode((object)[
 			'uid' => $uid,
-			'settings' => [
-				'team_size' => 2
-			]
+			'settings' => []
 		]));
 		
 		// create skeleton data file
@@ -121,12 +115,6 @@ class tournament {
 				
 				// data set structures
 				$tournament_data->data->sets = app('dataset')->loadAll($tournament_uid);
-				
-				// import tournament teams dataset
-				$tournament_data->data->sets->teams = (object)[
-					'display' => 'teams',
-					'entries' => app('team')->loadAll($tournament_uid)
-				];
 				
 				// import tournament data ui
 				$tournament_data->ui = json_decode(file_get_contents($data_path.'ui.json'));

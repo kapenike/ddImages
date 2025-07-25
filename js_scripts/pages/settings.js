@@ -19,17 +19,6 @@ function setNavigationSettings() {
 									})
 								]
 							}),
-							Create('label', {
-								innerHTML: 'Team Roster Size',
-								children: [
-									Create('input', {
-										type: 'number',
-										name: 'roster_size',
-										min: 0,
-										value: GLOBAL.active_tournament.settings.team_size
-									})
-								]
-							}),
 							Create('div', {
 								style: {
 									textAlign: 'right'
@@ -70,8 +59,6 @@ function updateTournamentSettings() {
 			// update local data and UI
 			GLOBAL.active_tournament.title = form_details.tournament_title;
 			Select('#tournament_title').innerHTML = form_details.tournament_title;
-			
-			GLOBAL.active_tournament.settings.team_size = parseInt(form_details.roster_size);
 			
 		}
 		

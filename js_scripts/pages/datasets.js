@@ -84,7 +84,7 @@ function setNavigationDatasets() {
 	// setup dataset editor, default to create
 	setupDatasetEditor(null);
 	
-	// setup team selection list
+	// setup dataset selection list
 	generateDatasetSelectionList();
 		
 }
@@ -110,7 +110,7 @@ function updateDataset() {
 				delete GLOBAL.active_tournament.data.sets[Select('[name="dataset_title"]').data];
 			}
 			
-			// update / insert new team locally
+			// update / insert new dataset locally
 			GLOBAL.active_tournament.data.sets[data.msg.display] = data.msg;
 			
 			// load dataset into form
@@ -143,7 +143,7 @@ function removeDataset(uid) {
 			// bring up create dataset form
 			loadDataset();
 			
-			// re-create team selection list
+			// re-create dataset selection list
 			generateDatasetSelectionList();
 			
 		}
@@ -505,14 +505,12 @@ function generateDatasetSelectionList() {
 	Select('#dataset_list', {
 		innerHTML: '',
 		children: Object.keys(GLOBAL.active_tournament.data.sets).map(key => {
-			if (key != 'teams') {
-				let dataset = GLOBAL.active_tournament.data.sets[key];
-				return Create('div', {
-					innerHTML: dataset.display,
-					className: 'team_block',
-					onclick: () => { loadDataset(dataset); }
-				});
-			}
+			let dataset = GLOBAL.active_tournament.data.sets[key];
+			return Create('div', {
+				innerHTML: dataset.display,
+				className: 'selection_list_block',
+				onclick: () => { loadDataset(dataset); }
+			});
 			return Create('div');
 		})
 	});

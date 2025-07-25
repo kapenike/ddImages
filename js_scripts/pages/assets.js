@@ -331,7 +331,7 @@ function generateAssetSelectionList() {
 		children: Object.keys(GLOBAL.active_tournament.data.assets).map(slug => {
 			return Create('div', {
 				innerHTML: GLOBAL.active_tournament.data.assets[slug].display,
-				className: 'team_block',
+				className: 'selection_list_block',
 				onclick: () => { setupAssetEditor(slug); }
 			});
 		})

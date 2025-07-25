@@ -128,7 +128,7 @@ function createPathListForEditor(path = null, base_path = null) {
 					is_asset = true;
 				}
 			}
-			if (!is_path_only && typeof curr_path[nest[i]] === 'string') {
+			if ((!is_path_only || is_image_search) && typeof curr_path[nest[i]] === 'string') {
 				curr_path = getRealValue(curr_path[nest[i]]);
 				continue;
 			}
@@ -183,17 +183,22 @@ function createPathListForEditor(path = null, base_path = null) {
 			} else if (is_value && !is_path_only && typeof getRealValue('$var$'+(path == null ? key : path+'/'+key)+'$/var$') !== 'string') {
 				// edge case, if value and not a path only selection, and value is a path variable that points towards an object rather than string, set as a path value
 				is_value = false;
-			}
-			
-			// during image search, look ahead and see if is object and contains image property, update path key that is set when selected
-			// use case: image property within a data set
-			if (is_value == true && is_path_only && is_image_search) {
+			} else if (is_value == true && is_path_only && is_image_search) {
+				// override default logic of preventing dataset expansion for path only if looking for an image object
 				let upcoming_dir = getRealValue(curr_path[key]);
-				if (isObject(upcoming_dir) && typeof upcoming_dir.image !== 'undefined') {
-					key += '/image';
+				if (isObject(upcoming_dir)) {
+					// if object allow expansion
+					is_value = false;
+					// unless the object contains a direct image reference
+					if (Object.keys(upcoming_dir).find(x => {
+						let ref = upcoming_dir[x];
+						return ref instanceof ImageBitmap || ref instanceof HTMLImageElement;
+					})) {
+						is_value = true;
+					}
 				}
 			}
-			
+
 			return Create('div', {
 				className: 'path_selection_element_'+(is_value ? 'set' : 'extend'),
 				innerHTML: (is_value ? '&nbsp;&nbsp;&#9900;' : '&#8594; ')+print_key,

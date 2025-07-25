@@ -295,7 +295,7 @@ function generateOverlaySelectionList() {
 		children: Object.keys(GLOBAL.active_tournament.overlays).map(slug => {
 			return Create('div', {
 				innerHTML: GLOBAL.active_tournament.overlays[slug].title,
-				className: 'team_block',
+				className: 'selection_list_block',
 				onclick: () => { setupOverlayEditor(slug); }
 			});
 		})

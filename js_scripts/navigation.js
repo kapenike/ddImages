@@ -34,11 +34,6 @@ function initNavigation() {
 		},
 		{ name: '' },
 		{
-			name: 'Teams Manager',
-			on_save: updateTeamData,
-			app_init: setNavigationTeams,
-		},
-		{
 			name: 'Assets Manager',
 			on_save: updateAssetData,
 			app_init: setNavigationAssets,

@@ -6,13 +6,13 @@ automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 ## To-DO
 
 - BETA release
-	- [ ] remove teams and just use datasets
+	- [ ] remove teams and just use datasets, improve dataset logic
 	- overlay editor
 		- [ ] fix issue with layer sorting on larger project
 		- [x] allow drag move of elements within a group AND the group as a whole
 		- [ ] allow point path clipping for group layers
 		- [ ] allow any static input to be converted to a variable input on the fly, revert color field from static variable input (change for recent tournament)
-		- [ ] create rects
+		- [ ] create shapes
 		- [ ] hotkeys for moving layer on x / y axis or by a smaller pixel per dpi margin
 		- [ ] allow moving and zooming of current project with mouse wheel and hotkeys
 		- [ ] allow move / duplicate / remove multiple layers at once

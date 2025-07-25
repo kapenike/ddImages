@@ -43,7 +43,7 @@ function setNavigationBrowserSources() {
 										children: [
 											Create('div', {
 												innerHTML: 'Countdown Clock',
-												className: 'team_block',
+												className: 'selection_list_block',
 												onclick: setupCountdownClockWidget,
 												style: {
 													backgroundColor: '#000000',

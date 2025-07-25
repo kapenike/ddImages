@@ -55,16 +55,6 @@ switch($_POST['application']) {
 		app('tournament')->updateTournamentDataStructure($_POST['uid'], json_decode($_POST['data_structure']));
 		break;
 		
-	case 'update_team':
-		// create and update team data
-		app('team')->update($_POST);
-		break;
-		
-	case 'remove_team':
-		// remove team
-		app('team')->remove($_POST['tournament_uid'], $_POST['team_uid']);
-		break;
-		
 	case 'update_create_dataset':
 		// update or create dataset
 		app('dataset')->update($_POST);
