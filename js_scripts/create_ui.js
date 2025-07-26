@@ -395,23 +395,25 @@ function updateSourceChanges() {
 // add window listeners for drag / drop / context menu editing of ui
 function toggleUIEditor(flag) {
 	let form = Select('#form_capture');
-	if (flag) {
-		form.className = 'editable_ui';
-		window.addEventListener('mousedown', uiEditMouseDown);
-		window.addEventListener('mousemove', uiEditMouseMove);
-		window.addEventListener('mouseup', uiEditMouseUp);
-		window.addEventListener('contextmenu', uiEditRightMouse);
-		// on save converted to updating UI instead
-		GLOBAL.navigation.on_save = updateUIChange;
-	} else {
-		resetDrag();
-		form.className = '';
-		window.removeEventListener('mousedown', uiEditMouseDown);
-		window.removeEventListener('mousemove', uiEditMouseMove);
-		window.removeEventListener('mouseup', uiEditMouseUp);
-		window.removeEventListener('contextmenu', uiEditRightMouse);
-		// return to data update on save
-		GLOBAL.navigation.on_save = updateSourceChanges;
+	if (form) {
+		if (flag) {
+			form.className = 'editable_ui';
+			window.addEventListener('mousedown', uiEditMouseDown);
+			window.addEventListener('mousemove', uiEditMouseMove);
+			window.addEventListener('mouseup', uiEditMouseUp);
+			window.addEventListener('contextmenu', uiEditRightMouse);
+			// on save converted to updating UI instead
+			GLOBAL.navigation.on_save = updateUIChange;
+		} else {
+			resetDrag();
+			form.className = '';
+			window.removeEventListener('mousedown', uiEditMouseDown);
+			window.removeEventListener('mousemove', uiEditMouseMove);
+			window.removeEventListener('mouseup', uiEditMouseUp);
+			window.removeEventListener('contextmenu', uiEditRightMouse);
+			// return to data update on save
+			GLOBAL.navigation.on_save = updateSourceChanges;
+		}
 	}
 }
 

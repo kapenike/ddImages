@@ -511,7 +511,6 @@ function generateDatasetSelectionList() {
 				className: 'selection_list_block',
 				onclick: () => { loadDataset(dataset); }
 			});
-			return Create('div');
 		})
 	});
 	

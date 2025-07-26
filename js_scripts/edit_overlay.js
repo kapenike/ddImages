@@ -485,18 +485,9 @@ function setupLayerInfo() {
 											Create('label', {
 												innerHTML: 'Color',
 												children: [
-													Create('input', {
-														style: {
-															backgroundColor: layer.style.color,
-															height: '41px'
-														},
-														type: 'color',
-														value: layer.style.color,
-														onchange: function () {
-															getLayerById(GLOBAL.overlay_editor.active_layer).style.color = this.value;
-															this.style.backgroundColor = this.value;
-															printCurrentCanvas();
-														}
+													createColorPicker(layer.style.color, function (value) {
+														getLayerById(GLOBAL.overlay_editor.active_layer).style.color = value;
+														printCurrentCanvas();
 													})
 												]
 											})
@@ -725,21 +716,12 @@ function setupLayerInfo() {
 										className: 'editor_section_title',
 										innerHTML: 'Clip Path Background Color'
 									}),
-									Create('span', {
+									Create('label', {
 										innerHTML: 'Color',
-										className: 'editor_spanlabel',
 										children: [
-											createPathVariableField({
-												name: 'editor_clip_path_bg_color',
-												value: {
-													path_only: false,
-													value: layer.clip_path.color
-												},
-												allow_path_only: false,
-												on_edit: function () {
-													getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.color = this.value;
-													printCurrentCanvas();
-												}
+											createColorPicker(layer.clip_path.color, function (value) {
+												getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.color = value;
+												printCurrentCanvas();
 											})
 										]
 									})
