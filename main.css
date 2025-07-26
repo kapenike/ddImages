@@ -571,6 +571,7 @@ button, input[type="submit"] {
 
 #image_editor .editor_tab {
 	background-color: #444444;
+	border-right: 1px solid #000000;
 	color: #ffffff;
 	padding: 4px 8px;
 	margin: -4px 0;

@@ -3,6 +3,16 @@ function editOverlay(slug) {
 	GLOBAL.overlay_editor.slug = slug;
 	GLOBAL.overlay_editor.current = JSON.parse(JSON.stringify(GLOBAL.active_tournament.overlays[slug]));
 	
+	// setup default grid
+	GLOBAL.overlay_editor.grid_settings = {
+		columns: 3,
+		rows: 3,
+		origin: {
+			x: 'left',
+			y: 'top'
+		}
+	}
+	
 	// create image editor for current overlay
 	Select('#body').appendChild(
 		Create('div', {
@@ -54,6 +64,147 @@ function editOverlay(slug) {
 									]
 								});
 							}
+						}),
+						Create('div', {
+							className: 'editor_tab',
+							innerHTML: 'Grid',
+							onclick: function () {
+								
+								if (GLOBAL.overlay_editor.active_layer != null) {
+									setImageEditorDialog(event, {
+										title: 'Move Layer on Grid',
+										items: [
+											{
+												title: Create('div', {
+													className: 'row',
+													children: [
+														Create('div', {
+															className: 'col',
+															style: {
+																width: '50%'
+															},
+															children: [
+																Create('label', {
+																	innerHTML: 'Columns',
+																	children: [
+																		Create('input', {
+																			type: 'number',
+																			min: 3,
+																			value: GLOBAL.overlay_editor.grid_settings.columns,
+																			onchange: function () {
+																				GLOBAL.overlay_editor.grid_settings.columns = parseInt(this.value);
+																				setupMoveOnGridContainer();
+																			},
+																			onkeyup: function () {
+																				GLOBAL.overlay_editor.grid_settings.columns = parseInt(this.value);
+																				setupMoveOnGridContainer();
+																			}
+																		})
+																	]
+																})
+															]
+														}),
+														Create('div', {
+															className: 'col',
+															style: {
+																width: '50%'
+															},
+															children: [
+																Create('label', {
+																	innerHTML: 'Rows',
+																	children: [
+																		Create('input', {
+																			type: 'number',
+																			min: 3,
+																			value: GLOBAL.overlay_editor.grid_settings.rows,
+																			onchange: function () {
+																				GLOBAL.overlay_editor.grid_settings.rows = parseInt(this.value);
+																				setupMoveOnGridContainer();
+																			},
+																			onkeyup: function () {
+																				GLOBAL.overlay_editor.grid_settings.rows = parseInt(this.value);
+																				setupMoveOnGridContainer();
+																			}
+																		})
+																	]
+																})
+															]
+														})
+													]
+												}),
+												click: () => {}
+											},
+											{
+												title: Create('div', {
+													className: 'row',
+													children: [
+														Create('div', {
+															className: 'col',
+															style: {
+																width: '50%'
+															},
+															children: [
+																Create('label', {
+																	innerHTML: 'Horizontal Origin',
+																	children: [
+																		Create('select', {
+																			onchange: function () {
+																				GLOBAL.overlay_editor.grid_settings.origin.x = this.value
+																			},
+																			children: ['left', 'center', 'right'].map(origin => {
+																				return Create('option', {
+																					innerHTML: origin,
+																					value: origin,
+																					selected: GLOBAL.overlay_editor.grid_settings.origin.x == origin
+																				})
+																			})
+																		})
+																	]
+																})
+															]
+														}),
+														Create('div', {
+															className: 'col',
+															style: {
+																width: '50%'
+															},
+															children: [
+																Create('label', {
+																	innerHTML: 'Vertical Origin',
+																	children: [
+																		Create('select', {
+																			onchange: function () {
+																				GLOBAL.overlay_editor.grid_settings.origin.y = this.value
+																			},
+																			children: ['top', 'center', 'bottom'].map(origin => {
+																				return Create('option', {
+																					innerHTML: origin,
+																					value: origin,
+																					selected: GLOBAL.overlay_editor.grid_settings.origin.y == origin
+																				})
+																			})
+																		})
+																	]
+																})
+															]
+														})
+													]
+												}),
+												click: () => {}
+											},
+											{
+												title: Create('div', {
+													id: 'move_on_grid_container',
+												}),
+												click: () => {}
+											}
+										]
+									}, 400);
+									
+									setupMoveOnGridContainer();
+									
+								}
+							}
 						})
 					]
 				}),
@@ -82,7 +233,7 @@ function editOverlay(slug) {
 									className: 'layer_manager_add',
 									innerHTML: '+ New Layer',
 									onclick: function () {
-										addNewLayer();
+										addNewLayer(GLOBAL.overlay_editor.active_layer);
 									}
 								})
 							]
@@ -167,6 +318,58 @@ function saveOverlay() {
 		}
 	}, 'body');
 	
+}
+
+function setupMoveOnGridContainer() {
+	Select('#move_on_grid_container', {
+		innerHTML: '',
+		children: new Array(GLOBAL.overlay_editor.grid_settings.rows).fill(null).map((x, row) => {
+			return Create('div', {
+				className: 'row',
+				children: new Array(GLOBAL.overlay_editor.grid_settings.columns).fill(null).map((y, col) => {
+					return Create('div', {
+						className: 'col',
+						style: {
+							width: (Math.trunc((100/GLOBAL.overlay_editor.grid_settings.columns) * 100) / 100)+'%'
+						},
+						innerHTML: (col+1)+'|'+(row+1),
+						onclick: () => {
+							let layer = getLayerById(GLOBAL.overlay_editor.active_layer);
+							let new_x = (GLOBAL.overlay_editor.current.dimensions.width/(GLOBAL.overlay_editor.grid_settings.columns-1))*col;
+							let new_y = (GLOBAL.overlay_editor.current.dimensions.height/(GLOBAL.overlay_editor.grid_settings.rows-1))*row;
+							
+							let layer_dim = getLayerOutputDimensions(layer);
+							
+							// layer origins of left and top do not change
+							
+							if (GLOBAL.overlay_editor.grid_settings.origin.x == 'center') {
+								new_x -= layer_dim.width/2;
+							} else if (GLOBAL.overlay_editor.grid_settings.origin.x == 'right') {
+								new_x -= layer_dim.width;
+							}
+						
+							if (GLOBAL.overlay_editor.grid_settings.origin.y == 'center') {
+								new_y -= layer_dim.height/2;
+							} else if (GLOBAL.overlay_editor.grid_settings.origin.y == 'bottom') {
+								new_x -= layer_dim.height;
+							}
+							
+							if (layer.type == 'clip_path') {
+								moveGroupLayer(layer, {
+									x: new_x,
+									y: new_y
+								});
+							} else {
+								layer.offset.x = new_x;
+								layer.offset.y = new_y;
+							}
+							printCurrentCanvas();
+						}
+					})
+				})
+			});
+		})
+	});
 }
 
 function setupScalingFactor() {
@@ -754,7 +957,9 @@ function setupLayerInfo() {
 																type: 'number',
 																value: layer.clip_path.offset.x,
 																onchange: function () {
-																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.offset.x = precise(this.value);
+																	moveGroupLayer(getLayerById(GLOBAL.overlay_editor.active_layer), {
+																		x: precise(this.value)
+																	});
 																	this.value = preciseAndTrim(this.value);
 																	printCurrentCanvas();
 																}
@@ -776,7 +981,9 @@ function setupLayerInfo() {
 																type: 'number',
 																value: layer.clip_path.offset.y,
 																onchange: function () {
-																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.offset.y = precise(this.value);
+																	moveGroupLayer(getLayerById(GLOBAL.overlay_editor.active_layer), {
+																		y: precise(this.value)
+																	});
 																	this.value = preciseAndTrim(this.value);
 																	printCurrentCanvas();
 																}
@@ -847,6 +1054,22 @@ function setupLayerInfo() {
 
 }
 
+function moveGroupLayer(layer, obj) {
+	if (layer.type == 'clip_path') {
+		let x_diff = typeof obj.x !== 'undefined' ? obj.x - layer.clip_path.offset.x : 0;
+		let y_diff = typeof obj.y !== 'undefined' ? obj.y - layer.clip_path.offset.y : 0;
+		layer.layers.forEach(sub_layer => {
+			sub_layer.offset.x += x_diff;
+			sub_layer.offset.y += y_diff;
+		});
+		// if contains clip path, move clip path origin coords too
+		if (layer.clip_path.type != 'none') {
+			layer.clip_path.offset.x += x_diff;
+			layer.clip_path.offset.y += y_diff;
+		}
+	}
+}
+
 function editLayer(elem) {
 	event.preventDefault();
 	let index = elem.id.split('_');
@@ -893,7 +1116,6 @@ function addNewLayer(index = null) {
 }
 
 function addNewTypeLayer(type, index, duplicate = false) {
-	let ref = index == null ? null : getLayerById(index);
 	let new_layer = null;
 	if (duplicate == false) {
 		if (type == 'text') {
@@ -964,8 +1186,8 @@ function addNewTypeLayer(type, index, duplicate = false) {
 		GLOBAL.overlay_editor.current.layers.unshift(new_layer);
 		setActiveLayer(0);
 	} else {
-		if (index.indexOf('_') > -1) {
-			let ids = index.split('_');
+		if (index.toString().indexOf('_') > -1) {
+			let ids = index.split('_').filter(x => x != 'layer');
 			GLOBAL.overlay_editor.current.layers[ids[0]].layers.splice(ids[1], 0, new_layer);
 		} else {
 			GLOBAL.overlay_editor.current.layers.splice(index, 0, new_layer);
@@ -988,7 +1210,7 @@ function removeLayer(index) {
 
 // removeUIEditMenu(); hijacked from create_ui.js
 
-function setImageEditorDialog(event, menu_items) {
+function setImageEditorDialog(event, menu_items, width_override = null) {
 	removeUIEditMenu();
 	
 	let x = event.clientX;
@@ -1002,22 +1224,30 @@ function setImageEditorDialog(event, menu_items) {
 				style: {
 					left: x,
 					top: y,
-					transform: 'translate('+(x < (screen.width/2) ? '0' : '-100%')+', '+(y > (screen.height/2) ? '-100%' : '0')+')'
+					transform: 'translate('+(x < (screen.width/2) ? '0' : '-100%')+', '+(y > (screen.height/2) ? '-100%' : '0')+')',
+					width: width_override == null ? '200px' : width_override+'px'
 				},
 				children: [
 					(typeof menu_items.title !== 'undefined' && menu_items.title != '' 
-						?	Create('div', {
+						? Create('div', {
 								className: 'ui_edit_menu_title',
 								innerHTML: menu_items.title
 							})
 						: Create('span')
 					),
 					...menu_items.items.map(item => {
-						return Create('div', {
-							innerHTML: item.title,
-							onclick: item.click,
-							className: (typeof item.remove === 'undefined' ? (typeof item.action === 'undefined' ? '' : 'ui_edit_menu_save') : 'ui_edit_menu_remove')
-						});
+						return (typeof item.title === 'string'
+							? Create('div', {
+									innerHTML: item.title,
+									onclick: item.click,
+									className: (typeof item.remove === 'undefined' ? (typeof item.action === 'undefined' ? '' : 'ui_edit_menu_save') : 'ui_edit_menu_remove')
+								})
+							: Create('div', {
+									children: [ item.title ],
+									onclick: item.click,
+									className: (typeof item.remove === 'undefined' ? (typeof item.action === 'undefined' ? '' : 'ui_edit_menu_save') : 'ui_edit_menu_remove')
+								})
+						);
 					}),
 					Create('div', {
 						innerHTML: 'cancel',

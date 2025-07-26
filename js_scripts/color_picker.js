@@ -1,7 +1,6 @@
 function createColorPicker(value, on_save) {
 
 	let original_real_value = getRealValue(value);
-	console.log(original_real_value);
 
 	return Create('div', {
 		className: 'color_picker',
