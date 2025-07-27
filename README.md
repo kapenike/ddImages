@@ -1,4 +1,4 @@
-# phpMyStreamOverlay
+# FSD[ ddImages ]
 automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
 
 > this code is alpha and not fully commented or structured

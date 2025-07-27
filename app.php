@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 
 // no htaccess or hierarchical structure so create a relative base path method
 function getBasePath() {
-	return explode('phpMyStreamOverlay',getcwd())[0].'phpMyStreamOverlay/';
+	return explode('ddImages',getcwd())[0].'ddImages/';
 }
 
 // $APP stores loaded classes as an instance of app({$class})
