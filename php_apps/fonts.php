@@ -2,6 +2,13 @@
 
 class fonts {
 	
+	function __construct() {
+		// if registry file doesnt exist, create its skeleton
+		if (!file_exists(getBasePath().'/fonts/font_registry.json')) {
+			file_put_contents(getBasePath().'/fonts/font_registry.json', '[]'));
+		}
+	}
+	
 	function generateFontCSS($print_style_tags = true) {
 		// font file extension to format
 		$ext_to_format = (object)[
@@ -37,6 +44,10 @@ class fonts {
 		if ($print_style_tags) {
 			echo '</style>'."\r\n";
 		}
+	}
+	
+	function getFontList() {
+		return str_replace("\r\n", "", file_get_contents('./fonts/font_registry.json'));
 	}
 	
 }
