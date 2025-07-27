@@ -7,32 +7,23 @@ function initNavigation() {
 		{
 			name: 'Switchboard',
 			default: true,
-			sub_navigation: [
-				{
-					name: 'Data Management',
-					default: true,
-					on_save: updateSourceChanges,
-					app_init: function () {
-						createUIFromData('#sub_main', GLOBAL.active_project.ui, 'update_project_details')
-					},
-					close_app: function () { 
-						toggleUIEditor(false);
-						clearSourceChanges();
-					}
-				},
-				{
-					name: 'Edit Data Structure',
-					style: {
-						float: 'right',
-					},
-					on_save: updateDataStructure,
-					app_init: function () {
-						manageDataStructure('#sub_main', GLOBAL.active_project.data, 'update_project_data_structure')
-					}
-				}
-			]
+			on_save: updateSourceChanges,
+			app_init: function () {
+				createUIFromData('#main', GLOBAL.active_project.ui, 'update_project_details')
+			},
+			close_app: function () { 
+				toggleUIEditor(false);
+				clearSourceChanges();
+			}
 		},
 		{ name: '' },
+		{
+			name: 'Data Structure',
+			on_save: updateDataStructure,
+			app_init: function () {
+				manageDataStructure('#main', GLOBAL.active_project.data, 'update_project_data_structure')
+			}
+		},
 		{
 			name: 'Assets',
 			on_save: updateAssetData,
@@ -78,112 +69,64 @@ function generateUI(navigation = null) {
 		}
 	}
 	
-	Select('#navigation', {
-		innerHTML: '<div id="project_title">'+GLOBAL.active_project.title+'</div>',
-		children: GLOBAL_NAVIGATION.map(nav_elem => {
-			
-			// nav break
-			if (nav_elem.name == '') {
-				return Create('div', {
-					className: 'nav_break'
-				});
-			}
-			
-			// if current tab is active
-			let nav_is_active = navigation == nav_elem.name || navigation == null && nav_elem.default;
-			if (nav_is_active) {
-				
-				// init on save and application startup methods
-				initNavigationApp(nav_elem);
-				
-				// generate sub navigation if it exists
-				if (nav_elem.sub_navigation) {
-					generateSubUI(null, nav_elem.sub_navigation);
-				}
-				
-			}
-			
-			// generate main navigation element
-			let nav_element = Create('div', {
-				className: 'navigation_element'+(nav_is_active ? ' active_navigation' : ''),
-				innerHTML: nav_elem.name,
-				onclick: () => { generateUI(nav_elem.name) }
-			});
-			
-			// if style, apply
-			if (nav_elem.style) {
-				Create(nav_element, { style: nav_elem.style }, true);
-			}
-			
-			// return main navigation element
-			return nav_element;
-		})
-	});
-	
-}
-	
-function generateSubUI(navigation, sub_navigation) {
-	
-	// prevent navigation of already-active page
-	if (navigation != null) {
-		let active_navigation = Select('.active_sub_navigation');
-		if (active_navigation && active_navigation.innerHTML == navigation) {
-			return;
-		}
-	}
-	
-	// check for close app condition on sub navigation
-	closeApp(false);
-	
-	// append sub navigation to main container
-	Select('#main', {
+	Select('.navigation', {
 		innerHTML: '',
 		children: [
 			Create('div', {
-				className: 'sub_navigation',
-				children: sub_navigation.map(nav_elem => {
-					
-					// nav break
-					if (nav_elem.name == '') {
-						return Create('div', {
-							className: 'nav_break'
-						});
-					}
-
-					// generate sub navigation element
-					let nav_is_active = navigation == nav_elem.name || navigation == null && nav_elem.default;
-					let nav_element = Create('div', {
-						className: 'sub_navigation_element'+(nav_is_active ? ' active_sub_navigation' : ''),
-						innerHTML: nav_elem.name,
-						onclick: () => { generateSubUI(nav_elem.name, sub_navigation) }
-					});
-					
-					// if style, apply
-					if (nav_elem.style) {
-						Create(nav_element, { style: nav_elem.style }, true);
-					}
-					
-					// return sub navigation element
-					return nav_element;
-					
-				})
+				className: 'project_title',
+				innerHTML: 'project &#x2772; <span id="project_title">'+GLOBAL.active_project.title+'</span> &#x2773;'
 			}),
 			Create('div', {
-				id: 'sub_main'
+				className: 'navigation_logo',
+				children: [
+					Create('img', {
+						src: '/logo.png'
+					})
+				]
+			}),
+			Create('div', {
+				className: 'navigation_offset_block'
+			}),
+			...GLOBAL_NAVIGATION.map((nav_elem, index) => {
+				
+				// nav break
+				if (nav_elem.name == '') {
+					return Create('div', {
+						className: 'nav_break'
+					});
+				}
+				
+				// if current tab is active
+				let nav_is_active = navigation == nav_elem.name || navigation == null && nav_elem.default;
+				if (nav_is_active) {
+					
+					// init on save and application startup methods
+					initNavigationApp(nav_elem);
+
+				}
+				
+				// generate main navigation element
+				let nav_element = Create('div', {
+					className: 'navigation_element'+(nav_is_active ? ' active_navigation' : ''),
+					innerHTML: nav_elem.name,
+					onclick: () => { generateUI(nav_elem.name) }
+				});
+				
+				// if style, apply
+				if (nav_elem.style) {
+					Create(nav_element, { style: nav_elem.style }, true);
+				}
+				
+				if (index == 0) {
+					nav_element.style.marginLeft = 0;
+				}
+				
+				// return main navigation element
+				return nav_element;
 			})
 		]
 	});
 	
-	
-	// sub navigation container does not exist, so run app init after navigation creation
-	sub_navigation.forEach(nav_elem => {
-		if (navigation == nav_elem.name || navigation == null && nav_elem.default) {
-			
-			// init on save and application startup methods
-			initNavigationApp(nav_elem);
-			
-		}
-	});
 }
 
 function initNavigationApp(nav) {

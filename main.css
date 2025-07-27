@@ -4,7 +4,7 @@ html, body {
 	width: 100%;
 	height: 100%;
 	font-family: Verdana;
-	background-color: #000000;
+	background-color: #080b11;
 	color: #ffffff;
 	overflow: hidden;
 }
@@ -13,7 +13,7 @@ html, body {
 	max-width: 600px;
 	width: 80%;
 	padding: 30px;
-	background-color: #111111;
+	background-color: #162229;
 	border: 1px solid #222222;
 	position: absolute;
 	top: 34%;
@@ -28,13 +28,7 @@ html, body {
 
 .main_button {
 	color: #444444;
-	background-color: #f9a602;
-}
-
-#project_title {
-	color: #f9a602;
-	font-weight: bold;
-	padding: 0 12px;
+	background-color: #f5c527;
 }
 
 .logo {
@@ -182,7 +176,7 @@ html, body {
 }
 
 .path_insert_button {
-	background-color: #f9a602;
+	background-color: #f5c527;
 	color: #444444;
 	padding: 12px 16px;
 	text-align: center;
@@ -207,7 +201,7 @@ html, body {
 	max-width: 800px;
 	max-height: 240px;
 	overflow-y: auto;
-	background-color: #f9a602;
+	background-color: #f5c527;
 	border: 1px solid #000000;
 	color: #444444;
 	border-top: none;
@@ -239,50 +233,55 @@ html, body {
 .navigation {
 	width: 100%;
 	height: 54px;
+	position: relative;
+}
+
+.project_title {
+	background-color: #39b3b5;
+	color: #080b11;
+	padding: 0 12px;
+	height: 21px;
+	overflow: hidden;
+	width: 90%;
+	clip-path: polygon(0% 0%, 100% 0%, calc(100% - 32px) 100%, 0% 100%);
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+#project_title {
+	font-weight: bold;
+}
+
+.navigation_logo {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: calc(20% + 32px);
+	height: 54px;
+	overflow: hidden;
+	clip-path: polygon(32px 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.navigation_logo img {
+	width: 110%;
+	margin: -12% 0;
+}
+
+.navigation_offset_block {
+	height: 21px;
 }
 
 .navigation_element {
 	float: left;
 	box-sizing: border-box;
-	padding: 12px 16px;
+	font-size: 12px;
+	padding: 8px 16px;
 	margin: 0 4px;
-	background-color: #cccccc;
-	color: #000000;
-	border: 1px solid #222222;
-	border-bottom: none;
-	border-radius: 3px 3px 0 0;
-	cursor: pointer;
-}
-
-.sub_navigation {
-	border-bottom: 2px solid #ffffff;
-	padding: 16px 10px 0 10px;
-	margin: 0 4px;
-	background-color: #222222;
-}
-
-.sub_navigation:before,
-.sub_navigation:after {
-	display: table;
-	content: "";
-}
-.sub_navigation:after {
-	clear: both;
-}
-
-.sub_navigation_element {
-	background-color: #222222;
-	border: 1px solid #ffffff;
-	border-bottom: none;
-	padding: 4px 12px;
+	background-color: #132834;
 	color: #ffffff;
+	border: 1px solid #080b11;
+	border-bottom: none;
 	cursor: pointer;
-	float: left;
-}
-
-.active_sub_navigation {
-	background-color: #ffffff;
-	color: #000000;
 }
 
 .active_navigation {
@@ -294,7 +293,7 @@ html, body {
 .nav_break {
 	float: left;
 	width: 80px;
-	height: 40px;
+	height: 33px;
 }
 
 #main {
@@ -340,7 +339,7 @@ html, body {
 .create_data_key {
 	display: inline-block;
 	padding: 4px 8px;
-	background-color: green;
+	background-color: #05828e;
 	color: #ffffff;
 	cursor: pointer;
 	line-height: 1em;
@@ -375,7 +374,7 @@ input[type="radio"] {
 
 button, input[type="submit"] {
 	display: inline-block;
-  background-color: green;
+  background-color: #05828e;
 	border: 1px solid #111111;
   padding: 12px 24px;
   border-radius: 3px;
@@ -418,7 +417,7 @@ button, input[type="submit"] {
 	color: #ffffff;
 }
 .ui_edit_menu .ui_edit_menu_save {
-	background-color: green;
+	background-color: #05828e;
 	color: #ffffff;
 }
 
@@ -552,7 +551,7 @@ button, input[type="submit"] {
 }
 
 #image_editor .editor_save {
-	background-color: green;
+	background-color: #05828e;
 	color: #ffffff;
 	padding: 4px 8px;
 	margin: -4px 0;
@@ -582,7 +581,7 @@ button, input[type="submit"] {
 #image_editor .image_editor_workspace {
 	width: calc(100% - 360px);
 	height: calc(100% - 24px);
-	background-color: red;
+	background-color: #05828e;
 	position: relative;
 }
 

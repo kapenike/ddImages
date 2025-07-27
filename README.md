@@ -26,15 +26,13 @@
 	- [x] rename tournament to project
 	- [ ] notifications
 	- [ ] Documentation / video
+	- [ ] font manager
 	- [ ] Webhook connect to source change for browser sources
 		- [ ] Make browser sources easier for devs to import, front end and backend all in the same location and a registry to import them
 
 - FULL release features
 	- [ ] create shapes, lines, cropping, clip from and more creation tools on the overlay editor
 	- [ ] offer color picker as a tool for variable inputs (set statically within code)
-	- [ ] Restructure of entire app to mimic an application rather than a web page
-		- [ ] tab bar allowing for a master save state vs local state
-		- [ ] keep overlays active while swapping tabs and allow create / save / remove of overlays from action bar
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
