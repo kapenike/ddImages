@@ -33,9 +33,6 @@ class fonts {
 			'."\r\n";
 		}
 		
-		// increment
-		$cuid_int++;
-		
 		// print tail style tag
 		if ($print_style_tags) {
 			echo '</style>'."\r\n";

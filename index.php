@@ -17,7 +17,7 @@ forEach(app('directoryFileList')->get([], './js_scripts') as $file) {
 const custom_font_list = [];
 document.addEventListener('DOMContentLoaded', function() {
 	// on document ready, import custom fonts into document.fonts, then run initStreamOverlay()
-	let custom_fonts = JSON.parse('<?php echo str_replace("\r\n", "", file_get_contents('./fonts/font_registry.json')); ?>');
+	let custom_fonts = JSON.parse('<?php echo app('fonts')->getFontList(); ?>');
 	let loaded_fonts = 0;
 	custom_fonts.forEach(font => {
 		if (!custom_font_list.includes(font.name)) {
@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		});
 	});
+	if (custom_fonts.length == 0) {
+		// (./js_scripts/main.js)
+		initStreamOverlay();
+	}
 });
 </script>
 
