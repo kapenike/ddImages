@@ -103,7 +103,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 												
 												if (field.type == 'dataset') {
 													
-													if (typeof GLOBAL.active_tournament.data.sets[field.set] === 'undefined') {
+													if (typeof GLOBAL.active_project.data.sets[field.set] === 'undefined') {
 														dataset_values = [
 															{
 																display: '!!Removed Dataset!!',
@@ -113,7 +113,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 													} else {
 													
 														// get associated object
-														let dataset = GLOBAL.active_tournament.data.sets[field.set].entries;
+														let dataset = GLOBAL.active_project.data.sets[field.set].entries;
 														
 														// generate select list with additional "empty" option
 														dataset_values = [null, ...Object.keys(dataset)].map(key => {
@@ -364,14 +364,14 @@ function updateSourceChanges() {
 	
 	// append application and uid values to send object
 	form_details.application = Select('#form_capture').data;
-	form_details.uid = GLOBAL.active_tournament.uid;
+	form_details.uid = GLOBAL.active_project.uid;
 	
-	// update server-side tournament details, then call back to same scope function to save changes locally and generate affected overlays
+	// update server-side project details, then call back to same scope function to save changes locally and generate affected overlays
 	ajax('POST', '/requestor.php', form_details, (status, data) => {
 		
 		if (status) {
 			
-			// using instanced 'form_details', update local tournament data
+			// using instanced 'form_details', update local project data
 			Object.keys(form_details).forEach(path => {
 				if (isPathVariable(path)) {
 					setRealValue(path, form_details[path]);
@@ -617,9 +617,9 @@ function updateUIChange() {
 	
 	// append application and uid values to send object (append "_ui_edit" to application)
 	form_details.application = Select('#form_capture').data+'_ui_edit';
-	form_details.uid = GLOBAL.active_tournament.uid;
+	form_details.uid = GLOBAL.active_project.uid;
 	
-	// update server-side tournament details, then call back to same scope function to save changes locally and generate affected overlays
+	// update server-side project details, then call back to same scope function to save changes locally and generate affected overlays
 	ajax('POST', '/requestor.php', form_details, (status, data) => {
 		if (status) {
 			// notifications soon
@@ -1123,7 +1123,7 @@ function fieldBuilderForDataset(data) {
 				children: [
 					Create('select', {
 						name: 'input_dataset',
-						children: Object.keys(GLOBAL.active_tournament.data.sets).map(set => {
+						children: Object.keys(GLOBAL.active_project.data.sets).map(set => {
 							return Create('option', {
 								innerHTML: set,
 								value: set,

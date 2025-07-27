@@ -97,8 +97,8 @@ function updateDataset() {
 	// append application
 	form_details.application = 'update_create_dataset';
 	
-	// append tournament uid
-	form_details.tournament_uid = GLOBAL.active_tournament.uid;
+	// append project uid
+	form_details.project_uid = GLOBAL.active_project.uid;
 	
 	// update server-side dataset details, then call back to same scope function to save changes locally
 	ajax('POST', '/requestor.php', form_details, (status, data) => {
@@ -107,11 +107,11 @@ function updateDataset() {
 			
 			// remove original reference if display changes
 			if (Select('[name="dataset_title"]').data != data.msg.display) {
-				delete GLOBAL.active_tournament.data.sets[Select('[name="dataset_title"]').data];
+				delete GLOBAL.active_project.data.sets[Select('[name="dataset_title"]').data];
 			}
 			
 			// update / insert new dataset locally
-			GLOBAL.active_tournament.data.sets[data.msg.display] = data.msg;
+			GLOBAL.active_project.data.sets[data.msg.display] = data.msg;
 			
 			// load dataset into form
 			loadDataset(data.msg);
@@ -127,7 +127,7 @@ function updateDataset() {
 function removeDataset(uid) {
 	
 	let form_details = {
-		tournament_uid: GLOBAL.active_tournament.uid,
+		project_uid: GLOBAL.active_project.uid,
 		uid: uid,
 		application: 'remove_dataset'
 	};
@@ -138,7 +138,7 @@ function removeDataset(uid) {
 		if (status) {
 			
 			// delete local dataset
-			delete GLOBAL.active_tournament.data.sets[data.display];
+			delete GLOBAL.active_project.data.sets[data.display];
 			
 			// bring up create dataset form
 			loadDataset();
@@ -280,8 +280,8 @@ function preventDuplicate(type, input) {
 	if (type == 'dataset_title') {
 		let original_display = input.data;
 		let running_value = input.value;
-		while (Object.keys(GLOBAL.active_tournament.data.sets).filter(key => 
-			(GLOBAL.active_tournament.data.sets[key].display == running_value && GLOBAL.active_tournament.data.sets[key].display != original_display)).length > 0
+		while (Object.keys(GLOBAL.active_project.data.sets).filter(key => 
+			(GLOBAL.active_project.data.sets[key].display == running_value && GLOBAL.active_project.data.sets[key].display != original_display)).length > 0
 			) {
 			inc++;
 			running_value = input.value + '_' + inc;
@@ -504,8 +504,8 @@ function generateDatasetSelectionList() {
 	
 	Select('#dataset_list', {
 		innerHTML: '',
-		children: Object.keys(GLOBAL.active_tournament.data.sets).map(key => {
-			let dataset = GLOBAL.active_tournament.data.sets[key];
+		children: Object.keys(GLOBAL.active_project.data.sets).map(key => {
+			let dataset = GLOBAL.active_project.data.sets[key];
 			return Create('div', {
 				innerHTML: dataset.display,
 				className: 'selection_list_block',

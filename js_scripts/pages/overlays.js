@@ -102,8 +102,8 @@ function updateOverlayData() {
 	// append application
 	form_details.application = 'create_update_overlay';
 	
-	// append tournament uid
-	form_details.tournament_id = GLOBAL.active_tournament.uid;
+	// append project uid
+	form_details.project_id = GLOBAL.active_project.uid;
 	
 	// update server-side overlay details, then call back to same scope function to save changes locally
 	ajax('POST', '/requestor.php', form_details, (status, data) => {
@@ -111,12 +111,12 @@ function updateOverlayData() {
 		if (status) {
 
 			// update local overlay list
-			GLOBAL.active_tournament.overlays[form_details.overlay_slug] = data.msg;
+			GLOBAL.active_project.overlays[form_details.overlay_slug] = data.msg;
 			
 			// if updated slug, remove old path
 			if (form_details.overlay_registration_type != 'create' && form_details.overlay_registration_type != form_details.overlay_slug) {
-				GLOBAL.active_tournament.overlays[form_details.overlay_registration_type] = null;
-				delete GLOBAL.active_tournament.overlays[form_details.overlay_registration_type];
+				GLOBAL.active_project.overlays[form_details.overlay_registration_type] = null;
+				delete GLOBAL.active_project.overlays[form_details.overlay_registration_type];
 			}
 
 			// load asset data into form
@@ -132,7 +132,7 @@ function updateOverlayData() {
 
 function checkForOverlaySlug(slug, live_update = true) {
 	// ensure slug is not being used (unless it is the current slug of the active asset object)
-	if (slug != '' && (typeof GLOBAL.active_tournament.overlays[slug] === 'undefined' || Select('[name="overlay_registration_type"]').value == slug)) {
+	if (slug != '' && (typeof GLOBAL.active_project.overlays[slug] === 'undefined' || Select('[name="overlay_registration_type"]').value == slug)) {
 		if (live_update) {
 			Select('#valid_overlay_slug').innerHTML = '';
 		}
@@ -168,7 +168,7 @@ function autoGenerateOverlaySlug(v) {
 }
 
 function setupOverlayEditor(slug = null) {
-	let overlay_data = (slug == null ? null : GLOBAL.active_tournament.overlays[slug]);
+	let overlay_data = (slug == null ? null : GLOBAL.active_project.overlays[slug]);
 	
 	Select('#overlay_manager_form_block', {
 		innerHTML: '',
@@ -211,7 +211,7 @@ function setupOverlayEditor(slug = null) {
 										readOnly: 'true',
 										onclick: function () { this.focus(); this.select() },
 										type: 'text',
-										value: GLOBAL.active_tournament.cwd+'/overlay_output/'+GLOBAL.active_tournament.uid+'/'+slug+'.png'
+										value: GLOBAL.active_project.cwd+'/overlay_output/'+GLOBAL.active_project.uid+'/'+slug+'.png'
 									})
 								]
 							})
@@ -277,7 +277,7 @@ function setupOverlayEditor(slug = null) {
 								className: 'asset_preview',
 								children: [
 									Create('img', {
-										src: '/overlay_output/'+GLOBAL.active_tournament.uid+'/'+slug+'.png?'+new Date().getTime()
+										src: '/overlay_output/'+GLOBAL.active_project.uid+'/'+slug+'.png?'+new Date().getTime()
 									})
 								]
 							})
@@ -292,9 +292,9 @@ function generateOverlaySelectionList() {
 	
 	Select('#overlay_list', {
 		innerHTML: '',
-		children: Object.keys(GLOBAL.active_tournament.overlays).map(slug => {
+		children: Object.keys(GLOBAL.active_project.overlays).map(slug => {
 			return Create('div', {
-				innerHTML: GLOBAL.active_tournament.overlays[slug].title,
+				innerHTML: GLOBAL.active_project.overlays[slug].title,
 				className: 'selection_list_block',
 				onclick: () => { setupOverlayEditor(slug); }
 			});
@@ -306,7 +306,7 @@ function generateOverlaySelectionList() {
 function removeOverlay(slug) {
 	
 	let form_details = {
-		tournament_uid: GLOBAL.active_tournament.uid,
+		project_uid: GLOBAL.active_project.uid,
 		overlay_slug: slug,
 		application: 'remove_overlay'
 	};
@@ -317,7 +317,7 @@ function removeOverlay(slug) {
 		if (status) {
 			
 			// delete local overlay
-			delete GLOBAL.active_tournament.overlays[slug];
+			delete GLOBAL.active_project.overlays[slug];
 			
 			// bring up create overlay form
 			setupOverlayEditor(null);

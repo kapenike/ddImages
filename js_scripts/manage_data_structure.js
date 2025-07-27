@@ -147,7 +147,7 @@ function updateDataStructure() {
 	// append application and uid values to send object
 	let form_details = {};
 	form_details.application = Select('#form_capture').data;
-	form_details.uid = GLOBAL.active_tournament.uid;
+	form_details.uid = GLOBAL.active_project.uid;
 	form_details.data_structure = JSON.stringify(local_data);
 	
 	// update server-side data structure, then call back to same scope function to save changes locally

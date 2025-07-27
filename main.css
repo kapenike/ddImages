@@ -9,7 +9,7 @@ html, body {
 	overflow: hidden;
 }
 
-.tournament_selection_box {
+.project_selection_box {
 	max-width: 600px;
 	width: 80%;
 	padding: 30px;
@@ -21,7 +21,7 @@ html, body {
 	transform: translate(-50%, -50%);
 }
 
-.tournament_selection_box label {
+.project_selection_box label {
 	display: block;
 	margin-top: 14px;
 }
@@ -31,7 +31,7 @@ html, body {
 	background-color: #f9a602;
 }
 
-#tournament_title {
+#project_title {
 	color: #f9a602;
 	font-weight: bold;
 	padding: 0 12px;

@@ -5,7 +5,7 @@ function initNavigation() {
 	
 	GLOBAL_NAVIGATION = [
 		{
-			name: 'Tournament Data',
+			name: 'Switchboard',
 			default: true,
 			sub_navigation: [
 				{
@@ -13,7 +13,7 @@ function initNavigation() {
 					default: true,
 					on_save: updateSourceChanges,
 					app_init: function () {
-						createUIFromData('#sub_main', GLOBAL.active_tournament.ui, 'update_tournament_details')
+						createUIFromData('#sub_main', GLOBAL.active_project.ui, 'update_project_details')
 					},
 					close_app: function () { 
 						toggleUIEditor(false);
@@ -27,14 +27,14 @@ function initNavigation() {
 					},
 					on_save: updateDataStructure,
 					app_init: function () {
-						manageDataStructure('#sub_main', GLOBAL.active_tournament.data, 'update_tournament_data_structure')
+						manageDataStructure('#sub_main', GLOBAL.active_project.data, 'update_project_data_structure')
 					}
 				}
 			]
 		},
 		{ name: '' },
 		{
-			name: 'Assets Manager',
+			name: 'Assets',
 			on_save: updateAssetData,
 			app_init: setNavigationAssets,
 		},
@@ -54,7 +54,7 @@ function initNavigation() {
 		},
 		{
 			name: 'Settings',
-			on_save: updateTournamentSettings,
+			on_save: updateProjectSettings,
 			app_init: setNavigationSettings
 		}
 	];
@@ -79,7 +79,7 @@ function generateUI(navigation = null) {
 	}
 	
 	Select('#navigation', {
-		innerHTML: '<div id="tournament_title">'+GLOBAL.active_tournament.title+'</div>',
+		innerHTML: '<div id="project_title">'+GLOBAL.active_project.title+'</div>',
 		children: GLOBAL_NAVIGATION.map(nav_elem => {
 			
 			// nav break

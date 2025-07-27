@@ -2,18 +2,18 @@
 
 class asset {
 	
-	function getRegistry($tournament_uid) {
-		return json_decode(file_get_contents(getBasePath().'/data/'.$tournament_uid.'/asset_registry.json'));
+	function getRegistry($project_uid) {
+		return json_decode(file_get_contents(getBasePath().'/data/'.$project_uid.'/asset_registry.json'));
 	}
 	
-	function saveRegistry($tournament_uid, $data) {
-		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/asset_registry.json', json_encode($data));
+	function saveRegistry($project_uid, $data) {
+		file_put_contents(getBasePath().'/data/'.$project_uid.'/asset_registry.json', json_encode($data));
 	}
 	
 	function createUpdateAsset($post) {
 		
 		// define structured object for cleaner code
-		$tournament_uid = $_POST['tournament_id'];
+		$project_uid = $_POST['project_id'];
 		$data = (object)[
 			'type' => $_POST['asset_registration_type'],
 			'display' => $_POST['asset_name'],
@@ -27,21 +27,21 @@ class asset {
 			// create asset
 			
 			// get registry
-			$registry = $this->getRegistry($tournament_uid);
+			$registry = $this->getRegistry($project_uid);
 			
 			$registry->{$data->slug} = (object)[];
 			$registry->{$data->slug}->display = $data->display;
 			$registry->{$data->slug}->offset_x = $data->offset_x;
 			$registry->{$data->slug}->offset_y = $data->offset_y;
 			
-			$new_file = app('files')->upload($data->file, getBasePath().'/data/'.$tournament_uid.'/sources/', ['type' => 'img', 'fname' => true]);
+			$new_file = app('files')->upload($data->file, getBasePath().'/data/'.$project_uid.'/sources/', ['type' => 'img', 'fname' => true]);
 			$registry->{$data->slug}->file = $new_file['msg'];
-			$size = getimagesize(getBasePath().'/data/'.$tournament_uid.'/sources/'.$new_file['msg']);
+			$size = getimagesize(getBasePath().'/data/'.$project_uid.'/sources/'.$new_file['msg']);
 			$registry->{$data->slug}->width = $size[0];
 			$registry->{$data->slug}->height = $size[1];
 			
 			// update registry data
-			$this->saveRegistry($tournament_uid, $registry);
+			$this->saveRegistry($project_uid, $registry);
 			
 			// return current data object
 			app('respond')->json(true, $registry->{$data->slug});
@@ -51,7 +51,7 @@ class asset {
 			// update
 			
 			// get registry
-			$registry = $this->getRegistry($tournament_uid);
+			$registry = $this->getRegistry($project_uid);
 			
 			// asset slug original is saved in data->type
 			if (isset($registry->{$data->type})) {
@@ -62,10 +62,10 @@ class asset {
 				// handle asset new file upload
 				if ($data->file != null) {
 					// remove old source file
-					app('files')->remove(getBasePath().'/data/'.$tournament_uid.'/sources/', $registry->{$data->type}->file);
-					$new_file = app('files')->upload($data->file, getBasePath().'/data/'.$tournament_uid.'/sources/', ['type' => 'img', 'fname' => true]);
+					app('files')->remove(getBasePath().'/data/'.$project_uid.'/sources/', $registry->{$data->type}->file);
+					$new_file = app('files')->upload($data->file, getBasePath().'/data/'.$project_uid.'/sources/', ['type' => 'img', 'fname' => true]);
 					$registry->{$data->type}->file = $new_file['msg'];
-					$size = getimagesize(getBasePath().'/data/'.$tournament_uid.'/sources/'.$new_file['msg']);
+					$size = getimagesize(getBasePath().'/data/'.$project_uid.'/sources/'.$new_file['msg']);
 					$registry->{$data->type}->width = $size[0];
 					$registry->{$data->type}->height = $size[1];
 				}
@@ -77,7 +77,7 @@ class asset {
 				}
 				
 				// update registry data
-				$this->saveRegistry($tournament_uid, $registry);
+				$this->saveRegistry($project_uid, $registry);
 				
 				// return current data object
 				app('respond')->json(true, $registry->{$data->slug});
@@ -91,19 +91,19 @@ class asset {
 		
 	}
 	
-	function removeAsset($tournament_uid, $asset_slug) {
+	function removeAsset($project_uid, $asset_slug) {
 		
 		// get registry
-		$registry = $this->getRegistry($tournament_uid);
+		$registry = $this->getRegistry($project_uid);
 		
 		// remove asset image file
-		app('files')->remove(getBasePath().'/data/'.$tournament_uid.'/sources/', $registry->{$asset_slug}->file);
+		app('files')->remove(getBasePath().'/data/'.$project_uid.'/sources/', $registry->{$asset_slug}->file);
 		
 		// delete asset
 		unset($registry->{$asset_slug});
 		
 		// update registry data
-		$this->saveRegistry($tournament_uid, $registry);
+		$this->saveRegistry($project_uid, $registry);
 		
 		// success
 		app('respond')->json(true, 'Asset successfully removed.');

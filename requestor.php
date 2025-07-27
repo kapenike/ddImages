@@ -5,22 +5,22 @@ require 'app.php';
 // application switch, defined by string value in $_POST['application']
 switch($_POST['application']) {
 	
-	case 'create_tournament':
-		app('tournament')->register($_POST['tournament_name']);
+	case 'create_project':
+		app('project')->register($_POST['project_name']);
 		break;
 		
-	case 'update_tournament_settings':
-		app('tournament')->updateSettings($_POST['uid'], $_POST);
+	case 'update_project_settings':
+		app('project')->updateSettings($_POST['uid'], $_POST);
 		break;
 	
-	case 'load_tournament_registration':
-		// return tournament registry
-		app('tournament')->returnRegistry();
+	case 'load_project_registration':
+		// return project registry
+		app('project')->returnRegistry();
 		break;
 	
-	case 'load_tournament_data':
-		// returns entire data set of tournament for initial load
-		app('tournament')->load($_POST['uid']);
+	case 'load_project_data':
+		// returns entire data set of project for initial load
+		app('project')->load($_POST['uid']);
 		break;
 	
 	case 'export_overlays':
@@ -37,22 +37,22 @@ switch($_POST['application']) {
 		break;
 		
 	case 'remove_overlay':
-		app('overlay')->remove($_POST['tournament_uid'], $_POST['overlay_slug']);
+		app('overlay')->remove($_POST['project_uid'], $_POST['overlay_slug']);
 		break;
 		
-	case 'update_tournament_details':
-		app('tournament')->updateTournamentDetails($_POST['uid'], $_POST);
+	case 'update_project_details':
+		app('project')->updateprojectDetails($_POST['uid'], $_POST);
 		break;
 		
-	case 'update_tournament_details_ui_edit':
-		// write tournament ui structure data
-		app('tournament')->updateTournamentUI($_POST['uid'], $_POST['data']);
+	case 'update_project_details_ui_edit':
+		// write project ui structure data
+		app('project')->updateprojectUI($_POST['uid'], $_POST['data']);
 		break;
 		
-	case 'update_tournament_data_structure':
+	case 'update_project_data_structure':
 		// update data file with new data structure object
-		// this functions just like `update_tournament_details` but with potential structural changes and no variable path fetching
-		app('tournament')->updateTournamentDataStructure($_POST['uid'], json_decode($_POST['data_structure']));
+		// this functions just like `update_project_details` but with potential structural changes and no variable path fetching
+		app('project')->updateprojectDataStructure($_POST['uid'], json_decode($_POST['data_structure']));
 		break;
 		
 	case 'update_create_dataset':
@@ -62,7 +62,7 @@ switch($_POST['application']) {
 		
 	case 'remove_dataset':
 		// remove dataset
-		app('dataset')->remove($_POST['tournament_uid'], $_POST['uid']);
+		app('dataset')->remove($_POST['project_uid'], $_POST['uid']);
 		break;
 		
 	case 'create_update_asset':
@@ -72,7 +72,7 @@ switch($_POST['application']) {
 		
 	case 'remove_asset':
 		// remove an asset
-		app('asset')->removeAsset($_POST['tournament_uid'], $_POST['asset_slug']);
+		app('asset')->removeAsset($_POST['project_uid'], $_POST['asset_slug']);
 		break;
 	
 	default:

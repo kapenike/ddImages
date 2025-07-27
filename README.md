@@ -23,7 +23,7 @@
 				- [x] allow offset to be from the left, center or right of element just like text
 		- [ ] break massive code file into manageable portions
 	- [ ] settings: delete tournament, export / import tournament
-	- [ ] rename tournament to project
+	- [x] rename tournament to project
 	- [ ] notifications
 	- [ ] Documentation / video
 	- [ ] Webhook connect to source change for browser sources
@@ -38,3 +38,4 @@
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
+	- [ ] data sets variable inputs dont log whether a value was set as a reference and doesnt re-check the box for path only reference when revisiting the dataset

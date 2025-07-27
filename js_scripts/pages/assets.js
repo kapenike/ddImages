@@ -102,8 +102,8 @@ function updateAssetData() {
 	// append application
 	form_details.application = 'create_update_asset';
 	
-	// append tournament uid
-	form_details.tournament_id = GLOBAL.active_tournament.uid;
+	// append project uid
+	form_details.project_id = GLOBAL.active_project.uid;
 	
 	// update server-side asset details, then call back to same scope function to save changes locally
 	ajax('POST', '/requestor.php', form_details, (status, data) => {
@@ -111,12 +111,12 @@ function updateAssetData() {
 		if (status) {
 
 			// update local asset list
-			GLOBAL.active_tournament.data.assets[form_details.asset_slug] = data.msg;
+			GLOBAL.active_project.data.assets[form_details.asset_slug] = data.msg;
 			
 			// if updated slug, remove old path
 			if (form_details.asset_registration_type != 'create' && form_details.asset_registration_type != form_details.asset_slug) {
-				GLOBAL.active_tournament.data.assets[form_details.asset_registration_type] = null;
-				delete GLOBAL.active_tournament.data.assets[form_details.asset_registration_type];
+				GLOBAL.active_project.data.assets[form_details.asset_registration_type] = null;
+				delete GLOBAL.active_project.data.assets[form_details.asset_registration_type];
 			}
 
 			// load asset data into form
@@ -127,20 +127,20 @@ function updateAssetData() {
 			
 			// if file was included in the form submission, load file into source and update affected overlays
 			if (form_details.asset_file.length > 0) {
-				if (Object.keys(GLOBAL.active_tournament.overlays).length > 0) {
+				if (Object.keys(GLOBAL.active_project.overlays).length > 0) {
 					// init loader, generateStreamOverlays will clear
 					ajaxInitLoader('body');
 				}
 				let image = new Image();
-				image.src = '/data/'+GLOBAL.active_tournament.uid+'/sources/'+data.msg.file;
+				image.src = '/data/'+GLOBAL.active_project.uid+'/sources/'+data.msg.file;
 				image.onload = () => {
 					if (GLOBAL.use_vram) {
 						createImageBitmap(image).then(bitmap => {
-							GLOBAL.active_tournament.data.assets[form_details.asset_slug].source = bitmap;
+							GLOBAL.active_project.data.assets[form_details.asset_slug].source = bitmap;
 							generateStreamOverlays(['$assets/'+form_details.asset_slug+'$']);
 						});
 					} else {
-						GLOBAL.active_tournament.data.assets[form_details.asset_slug].source = image;
+						GLOBAL.active_project.data.assets[form_details.asset_slug].source = image;
 						generateStreamOverlays(['$assets/'+form_details.asset_slug+'$']);
 					}
 				}
@@ -153,7 +153,7 @@ function updateAssetData() {
 
 function checkForAssetSlug(slug, live_update = true) {
 	// ensure slug is not being used (unless it is the current slug of the active asset object)
-	if (slug != '' && (typeof GLOBAL.active_tournament.data.assets[slug] === 'undefined' || Select('[name="asset_registration_type"]').value == slug)) {
+	if (slug != '' && (typeof GLOBAL.active_project.data.assets[slug] === 'undefined' || Select('[name="asset_registration_type"]').value == slug)) {
 		if (live_update) {
 			Select('#valid_asset_slug').innerHTML = '';
 		}
@@ -200,7 +200,7 @@ function autoGenerateAssetSlug(v) {
 
 function setupAssetEditor(slug = null) {
 	
-	let asset_data = (slug == null ? null : GLOBAL.active_tournament.data.assets[slug]);
+	let asset_data = (slug == null ? null : GLOBAL.active_project.data.assets[slug]);
 	
 	Select('#asset_manager_form_block', {
 		innerHTML: '',
@@ -313,7 +313,7 @@ function setupAssetEditor(slug = null) {
 								className: 'asset_preview',
 								children: [
 									Create('img', {
-										src: '/data/'+GLOBAL.active_tournament.uid+'/sources/'+asset_data.file
+										src: '/data/'+GLOBAL.active_project.uid+'/sources/'+asset_data.file
 									})
 								]
 							})
@@ -328,9 +328,9 @@ function generateAssetSelectionList() {
 	
 	Select('#asset_list', {
 		innerHTML: '',
-		children: Object.keys(GLOBAL.active_tournament.data.assets).map(slug => {
+		children: Object.keys(GLOBAL.active_project.data.assets).map(slug => {
 			return Create('div', {
-				innerHTML: GLOBAL.active_tournament.data.assets[slug].display,
+				innerHTML: GLOBAL.active_project.data.assets[slug].display,
 				className: 'selection_list_block',
 				onclick: () => { setupAssetEditor(slug); }
 			});
@@ -342,7 +342,7 @@ function generateAssetSelectionList() {
 function removeAsset(slug) {
 	
 	let form_details = {
-		tournament_uid: GLOBAL.active_tournament.uid,
+		project_uid: GLOBAL.active_project.uid,
 		asset_slug: slug,
 		application: 'remove_asset'
 	};
@@ -353,7 +353,7 @@ function removeAsset(slug) {
 		if (status) {
 			
 			// delete local asset
-			delete GLOBAL.active_tournament.data.assets[slug];
+			delete GLOBAL.active_project.data.assets[slug];
 			
 			// bring up create asset form
 			setupAssetEditor(null);

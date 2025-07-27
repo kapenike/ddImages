@@ -2,7 +2,7 @@
 function generateStreamOverlays(sources = null, callback = () => {}) {
 
 	// stash overlay keys for itteration use
-	let overlay_keys = Object.keys(GLOBAL.active_tournament.overlays);
+	let overlay_keys = Object.keys(GLOBAL.active_project.overlays);
 
 	// if no overlays, straight to callback
 	if (overlay_keys.length == 0) {
@@ -21,7 +21,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	// overlay output, prepared as ready to send form object
 	let output_overlays = {
 		application: 'export_overlays',
-		uid: GLOBAL.active_tournament.uid,
+		uid: GLOBAL.active_project.uid,
 		changed: []
 	};
 	
@@ -29,7 +29,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	overlay_keys.forEach(slug => {
 		
 		// current overlay
-		let overlay = GLOBAL.active_tournament.overlays[slug];
+		let overlay = GLOBAL.active_project.overlays[slug];
 
 		// if overlay contains an updated source, or sources is null, or is set to generate specific overlay
 		if (sources == null || (isObject(sources) && sources.slug == slug) || (overlay.sources.length > 0 && sources.length > 0 && overlay.sources.some(x => sources.includes(x)))) {
@@ -48,7 +48,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 			
 			// if global flag, reset overlay sources
 			if (GLOBAL.generate_sources == true) {
-				GLOBAL.active_tournament.overlays[slug].sources = [];
+				GLOBAL.active_project.overlays[slug].sources = [];
 				
 				// also stash overlay slug for when layer inserts new sources
 				GLOBAL.active_overlay_slug = slug;

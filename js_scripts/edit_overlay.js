@@ -1,7 +1,7 @@
 function editOverlay(slug) {
 	
 	GLOBAL.overlay_editor.slug = slug;
-	GLOBAL.overlay_editor.current = JSON.parse(JSON.stringify(GLOBAL.active_tournament.overlays[slug]));
+	GLOBAL.overlay_editor.current = JSON.parse(JSON.stringify(GLOBAL.active_project.overlays[slug]));
 	
 	// setup default grid
 	GLOBAL.overlay_editor.grid_settings = {
@@ -296,7 +296,7 @@ function closeOverlayEditor() {
 function saveOverlay() {
 	
 	let form_details = {
-		uid: GLOBAL.active_tournament.uid,
+		uid: GLOBAL.active_project.uid,
 		application: 'update_overlay_layers',
 		slug: GLOBAL.overlay_editor.slug,
 		overlay: JSON.stringify(GLOBAL.overlay_editor.current)
@@ -306,7 +306,7 @@ function saveOverlay() {
 		if (status) {
 			
 			// update local overlay
-			GLOBAL.active_tournament.overlays[GLOBAL.overlay_editor.slug] = GLOBAL.overlay_editor.current;
+			GLOBAL.active_project.overlays[GLOBAL.overlay_editor.slug] = GLOBAL.overlay_editor.current;
 			
 			// update overlay output
 			generateStreamOverlays({ slug: GLOBAL.overlay_editor.slug });

@@ -2,35 +2,35 @@
 
 class dataset {
 	
-	// get list of tournament uid | dataset name pair
-	function getRegistry($tournament_uid) {
-		return json_decode(file_get_contents(getBasePath().'/data/'.$tournament_uid.'/datasets/registry.json'));
+	// get list of project uid | dataset name pair
+	function getRegistry($project_uid) {
+		return json_decode(file_get_contents(getBasePath().'/data/'.$project_uid.'/datasets/registry.json'));
 	}
 	
 	// save dataset registry
-	function saveRegistry($tournament_uid, $data) {
-		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/datasets/registry.json', json_encode($data));
+	function saveRegistry($project_uid, $data) {
+		file_put_contents(getBasePath().'/data/'.$project_uid.'/datasets/registry.json', json_encode($data));
 	}
 	
-	function register($tournament_uid, $set_name) {
+	function register($project_uid, $set_name) {
 		
 		// request new uid
-		$uid = app('uid')->generate($tournament_uid);
+		$uid = app('uid')->generate($project_uid);
 		
 		// get registry
-		$registry = $this->getRegistry($tournament_uid);
+		$registry = $this->getRegistry($project_uid);
 		
 		// add to registry
 		$registry->{$uid} = $set_name;
 		
 		// save registry
-		$this->saveRegistry($tournament_uid, $registry);
+		$this->saveRegistry($project_uid, $registry);
 		
 		// create dataset directory
-		mkdir(getBasePath().'/data/'.$tournament_uid.'/datasets/'.$uid);
+		mkdir(getBasePath().'/data/'.$project_uid.'/datasets/'.$uid);
 		
 		// create dataset skeleton json file
-		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/datasets/'.$uid.'/data.json', json_encode((object)[
+		file_put_contents(getBasePath().'/data/'.$project_uid.'/datasets/'.$uid.'/data.json', json_encode((object)[
 			'uid' => $uid,
 			'display' => $set_name,
 			'structure' => [
@@ -44,16 +44,16 @@ class dataset {
 		
 	}
 	
-	function load($tournament_uid, $uid) {
+	function load($project_uid, $uid) {
 		
 		// get registry
-		$registry = $this->getRegistry($tournament_uid);
+		$registry = $this->getRegistry($project_uid);
 		
 		// check if dataset exists
 		if (isset($registry->{$uid})) {
 			
 			// path to dataset data
-			$data_path = getBasePath().'/data/'.$tournament_uid.'/datasets/'.$uid.'/data.json';
+			$data_path = getBasePath().'/data/'.$project_uid.'/datasets/'.$uid.'/data.json';
 			
 			// ensure dataset file exists
 			if (file_exists($data_path)) {
@@ -73,20 +73,20 @@ class dataset {
 	}
 	
 	// load and return all datasets
-	function loadAll($tournament_uid) {
+	function loadAll($project_uid) {
 		
 		// get registry
-		$registry = $this->getRegistry($tournament_uid);
+		$registry = $this->getRegistry($project_uid);
 		
 		$sets = (object)[];
 		foreach($registry as $key=>$value) {
-			$sets->{$value} = $this->load($tournament_uid, $key);
+			$sets->{$value} = $this->load($project_uid, $key);
 		}
 		return $sets;
 	}
 
-	function save($tournament_uid, $uid, $save) {
-		file_put_contents(getBasePath().'/data/'.$tournament_uid.'/datasets/'.$uid.'/data.json', json_encode($save));
+	function save($project_uid, $uid, $save) {
+		file_put_contents(getBasePath().'/data/'.$project_uid.'/datasets/'.$uid.'/data.json', json_encode($save));
 		return true;
 	}
 	
@@ -94,15 +94,15 @@ class dataset {
 		
 		// create and / or load dataset
 		$dataset = ($_POST['dataset_manager_type'] == 'create' 
-			? $this->load($_POST['tournament_uid'], $this->register($_POST['tournament_uid'], $_POST['dataset_title']))
-			: $this->load($_POST['tournament_uid'], $_POST['dataset_manager_type'])
+			? $this->load($_POST['project_uid'], $this->register($_POST['project_uid'], $_POST['dataset_title']))
+			: $this->load($_POST['project_uid'], $_POST['dataset_manager_type'])
 		);
 		
 		// load all entries against saved and determine if create / update / or remove of sub values
 		foreach($_POST['dataset_value_uid'] as $index => $entry_uid) {
 			
 			// load or create entry uid
-			$uid = $entry_uid == 'create' ? app('uid')->generate($_POST['tournament_uid']) : $entry_uid;
+			$uid = $entry_uid == 'create' ? app('uid')->generate($_POST['project_uid']) : $entry_uid;
 			if (!isset($dataset->entries->{$uid})) {
 				$dataset->entries->{$uid} = (object)[];
 			}
@@ -132,28 +132,28 @@ class dataset {
 		if ($dataset->display != $_POST['dataset_title']) {
 			$dataset->display = $_POST['dataset_title'];
 			if ($_POST['dataset_manager_type'] != 'create') {
-				$registry = $this->getRegistry($_POST['tournament_uid']);
+				$registry = $this->getRegistry($_POST['project_uid']);
 				$registry->{$dataset->uid} = $dataset->display;
-				$this->saveRegistry($_POST['tournament_uid'], $registry);
+				$this->saveRegistry($_POST['project_uid'], $registry);
 			}
 		}
 		
 		// save dataset
-		$this->save($_POST['tournament_uid'], $dataset->uid, $dataset);
+		$this->save($_POST['project_uid'], $dataset->uid, $dataset);
 		
 		// return dataset
 		app('respond')->json(true, $dataset);
 	}
 	
-	function remove($tournament_uid, $uid) {
-		$data_path = getBasePath().'/data/'.$tournament_uid.'/datasets/'.$uid.'/';
+	function remove($project_uid, $uid) {
+		$data_path = getBasePath().'/data/'.$project_uid.'/datasets/'.$uid.'/';
 		if (is_dir($data_path)) {
 			unlink($data_path.'/data.json');
 			rmdir($data_path);
-			$registry = $this->getRegistry($tournament_uid);
+			$registry = $this->getRegistry($project_uid);
 			$registry_name = $registry->{$uid};
 			unset($registry->{$uid});
-			$this->saveRegistry($tournament_uid, $registry);
+			$this->saveRegistry($project_uid, $registry);
 			app('respond')->json(true, 'Successfully removed data set entry.', [
 				'display' => $registry_name
 			]);

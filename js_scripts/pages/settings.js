@@ -7,15 +7,15 @@ function setNavigationSettings() {
 				className: 'block',
 				children: [
 					Create('form', {
-						id: 'tournament_settings',
+						id: 'project_settings',
 						children: [
 							Create('label', {
-								innerHTML: 'Tournament Title',
+								innerHTML: 'project Title',
 								children: [
 									Create('input', {
 										type: 'text',
-										name: 'tournament_title',
-										value: GLOBAL.active_tournament.title
+										name: 'project_title',
+										value: GLOBAL.active_project.title
 									})
 								]
 							}),
@@ -26,7 +26,7 @@ function setNavigationSettings() {
 								children: [
 									Create('button', {
 										type: 'button',
-										onclick: updateTournamentSettings,
+										onclick: updateProjectSettings,
 										innerHTML: 'Save Settings'
 									})
 								]
@@ -40,16 +40,16 @@ function setNavigationSettings() {
 		
 }
 
-function updateTournamentSettings() {
+function updateProjectSettings() {
 	
 	// use form style capture to easily inherit form capture methods
-	let form_details = formToObj('tournament_settings');
+	let form_details = formToObj('project_settings');
 	
 	// append application
-	form_details.application = 'update_tournament_settings';
+	form_details.application = 'update_project_settings';
 	
-	// append tournament uid
-	form_details.uid = GLOBAL.active_tournament.uid;
+	// append project uid
+	form_details.uid = GLOBAL.active_project.uid;
 	
 	// update server-side team details, then call back to same scope function to save changes locally
 	ajax('POST', '/requestor.php', form_details, (status, data) => {
@@ -57,8 +57,8 @@ function updateTournamentSettings() {
 		if (status) {
 
 			// update local data and UI
-			GLOBAL.active_tournament.title = form_details.tournament_title;
-			Select('#tournament_title').innerHTML = form_details.tournament_title;
+			GLOBAL.active_project.title = form_details.project_title;
+			Select('#project_title').innerHTML = form_details.project_title;
 			
 		}
 		

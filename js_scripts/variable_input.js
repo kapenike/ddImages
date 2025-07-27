@@ -109,7 +109,7 @@ function toggleSelectionEditorButton(is_remove, id) {
 }
 
 function createPathListForEditor(path = null, base_path = null) {
-	let curr_path = GLOBAL.active_tournament.data;
+	let curr_path = GLOBAL.active_project.data;
 	let is_path_only = Select('#input_is_path_only_'+GLOBAL.ui.active_path_field_id).value == 'true';
 	let is_image_search = Select('#input_is_image_search_'+GLOBAL.ui.active_path_field_id).value == 'true';
 	let is_data_set = false;

@@ -2,21 +2,21 @@
 
 class uid {
 	
-	function generate($tournament_uid = null) {
+	function generate($project_uid = null) {
 		
-		// if tournament uid, return inc uid
-		if ($tournament_uid != null) {
-			return $this->generateIncUID($tournament_uid);
+		// if project uid, return inc uid
+		if ($project_uid != null) {
+			return $this->generateIncUID($project_uid);
 		} else {
 			return $this->generateRandUID();
 		}
 		
 	}
 	
-	function generateIncUID($tournament_uid) {
+	function generateIncUID($project_uid) {
 		
-		// location of tournament uid incrementor file
-		$inc_file = getBasePath().'/data/'.$tournament_uid.'/cuid.txt';
+		// location of project uid incrementor file
+		$inc_file = getBasePath().'/data/'.$project_uid.'/cuid.txt';
 		
 		// if UID incrementor does not exist, create it
 		if (!file_exists($inc_file)) {
