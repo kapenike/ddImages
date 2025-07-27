@@ -1,7 +1,9 @@
 # FSD[ ddImages ]
-automated stream overlays for OBS using html 5 canvas, JavaScript and PHP
+![Dynamic Data Images](https://github.com/kapenike/ddImages/logo.png)
+- Automate image changes using custom data fields, datasets and asset lists.
+- Utilize PHP's built-in web server to create tools and displays with a live browser source (paired to dynamic data changes).
 
-> this code is alpha and not fully commented or structured
+> ddImage changes will automatically update live in an OBS scene
 
 ## To-DO
 
