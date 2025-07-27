@@ -5,7 +5,7 @@ class fonts {
 	function __construct() {
 		// if registry file doesnt exist, create its skeleton
 		if (!file_exists(getBasePath().'/fonts/font_registry.json')) {
-			file_put_contents(getBasePath().'/fonts/font_registry.json', '[]'));
+			file_put_contents(getBasePath().'/fonts/font_registry.json', '[]');
 		}
 	}
 	
