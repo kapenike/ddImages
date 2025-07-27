@@ -21,16 +21,16 @@
 			- [x] precision round off on positioning
 			- [x] UI element for settings position of x and y based on percentage of screen
 				- [x] allow offset to be from the left, center or right of element just like text
-		- [ ] break massive code file into manageable portions
+		- [ ] hotkey click to selected layers / mouse wheel to scroll through selection layers without mouse click region
 	- [ ] settings: delete tournament, export / import tournament
 	- [x] rename tournament to project
-	- [ ] notifications
-	- [ ] Documentation / video
 	- [ ] font manager
 	- [ ] Webhook connect to source change for browser sources
 		- [ ] Make browser sources easier for devs to import, front end and backend all in the same location and a registry to import them
+	- [ ] Documentation
 
 - FULL release features
+	- [ ] restructure code and break large code bases into manageable classes with sub methods
 	- [ ] create shapes, lines, cropping, clip from and more creation tools on the overlay editor
 	- [ ] offer color picker as a tool for variable inputs (set statically within code)
 	
