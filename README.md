@@ -1,5 +1,5 @@
 # FSD[ ddImages ]
-![Dynamic Data Images](https://github.com/kapenike/ddImages/logo.png)
+![Dynamic Data Images](/logo.png)
 - Automate image changes using custom data fields, datasets and asset lists.
 - Utilize PHP's built-in web server to create tools and displays with a live browser source (paired to dynamic data changes).
 
