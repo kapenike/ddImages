@@ -917,14 +917,76 @@ function setupLayerInfo() {
 								children: [
 									Create('div', {
 										className: 'editor_section_title',
-										innerHTML: 'Clip Path Background Color'
+										innerHTML: 'Background and Border Color'
 									}),
 									Create('label', {
-										innerHTML: 'Color',
+										innerHTML: 'Background Color',
 										children: [
 											createColorPicker(layer.clip_path.color, function (value) {
 												getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.color = value;
 												printCurrentCanvas();
+											})
+										]
+									}),
+									Create('label', {
+										children: [
+											Create('input', {
+												type: 'checkbox',
+												checked: layer.clip_path.border.use == true,
+												onchange: function () {
+													Select('#clip_path_border_use').style.display = this.checked ? 'block' : 'none';
+													getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.border.use = this.checked;
+													printCurrentCanvas();
+												}
+											}),
+											Create('span', { innerHTML: 'Use Border' })
+										]
+									}),
+									Create('div', {
+										className: 'row',
+										id: 'clip_path_border_use',
+										style: {
+											display: layer.clip_path.border.use ? 'block' : 'none'
+										},
+										children: [
+											Create('div', {
+												className: 'col',
+												style: {
+													width: '50%'
+												},
+												children: [
+													Create('label', {
+														innerHTML: 'Color',
+														children: [
+															createColorPicker(layer.clip_path.border.color, function (value) {
+																getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.border.color = value;
+																printCurrentCanvas();
+															})
+														]
+													})
+												]
+											}),
+											Create('div', {
+												className: 'col',
+												style: {
+													width: '50%'
+												},
+												children: [
+													Create('label', {
+														innerHTML: 'Width',
+														children: [
+															Create('input', {
+																type: 'number',
+																min: 1,
+																value: layer.clip_path.border.width,
+																onchange: function () {
+																	getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.border.width = this.value;
+																	printCurrentCanvas();
+																}
+															})
+														]
+													})
+												]
 											})
 										]
 									})
@@ -1112,10 +1174,6 @@ function addNewLayer(index = null) {
 				click: () => { addNewTypeLayer('image', index); }
 			},
 			{
-				title: 'Rectangle',
-				click: () => { addNewTypeLayer('rect', index); }
-			},
-			{
 				title: 'Clipping Group',
 				click: () => { addNewTypeLayer('clip_path', index); }
 			}
@@ -1180,6 +1238,11 @@ function addNewTypeLayer(type, index, duplicate = false) {
 					dimensions: {
 						width: 100,
 						height: 100
+					},
+					border: {
+						use: false,
+						color: '',
+						width: '2'
 					},
 					clip_points: []
 				},
@@ -1644,6 +1707,12 @@ function printCurrentCanvas() {
 							ctx.fill();
 						}
 					}
+					if (layer.clip_path.border.use) {
+						ctx.setLineDash([]);
+						ctx.strokeStyle = layer.clip_path.border.color;
+						ctx.lineWidth = layer.clip_path.border.width;
+						ctx.stroke();
+					}
 					ctx.save();
 					ctx.clip();
 				}
@@ -1662,8 +1731,6 @@ function printCurrentCanvas() {
 						printImage(ctx, sub_layer);
 					} else if (sub_layer.type == 'text') {
 						printText(ctx, sub_layer);
-					} else if (sub_layer.type == 'rect') {
-						printRect(ctx, sub_layer);
 					}
 				} 
 				
@@ -1674,8 +1741,6 @@ function printCurrentCanvas() {
 				
 			}
 			
-		} else if (layer.type == 'rect') {
-			printRect(ctx, layer);
 		}
 		
 	}
