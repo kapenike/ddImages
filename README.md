@@ -37,3 +37,4 @@
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
 	- [ ] data sets variable inputs dont log whether a value was set as a reference and doesnt re-check the box for path only reference when revisiting the dataset
+	- [ ] When creating a new overlay, there is an issue with overlay generation until a refresh

@@ -93,23 +93,23 @@ class dataset {
 	function update($post) {
 		
 		// create and / or load dataset
-		$dataset = ($_POST['dataset_manager_type'] == 'create' 
-			? $this->load($_POST['project_uid'], $this->register($_POST['project_uid'], $_POST['dataset_title']))
-			: $this->load($_POST['project_uid'], $_POST['dataset_manager_type'])
+		$dataset = ($post['dataset_manager_type'] == 'create' 
+			? $this->load($post['project_uid'], $this->register($post['project_uid'], $post['dataset_title']))
+			: $this->load($post['project_uid'], $post['dataset_manager_type'])
 		);
 		
 		// load all entries against saved and determine if create / update / or remove of sub values
-		foreach($_POST['dataset_value_uid'] as $index => $entry_uid) {
+		foreach($post['dataset_value_uid'] as $index => $entry_uid) {
 			
 			// load or create entry uid
-			$uid = $entry_uid == 'create' ? app('uid')->generate($_POST['project_uid']) : $entry_uid;
+			$uid = $entry_uid == 'create' ? app('uid')->generate($post['project_uid']) : $entry_uid;
 			if (!isset($dataset->entries->{$uid})) {
 				$dataset->entries->{$uid} = (object)[];
 			}
 			
 			// update values in dataset and log updated keys
-			foreach($_POST['structure'] as $key) {
-				foreach($_POST['dataset_value_'.$key] as $index_2 => $value) {
+			foreach($post['structure'] as $key) {
+				foreach($post['dataset_value_'.$key] as $index_2 => $value) {
 					if ($index == $index_2) {
 						$dataset->entries->{$uid}->{$key} = $value;
 					}
@@ -118,7 +118,7 @@ class dataset {
 			
 			// remove any dataset key values not present in the posted structure
 			foreach (get_object_vars($dataset->entries->{$uid}) as $existing_key) {
-				if (!array_search($existing_key, $_POST['structure'])) {
+				if (!array_search($existing_key, $post['structure'])) {
 					unset($dataset->entries->{$uid}->{$existing_key});
 				}
 			}
@@ -126,20 +126,20 @@ class dataset {
 		}
 		
 		// update structure array in dataset
-		$dataset->structure = $_POST['structure'];
+		$dataset->structure = $post['structure'];
 			
 		// update display title if different and change registry
-		if ($dataset->display != $_POST['dataset_title']) {
-			$dataset->display = $_POST['dataset_title'];
-			if ($_POST['dataset_manager_type'] != 'create') {
-				$registry = $this->getRegistry($_POST['project_uid']);
+		if ($dataset->display != $post['dataset_title']) {
+			$dataset->display = $post['dataset_title'];
+			if ($post['dataset_manager_type'] != 'create') {
+				$registry = $this->getRegistry($post['project_uid']);
 				$registry->{$dataset->uid} = $dataset->display;
-				$this->saveRegistry($_POST['project_uid'], $registry);
+				$this->saveRegistry($post['project_uid'], $registry);
 			}
 		}
 		
 		// save dataset
-		$this->save($_POST['project_uid'], $dataset->uid, $dataset);
+		$this->save($post['project_uid'], $dataset->uid, $dataset);
 		
 		// return dataset
 		app('respond')->json(true, $dataset);
