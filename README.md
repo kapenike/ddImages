@@ -15,7 +15,8 @@
 	> sudo apt install php
 	
 - Update your php.ini config file to allow large image uploads and project imports.
-	- type `php --ini` to return the location of your config file
+	- Enter the following console command to locate your config file
+	> php --ini
 		- *(e.g. result): Loaded Configuration File:         /etc/php/8.3/cli/php.ini*
 	- change the following configuration properties:
 		- `upload_max_filesize=8M` -> `upload_max_filesize=2G`
