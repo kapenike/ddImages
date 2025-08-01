@@ -7,8 +7,8 @@
 > The primary directory **ddImages** cannot be renamed. ddImages does not use Apache and therefore has no hierarchical method to manage data paths. The directory named ddImages is used for relative pathing.
 
 ## Windows Download
-- Download and extract from: 
-- Launch `MSLaunchFSDimages`
+- Download and extract from: holdonacoupledaysforbeta.url
+- Launch `MSLaunchFSDimages.bat`
 
 ## Linux / MacOS install
 - Install PHP (will vary depending on your distro)
