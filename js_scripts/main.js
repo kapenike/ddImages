@@ -93,7 +93,7 @@ function loadOverlayDependencies() {
 						if (loaded == to_load) {
 						
 							// once all assets are loaded, callback to initial overlay generation
-							// (./js_scripts/overlays.js)
+							// (./js_scripts/generate_overlays.js)
 							generateStreamOverlays(null, dependenciesLoaded);
 							
 						}
@@ -106,7 +106,7 @@ function loadOverlayDependencies() {
 					if (loaded == to_load) {
 						
 						// once all assets are loaded, callback to initial overlay generation
-						// (./js_scripts/overlays.js)
+						// (./js_scripts/generate_overlays.js)
 						generateStreamOverlays(null, dependenciesLoaded);
 						
 					}

@@ -265,7 +265,12 @@ function setupOverlayEditor(slug = null) {
 										type: 'button',
 										className: 'remove_button',
 										innerHTML: 'Delete Overlay',
-										onclick: () => { removeOverlay(slug) }
+										onclick: () => { 
+											notify(
+												'Please confirm you\'d like to permanently delete this overlay',
+												() => { removeOverlay(slug); }
+											);
+										}
 									})
 								]
 							})

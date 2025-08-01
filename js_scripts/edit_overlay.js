@@ -312,8 +312,10 @@ function saveOverlay() {
 			generateStreamOverlays({ slug: GLOBAL.overlay_editor.slug });
 			
 			// refresh overlay image on previous editor screen
-			let img = Select('.asset_preview').children[0];
-			img.src = img.src+'?'+new Date().getTime();
+			if (Select('.asset_preview')) {
+				let img = Select('.asset_preview').children[0];
+				img.src = img.src+'?'+new Date().getTime();
+			}
 			
 		}
 	}, 'body');

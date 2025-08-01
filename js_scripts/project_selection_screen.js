@@ -30,7 +30,7 @@ function generateprojectSelectionScreen() {
 						src: 'logo.png'
 					}),
 					Create('label', {
-						innerHTML: 'projects',
+						innerHTML: 'Projects',
 						children: [
 							Create('select', {
 								id: 'project_uid_selection',
@@ -92,7 +92,7 @@ function projectCreationDialog() {
 						src: 'logo.png'
 					}),
 					Create('label', {
-						innerHTML: 'project Name',
+						innerHTML: 'Project Name',
 						children: [
 							Create('input', {
 								id: 'project_uid_selection',
@@ -103,7 +103,7 @@ function projectCreationDialog() {
 					Create('button', {
 						type: 'button',
 						className: 'small_button',
-						innerHTML: 'Return to project Selection',
+						innerHTML: 'Return to Project Selection',
 						style: {
 							float: 'left',
 							backgroundColor: '#444444'
@@ -125,6 +125,7 @@ function projectCreationDialog() {
 									project_name: project_name
 								}, (status, data) => {
 									if (status && data.status) {
+										GLOBAL.project_registry[data.uid] = project_name;
 										ajax('POST', '/requestor.php', {
 											application: 'load_project_data',
 											uid: data.uid

@@ -1,9 +1,29 @@
 <?php
 require 'app.php';
 
+// edge case (right now) for $_GET variable during download archive
+if (isset($_GET['download_export'])) {
+	$export_name = urldecode($_GET['download_export']);
+	if (file_exists($export_name.'.fsdi')) {
+		app('project')->downloadAndDeleteExport($export_name);
+	}
+	exit;
+}
 
 // application switch, defined by string value in $_POST['application']
 switch($_POST['application']) {
+
+	case 'import_project':
+		app('project')->import($_POST['uid'], $_FILES['file_0']);
+		break;
+
+	case 'export_project':
+		app('project')->export($_POST['uid']);
+		break;
+		
+	case 'delete_project':
+		app('project')->deleteProject($_POST['uid']);
+		break;
 	
 	case 'create_project':
 		app('project')->register($_POST['project_name']);

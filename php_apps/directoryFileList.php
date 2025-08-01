@@ -17,6 +17,25 @@ class directoryFileList {
 		return $list;
 	}
 	
+	// recursively delete all contents of directory, if preserve_master is false, delete the containing directory too
+	function delete($dir, $preserve_master = true) {
+		$files = scandir($dir);
+		forEach($files as $file) {
+			if ($file != '.' && $file != '..') {
+				if (is_dir($dir.'/'.$file)) {
+					$this->delete($dir.'/'.$file, true);
+					rmdir($dir.'/'.$file);
+				} else {
+					unlink($dir.'/'.$file);
+				}
+			}
+		}
+		if ($preserve_master == false) {
+			rmdir($dir);
+		}
+		return true;
+	}
+	
 }
 
 ?>

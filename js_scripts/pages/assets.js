@@ -301,7 +301,12 @@ function setupAssetEditor(slug = null) {
 										type: 'button',
 										className: 'remove_button',
 										innerHTML: 'Delete Asset',
-										onclick: () => { removeAsset(slug) }
+										onclick: () => { 
+											notify(
+												'Please confirm you\'d like to permanently remove this asset',
+												() => { removeAsset(slug) }
+											);
+										}
 									})
 								]
 							})

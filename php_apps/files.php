@@ -19,7 +19,7 @@ class files {
 	}
 	
 	function checkSettings($file, $settings) {
-		if ($settings["type"] == 'img' && !in_array(getimagesize($file["tmp_name"])[2], [IMAGETYPE_JPEG,IMAGETYPE_PNG,IMAGETYPE_GIF,IMAGETYPE_BMP])) {
+		if (isset($settings["type"]) && $settings["type"] == 'img' && !in_array(getimagesize($file["tmp_name"])[2], [IMAGETYPE_JPEG,IMAGETYPE_PNG,IMAGETYPE_GIF,IMAGETYPE_BMP])) {
 			return ["status" => false, "msg" => "Not a supported image type. Supported image formats: jpg, png, gif, bmp"];
 		} else if ($this->disallowedExtensions(strtolower(pathinfo($file["name"])["extension"]))) {
 			return ["status" => false, "msg" => "This file has been disallowed for upload."];

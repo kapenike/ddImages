@@ -230,7 +230,12 @@ function setupDatasetEditor(data = null) {
 												className: 'remove_button',
 												innerHTML: 'Remove Dataset',
 												type: 'button',
-												onclick: () => { removeDataset(data.uid); }
+												onclick: () => { 
+													notify(
+														'Please confirm you\'d like to permanently remove this data set',
+														() => { removeDataset(data.uid); }
+													);
+												}
 											})
 										: Create('div')
 									)

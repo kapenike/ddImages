@@ -10,8 +10,8 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 		return;
 	}
 	
-	// if sources is null, set GLOBAL flag to regenerate sources
-	if (sources == null) {
+	// if sources is null, or an object, set GLOBAL flag to regenerate sources
+	if (sources == null || isObject(sources)) {
 		GLOBAL.generate_sources = true;
 	}
 	

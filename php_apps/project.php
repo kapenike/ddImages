@@ -185,12 +185,137 @@ class project {
 	
 	function updateprojectDataStructure($uid, $data_structure) {
 		$this->save($uid, 'data', $data_structure);
-		app('respond')->json(true, 'project data structure successfully updated.');
+		app('respond')->json(true, 'Project data structure successfully updated.');
 	}
 	
 	function updateprojectUI($uid, $data) {
 		file_put_contents(getBasePath().'/data/'.$uid.'/ui.json', $data);
-		app('respond')->json(true, 'project UI successfully updated.');
+		app('respond')->json(true, 'Project UI successfully updated.');
+	}
+	
+	function import($uid, $file) {
+		
+		// upload archive
+		$zip = app('files')->upload($file, getBasePath().'/data/', ['fname' => true]);
+		 
+		if ($zip['status'] == true) {
+			
+			// uploaded file name
+			$file_name = $zip['msg'];
+			
+			// remove current project data files and directories
+			app('directoryFileList')->delete(getBasePath().'/data/'.$uid);
+			
+			
+			// extract project archive to the current project directory
+			$zip = new ZipArchive;
+			if ($zip->open(getBasePath().'/data/'.$file_name) === true) {
+				
+				// extract to
+				$zip->extractTo(getBasePath().'/data/'.$uid);
+				$zip->close();
+				
+				// register new project name
+				$this->registry->{$uid} = file_get_contents(getBasePath().'/data/'.$uid.'/project_name.txt');
+				
+				// save registry
+				$this->saveRegistry();
+				
+				// update imported project data container with the new project uid
+				$data_container = json_decode(file_get_contents(getBasePath().'/data/'.$uid.'/container.json'));
+				$data_container->uid = $uid;
+				file_put_contents(getBasePath().'/data/'.$uid.'/container.json', json_encode($data_container));
+				
+				// remove temporary project name file
+				unlink(getBasePath().'/data/'.$uid.'/project_name.txt');
+				
+				// clear old overlay output directory
+				app('directoryFileList')->delete(getBasePath().'/overlay_output/'.$uid);
+				
+			} else {
+				
+				app('respond')->json(false, 'Project archive unable to be opened.');
+				
+			}
+			
+			// remove uploaded archive
+			unlink(getBasePath().'/data/'.$file_name);
+			
+			// return imported project name
+			app('respond')->json(true, 'Project imported successfully.', [
+				'project_name' => $this->registry->{$uid}
+			]);
+			
+			
+		}	else {
+			app('respond')->json(false, 'An error occurred while uploading the project archive.');
+		}			
+	}
+	
+	function export($uid) {
+		
+		// prevent user abort
+		ignore_user_abort(true);
+		
+		$project_name = $this->registry->{$uid};
+		
+		$zip = new ZipArchive;
+		if ($zip->open($project_name.'.fsdi', ZipArchive::CREATE) === true) {
+			
+			// log project name
+			$zip->addFromString('project_name.txt', $project_name);
+			
+			// set a base path
+			$base_path = getBasePath().'/data/'.$uid.'/';
+			
+			// add files to zip archive
+			foreach (app('directoryFileList')->get([], $base_path) as $file_path) {
+				$zip->addFile($file_path, str_replace($base_path, '', $file_path));
+			}
+
+			// save project archive
+			$zip->close();
+			
+			// front end will now redirect to downloadAndDelete method below
+			app('respond')->json(true, 'Archive successfully create.', ['project_name' => $project_name]);
+			
+		} else {
+			app('respond')->json(false, 'Error creating archive export for project: '.$project_name);
+		}
+		
+	}
+	
+	function downloadAndDeleteExport($project_name) {
+		
+		// prevent user abort
+		ignore_user_abort(true);
+		
+		// open stream to download exported archive and then remove it
+		header('Content-Type: application/octet-stream');
+		header('Content-Transfer-Encoding: Binary'); 
+		header('Content-disposition: attachment; filename="'.$project_name.'.fsdi"'); 
+		readfile($project_name.'.fsdi'); 
+		unlink($project_name.'.fsdi');
+		
+	}
+	
+	function deleteProject($uid) {
+		
+		// remove project from registry
+		unset($this->registry->{$uid});
+		
+		// save registry
+		$this->saveRegistry();
+		
+		// delete project data directory
+		app('directoryFileList')->delete(getBasePath().'/data/'.$uid, false);
+		
+		// delete project overlay output directory
+		app('directoryFileList')->delete(getBasePath().'/overlay_output/'.$uid, false);
+		
+		// respond
+		app('respond')->json(true, 'Project deleted.');
+		
 	}
 	
 }
