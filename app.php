@@ -5,7 +5,9 @@ error_reporting(E_ALL);
 
 // no htaccess or hierarchical structure so create a relative base path method
 function getBasePath() {
-	return explode('ddImages',getcwd())[0].'ddImages/';
+	$cwd = getcwd();
+	$pos = strrpos($cwd, 'ddImages');
+	return substr($cwd, 0, $pos).'ddImages/';
 }
 
 // $APP stores loaded classes as an instance of app({$class})
