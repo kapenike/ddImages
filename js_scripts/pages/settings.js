@@ -7,10 +7,10 @@ function setNavigationSettings() {
 				className: 'block',
 				children: [
 					Create('form', {
-						id: 'Project_settings',
+						id: 'project_settings',
 						children: [
 							Create('label', {
-								innerHTML: 'project Title',
+								innerHTML: 'Project Title',
 								children: [
 									Create('input', {
 										type: 'text',
