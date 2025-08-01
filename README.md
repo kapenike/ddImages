@@ -17,7 +17,7 @@
 - Update your php.ini config file to allow large image uploads and project imports.
 	- Enter the following console command to locate your config file
 	> php --ini
-		- *(e.g. result): Loaded Configuration File:         /etc/php/8.3/cli/php.ini*
+	*(e.g. result): Loaded Configuration File:         /etc/php/8.3/cli/php.ini*
 	- change the following configuration properties:
 		- `upload_max_filesize=8M` -> `upload_max_filesize=2G`
 		- `post_max_size=8M` -> `post_max_size=2G`
