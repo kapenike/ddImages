@@ -111,7 +111,7 @@ class files {
 				if ($fname === false) {
 					$fname = $file["name"];
 				}
-				if (is_file($path.$fname.$ext)) {
+				if (is_file($path.$fname.$ext) && !isset($settings["allow_overwrite"])) {
 					return ["status" => false, "msg" => "File name ".$fname.$ext." already exists."];
 				}
 				$fname = $fname.$ext;

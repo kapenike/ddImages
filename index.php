@@ -14,28 +14,34 @@ forEach(app('directoryFileList')->get([], './js_scripts') as $file) {
 <?php app('fonts')->generateFontCSS(); ?>
 
 <script>
-const custom_font_list = [];
+// global font object
+var FONTS = null;
+
 document.addEventListener('DOMContentLoaded', function() {
 	// on document ready, import custom fonts into document.fonts, then run initStreamOverlay()
-	let custom_fonts = JSON.parse('<?php echo app('fonts')->getFontList(); ?>');
+	FONTS = JSON.parse('<?php echo app('fonts')->getFontList(); ?>');
 	let loaded_fonts = 0;
-	custom_fonts.forEach(font => {
-		if (!custom_font_list.includes(font.name)) {
-			custom_font_list.push(font.name);
+	let to_load_fonts = 0;
+	Object.keys(FONTS).forEach(fontfacekey => {
+		let fontface = FONTS[fontfacekey];
+		if (typeof fontface.is_default === 'undefined') {
+			fontface.fonts.forEach(font => {
+				to_load_fonts++;
+				new FontFace(fontface.name, 'url(./fonts/'+font.filename+')', {
+					style: font.style,
+					weight: font.weight
+				}).load().then(loaded_font => {
+					document.fonts.add(loaded_font);
+					loaded_fonts++;
+					if (loaded_fonts == to_load_fonts) {
+						// (./js_scripts/main.js)
+						initStreamOverlay();
+					}
+				});
+			});
 		}
-		new FontFace(font.name, 'url(./fonts/'+font.filename+')', {
-			style: font.style,
-			weight: font.weight ?? 400
-		}).load().then(loaded_font => {
-			document.fonts.add(loaded_font);
-			loaded_fonts++;
-			if (loaded_fonts == custom_fonts.length) {
-				// (./js_scripts/main.js)
-				initStreamOverlay();
-			}
-		});
 	});
-	if (custom_fonts.length == 0) {
+	if (to_load_fonts == 0) {
 		// (./js_scripts/main.js)
 		initStreamOverlay();
 	}

@@ -558,7 +558,7 @@ function setupLayerInfo() {
 												innerHTML: 'Font',
 												children: [
 													Create('select', {
-														children: [...custom_font_list, 'Arial','Verdana','Tahoma','Trebuchet MS','Times New Roman','Georgia', 'Garamond', 'Courier New', 'Brush Script MT'].sort().map(font => {
+														children: Object.keys(FONTS).sort().map(font => {
 															return Create('option', {
 																innerHTML: font,
 																value: "'"+font+"'",

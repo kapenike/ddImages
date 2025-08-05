@@ -5,6 +5,10 @@ function initNavigation() {
 	
 	GLOBAL_NAVIGATION = [
 		{
+			name: 'File',
+			app_init: openFileDropdown
+		},
+		{
 			name: 'Switchboard',
 			default: true,
 			on_save: updateSourceChanges,
@@ -38,15 +42,6 @@ function initNavigation() {
 			name: 'Overlays',
 			on_save: updateOverlayData,
 			app_init: setNavigationOverlays
-		},
-		{
-			name: 'Browser Sources',
-			app_init: setNavigationBrowserSources,
-		},
-		{
-			name: 'Settings',
-			on_save: updateProjectSettings,
-			app_init: setNavigationSettings
 		}
 	];
 	
@@ -56,16 +51,28 @@ function initNavigation() {
 
 function generateUI(navigation = null) {
 	
+	// if file, prevent all and just run init
+	if (navigation == 'File') {
+		openFileDropdown();
+		if (Select('.active_navigation')) {
+			Select('.active_navigation').className = 'navigation_element';
+		}
+		return;
+	}
+	
 	// prevent navigation of already-active page
 	if (navigation != null) {
-		let active_navigation = Select('.active_navigation').innerHTML;
-		if (active_navigation == navigation) {
-			return;
-		} else {
-			
-			// if new navigation, run close app on active page
-			closeApp(true, active_navigation);
-			
+		let active_navigation = Select('.active_navigation');
+		if (active_navigation) {
+			active_navigation = active_navigation.innerHTML;
+			if (active_navigation == navigation) {
+				return;
+			} else {
+				
+				// if new navigation, run close app on active page
+				closeApp(true, active_navigation);
+				
+			}
 		}
 	}
 	
@@ -170,4 +177,53 @@ function closeApp(master, navigation = null) {
 
 function onSaveAction() {
 	GLOBAL.navigation.on_save();
+}
+
+function openFileDropdown() {
+	Select('#body', {
+		children: [
+			Create('div', {
+				id: 'popup',
+				onclick: function () {
+					Select('#popup').remove();
+				},
+				children: [
+					Create('div', {
+						className: 'file_dropdown',
+						children: [
+							Create('div', {
+								className: 'dropdown_action dropdown_save',
+								innerHTML: 'Save',
+								onclick: onSaveAction
+							}),
+							Create('div', {
+								className: 'dropdown_action',
+								innerHTML: 'Settings',
+								onclick: function () {
+									GLOBAL.navigation.on_save = updateProjectSettings,
+									setNavigationSettings();
+								}
+							}),
+							Create('div', {
+								className: 'dropdown_action',
+								innerHTML: 'Font Manager',
+								onclick: function () {
+									GLOBAL.navigation.on_save = updateFonts,
+									setNavigationFontManager();
+								}
+							}),
+							Create('div', {
+								className: 'dropdown_action',
+								innerHTML: 'Browser Sources',
+								onclick: function () {
+									GLOBAL.navigation.on_save = ()=>{},
+									setNavigationBrowserSources();
+								}
+							})
+						]
+					})
+				]
+			})
+		]
+	})
 }

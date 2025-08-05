@@ -139,6 +139,30 @@ html, body {
 	padding-bottom: 20px;
 }
 
+/* file sub menu */
+#popup .file_dropdown {
+	position: absolute;
+	top: 54px;
+	left: 0;
+	width: 220px;
+	background-color: #000000;
+	color: #ffffff;
+	border-bottom: 2px solid #222222;
+}
+
+#popup .file_dropdown .dropdown_action {
+	padding: 8px 2px;
+	text-align: center;
+	background-color: #444444;
+	border-bottom: 1px solid #222222;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+#popup .file_dropdown .dropdown_save {
+	background-color: #39b3b5;
+}
+
 /* variable path input styling */
 .variable_set_input {
 	position: relative;
@@ -381,6 +405,10 @@ input[type="text"], input[type="color"], input[type="number"], input[type="file"
 	color: #000000;
 	box-sizing: border-box;
 	margin-bottom: 16px;
+}
+
+input[type="file"] {
+	padding: 9px 20px;
 }
 
 select {

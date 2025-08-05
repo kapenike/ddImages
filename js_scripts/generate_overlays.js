@@ -123,6 +123,12 @@ function generateOverlay(ctx, output_overlays, overlay) {
 							ctx.fill();
 						}
 					}
+					if (layer.clip_path.border.use) {
+						ctx.setLineDash([]);
+						ctx.strokeStyle = layer.clip_path.border.color;
+						ctx.lineWidth = layer.clip_path.border.width;
+						ctx.stroke();
+					}
 					ctx.save();
 					ctx.clip();
 				}
