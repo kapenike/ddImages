@@ -283,14 +283,35 @@ function printText(ctx, layer) {
 	if (layer.style.caps) {
 		value = value.toUpperCase();
 	}
-	
+
 	// if value not falsey (exluding 0), draw text
 	if (toggleTrue(layer) && (value || value === 0 || value === '0')) {
-		ctx.fillText(
-			value,
-			layer.offset.x,
-			layer.offset.y,
-			layer.dimensions.width
-		);
+		
+		// text rotation
+		if (layer.style.rotation && layer.style.rotation != 0) {
+			ctx.save();
+			
+			// translate to text position origin
+			ctx.translate(layer.offset.x, layer.offset.y);
+			
+			// rotate canvas
+			ctx.rotate(degToRad(layer.style.rotation));
+			
+			// print text at translated location
+			ctx.fillText(value, 0, 0, layer.dimensions.width);
+			
+			// restore pre rotation
+			ctx.restore();
+		
+		} else {
+			ctx.fillText(
+				value,
+				layer.offset.x,
+				layer.offset.y,
+				layer.dimensions.width
+			);
+		}
+
 	}
+	
 }

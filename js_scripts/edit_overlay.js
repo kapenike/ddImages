@@ -757,6 +757,44 @@ function setupLayerInfo() {
 					})
 				: Create('div')
 			),
+			(layer.type == 'text'
+				? Create('div', {
+						className: 'editor_section_block',
+						children: [
+							Create('div', {
+								className: 'editor_section_title',
+								innerHTML: 'Text Rotation'
+							}),
+							Create('div', {
+								children: [
+									Create('label', {
+										innerHTML: 'Degrees',
+										children: [
+											Create('input', {
+												type: 'number',
+												value: layer.style.rotation ?? 0,
+												onkeyup: function () {
+													let rotation = parseInt(this.value);
+													if (rotation > 360) {
+														rotation = 0;
+														this.value = rotation;
+													}
+													if (rotation < -360) {
+														rotation = 0;
+														this.value = rotation;
+													}
+													getLayerById(GLOBAL.overlay_editor.active_layer).style.rotation = rotation;
+													printCurrentCanvas();
+												}
+											})
+										]
+									})
+								]
+							})
+						]
+					})
+				: Create('div')
+			),
 			(layer.type != 'clip_path'
 				? Create('div', {
 						className: 'editor_section_block',
@@ -1412,6 +1450,19 @@ function imageEditorMouseDown(event) {
 			// scale x up for 1 to 1 in overlay comparison
 			translate_scale_x = translate_scale_x/GLOBAL.overlay_editor.scale;
 			
+			// if rotated layer, rotate cursor position in the opposite direction around the origin
+			if (GLOBAL.overlay_editor.active_layer_selection.rotation) {
+				let rotated = rotate(
+					translate_scale_x,
+					translate_scale_y,
+					GLOBAL.overlay_editor.active_layer_selection.rotation_origin.x,
+					GLOBAL.overlay_editor.active_layer_selection.rotation_origin.y,
+					GLOBAL.overlay_editor.active_layer_selection.rotation
+				);
+				translate_scale_x = rotated.x;
+				translate_scale_y = rotated.y;
+			}
+			
 			if (
 				translate_scale_x > GLOBAL.overlay_editor.active_layer_selection.x &&
 				translate_scale_y > GLOBAL.overlay_editor.active_layer_selection.y &&
@@ -1756,7 +1807,30 @@ function printCurrentCanvas() {
 			ctx.lineWidth = 2;
 			ctx.setLineDash([6, 8]);
 			ctx.strokeStyle = '#0051ff';
-			ctx.strokeRect(out_dim.x, out_dim.y, out_dim.width, out_dim.height);
+			
+			if (selection_layer.type == 'text' && selection_layer.style.rotation && selection_layer.style.rotation != 0) {
+				ctx.save();
+				let alignment_offset = (
+					selection_layer.style.align == 'center' 
+						? out_dim.width/2
+						: (selection_layer.style.align == 'right'
+							? out_dim.width
+							: 0
+							)
+				);
+				ctx.translate(out_dim.x + alignment_offset, out_dim.y);
+				ctx.rotate(degToRad(selection_layer.style.rotation));
+				ctx.strokeRect(0 - alignment_offset, 0, out_dim.width, out_dim.height);
+				ctx.restore();
+				out_dim.rotation = selection_layer.style.rotation;
+				out_dim.rotation_origin = {
+					x: out_dim.x + alignment_offset,
+					y: out_dim.y
+				};
+			} else {
+				ctx.strokeRect(out_dim.x, out_dim.y, out_dim.width, out_dim.height);
+			}
+			
 			// save selection area for dragging logic
 			GLOBAL.overlay_editor.active_layer_selection = out_dim;
 		} else {

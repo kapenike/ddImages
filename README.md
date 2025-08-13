@@ -33,17 +33,18 @@
 ## To-DO
 
 - BETA release
-	- [ ] font manager
-	- [ ] overlay editor transform tool
+	- [x] font manager
+	- [x] text rotation
+	- [ ] custom clipping path
 	- [ ] documentation
 
 - FULL release features
-	- [ ] restructure code and break large code bases into manageable classes with sub methods
+	- [ ] restructure code and break large code bases into manageable classes with sub methods, mostlye for edit overlay
 	- [ ] extra overly editor tools
 		- [ ] shapes
 		- [ ] line tool
-		- [ ] custom clipping path
 		- [ ] hotkey select layer on click and scroll through layers behind
+	- [ ] allow center position images and rotation on them
 	- [ ] offer color picker as a tool for variable inputs
 	- [ ] classify and make browser sources a library manager
 	 - [ ] allow p2p connection to browser sources that live update with Switchboard data
