@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (typeof fontface.is_default === 'undefined') {
 			fontface.fonts.forEach(font => {
 				to_load_fonts++;
-				new FontFace(fontface.name, 'url(./fonts/'+font.filename+')', {
+				new FontFace(fontface.name, 'url("/fonts/'+font.filename+'")', {
 					style: font.style,
 					weight: font.weight
 				}).load().then(loaded_font => {

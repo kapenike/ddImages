@@ -934,7 +934,6 @@ function setupLayerInfo() {
 											}),
 											Create('option', {
 												innerHTML: 'Custom',
-												disabled: true,
 												value: 'custom',
 												selected: layer.clip_path.type == 'custom'
 											}),
@@ -942,6 +941,7 @@ function setupLayerInfo() {
 										onchange: function () {
 											getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.type = this.value;
 											Select('#square_clip_editor_section').style.display = (this.value == 'none' || this.value == 'custom' ? 'none' : 'block');
+											Select('#custom_clip_editor_section').style.display = (this.value == 'custom' ? 'block' : 'none');
 											Select('#clip_editor_background_color').style.display = (this.value == 'none' ? 'none' : 'block');
 											printCurrentCanvas();
 										}
@@ -1029,6 +1029,26 @@ function setupLayerInfo() {
 												]
 											})
 										]
+									})
+								]
+							}),
+							Create('div', {
+								className: 'editor_section_block',
+								id: 'custom_clip_editor_section',
+								style: {
+									display: (layer.clip_path.type == 'custom' ? 'block' : 'none')
+								},
+								children: [
+									Create('div', {
+										className: 'editor_section_title',
+										innerHTML: 'Custom Clip Path'
+									}),
+									Create('div', {
+										style: {
+											fontStyle: 'italic',
+											fontSize: '12px'
+										},
+										innerHTML: 'Use right click on the image window to use the custom clip path editor tool.',
 									})
 								]
 							}),
@@ -1182,19 +1202,16 @@ function moveGroupLayer(layer, obj) {
 
 function editLayer(elem) {
 	event.preventDefault();
-	let index = elem.id.split('_');
-	index.shift();
-	index = index.join('_');
 	setImageEditorDialog(event, {
 		title: 'Edit Layer',
 		items: [
 			{
 				title: 'Duplicate',
-				click: () => { addNewTypeLayer('text', index, true); }
+				click: () => { addNewTypeLayer('text', elem.id, true); }
 			},
 			{
 				title: 'Remove',
-				click: () => { removeLayer(index); },
+				click: () => { removeLayer(elem.id); },
 				remove: true
 			}
 		]
@@ -1290,7 +1307,7 @@ function addNewTypeLayer(type, index, duplicate = false) {
 			};
 		}
 	} else {
-		new_layer = JSON.parse(JSON.stringify(ref));
+		new_layer = JSON.parse(JSON.stringify(getLayerById(index)));
 		new_layer.title += ' (duplicate)';
 	}
 	if (index == null) {
@@ -1299,7 +1316,11 @@ function addNewTypeLayer(type, index, duplicate = false) {
 	} else {
 		if (index.toString().indexOf('_') > -1) {
 			let ids = index.split('_').filter(x => x != 'layer');
-			GLOBAL.overlay_editor.current.layers[ids[0]].layers.splice(ids[1], 0, new_layer);
+			if (ids.length > 1) {
+				GLOBAL.overlay_editor.current.layers[ids[0]].layers.splice(ids[1], 0, new_layer);
+			} else {
+				GLOBAL.overlay_editor.current.layers.splice(ids[0], 0, new_layer);
+			}
 		} else {
 			GLOBAL.overlay_editor.current.layers.splice(index, 0, new_layer);
 		}
@@ -1309,11 +1330,11 @@ function addNewTypeLayer(type, index, duplicate = false) {
 }
 
 function removeLayer(index) {
-	if (index.indexOf('_') > -1) {
-		let ids = index.split('_');
+	let ids = index.split('_').filter(x => x != 'layer');
+	if (ids.length > 1) {
 		GLOBAL.overlay_editor.current.layers[ids[0]].layers.splice(ids[1], 1);
 	} else {
-		GLOBAL.overlay_editor.current.layers.splice(index, 1);
+		GLOBAL.overlay_editor.current.layers.splice(ids[0], 1);
 	}
 	setActiveLayer(null);
 	removeUIEditMenu();
@@ -1395,10 +1416,18 @@ function targetIsLayerElem(elem) {
 }
 
 function imageEditorMouseCTX(event) {
+	
+	// if active layer is a custom clip path and target is the editor window
+	if (GLOBAL.overlay_editor.active_layer != null && getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.type == 'custom' && event.target.id == 'workspace') {
+		console.log('here');
+		event.preventDefault();
+	}
+	
 	// if not a layer element, prevent context menu click
 	if (!targetIsLayerElem(event.target)) {
 		event.preventDefault();
 	}
+	
 }
 
 function imageEditorZoom(event) {

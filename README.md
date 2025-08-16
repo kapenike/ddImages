@@ -39,16 +39,16 @@
 	- [ ] documentation
 
 - FULL release features
-	- [ ] restructure code and break large code bases into manageable classes with sub methods, mostlye for edit overlay
-	- [ ] extra overly editor tools
-		- [ ] shapes
-		- [ ] line tool
-		- [ ] hotkey select layer on click and scroll through layers behind
-	- [ ] allow center position images and rotation on them
+	- [ ] variable inputs need to safe reference path as an in-built string like `(**pointer**$var$some/path$/var$)`
+		- [ ] when re-opening a path variable, it should start at the current path directory
+	- [ ] create section app that highjacks the region and creates a bracket system within using all generate ui components and datasets
+	- [ ] restructure edit overlay app and generate overlay, classify and break into sub methods and a master state
+		- [ ] add feature for selecting layer onclick and scroll wheel through
+		- [ ] allow center position images and rotation on them
 	- [ ] offer color picker as a tool for variable inputs
 	- [ ] classify and make browser sources a library manager
 	 - [ ] allow p2p connection to browser sources that live update with Switchboard data
+	- [ ] create banner browser source app
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
-	- [ ] data sets variable inputs dont log whether a value was set as a reference and doesnt re-check the box for path only reference when revisiting the dataset

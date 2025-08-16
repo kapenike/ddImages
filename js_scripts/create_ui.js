@@ -17,33 +17,35 @@ function createUIFromData(container, data, submit_to_application, editor = false
 				className: editor ? 'editable_ui' : '', // if rebuilding during drag and drop, still in edit mode
 				data: submit_to_application,
 				children: [
-					Create('div', {
+					Create('label', {
+						innerHTML: 'edit mode ',
 						style: {
-							textAlign: 'right',
-							marginBottom: '-43px'
+							display: 'block',
+							padding: '8px 10px 10px 14px',
+							position: 'fixed',
+							right: '0',
+							top: '54px',
+							backgroundColor: editor ? '#f5c527' : '#39b3b5',
+							color: '#080b11',
+							fontSize: '14px',
+							cursor: 'pointer'
 						},
 						children: [
-							Create('label', {
-								innerHTML: 'Toggle UI Editor ',
+							Create('input', {
+								type: 'checkbox',
+								id: 'ui_editor_toggle',
 								style: {
-									paddingRight: '20px'
+									display: 'inline-block',
+									width: 'auto',
+									padding: '0px',
+									margin: '0px',
+									height: '14px',
 								},
-								children: [
-									Create('input', {
-										type: 'checkbox',
-										id: 'ui_editor_toggle',
-										style: {
-											display: 'inline-block',
-											width: 'auto',
-											position: 'relative',
-											top: '5px'
-										},
-										checked: editor, // if rebuilding during drag and drop, still in edit mode
-										onclick: function () {
-											toggleUIEditor(this.checked);
-										}
-									})
-								]
+								checked: editor, // if rebuilding during drag and drop, still in edit mode
+								onclick: function () {
+									toggleUIEditor(this.checked);
+									this.parentNode.style.backgroundColor = this.checked ? '#f5c527' : '#39b3b5';
+								}
 							})
 						]
 					}),
