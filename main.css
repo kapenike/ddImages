@@ -201,6 +201,18 @@ html, body {
 	border-radius: 0 0 3px 3px;
 }
 
+.variable_input_clear {
+	position: absolute;
+  left: -11px;
+  top: 15px;
+  background-color: #777777;
+  padding: 0px 8px 1px 8px;
+  font-size: 10px;
+  border-radius: 0 2px 2px 0;
+  filter: drop-shadow(0 0 2px #222222);
+	cursor: pointer;
+}
+
 .forcing_path_indicator {
 	background-color: #005b96 !important;
 }
@@ -235,6 +247,10 @@ html, body {
 	cursor: pointer;
 }
 
+.path_insert_button_is_reference_path {
+	background-color: #05828e !important;
+}
+
 .close_path_selection_editor {
 	background-color: red;
 }
@@ -253,6 +269,11 @@ html, body {
 	z-index: 1;
 	box-sizing: border-box;
 	padding: 12px 16px;
+}
+
+.path_selection_dialog_path_only {
+	background-color: #05828e !important;
+	color: #000000 !important;
 }
 
 #path_selection_dialog > div {

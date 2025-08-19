@@ -771,7 +771,6 @@ function editUISection(elem, is_create = false) {
 						createPathVariableField({
 							name: 'section_title',
 							value: {
-								path_only: false,
 								value: is_create ? '' : current_data.section
 							},
 							allow_path_only: false
@@ -881,7 +880,6 @@ function editUIField(elem, is_create = false) {
 						createPathVariableField({
 							name: 'source_path',
 							value: {
-								path_only: true,
 								value: is_create ? '' : current_data.source ?? ''
 							},
 							force_path_only: true
@@ -895,7 +893,6 @@ function editUIField(elem, is_create = false) {
 						createPathVariableField({
 							name: 'input_label',
 							value: {
-								path_only: false,
 								value: is_create ? '' : current_data.title
 							},
 							allow_path_only: false
@@ -1032,7 +1029,6 @@ function fieldBuilderForCheckbox(data) {
 					createPathVariableField({
 						name: 'checked_value_output',
 						value: {
-							path_only: data == null || typeof data.value_depth === 'undefined' ? false : true,
 							value: data == null ? '' : current_data.value
 						},
 						allow_path_only: true
@@ -1177,7 +1173,6 @@ function appendNewKeyValuePairInput(key_value) {
 						createPathVariableField({
 							name: 'pair_value_display[]',
 							value: {
-								path_only: false,
 								value: key_value.display
 							},
 							allow_path_only: false
@@ -1191,7 +1186,6 @@ function appendNewKeyValuePairInput(key_value) {
 						createPathVariableField({
 							name: 'pair_value_value[]',
 							value: {
-								path_only: typeof key_value.value_depth === 'undefined' ? false : true,
 								value: key_value.value
 							},
 							allow_path_only: true
@@ -1245,7 +1239,6 @@ function createNewSubSetterField(key_value, id) {
 					createPathVariableField({
 						name: 'sub_pair_value_display_'+id+'[]',
 						value: {
-							path_only: true,
 							value: key_value.path
 						},
 						force_path_only: true
@@ -1259,7 +1252,6 @@ function createNewSubSetterField(key_value, id) {
 					createPathVariableField({
 						name: 'sub_pair_value_value_'+id+'[]',
 						value: {
-							path_only: typeof key_value.value_depth === 'undefined' ? false : true,
 							value: key_value.source
 						},
 						allow_path_only: true
@@ -1308,6 +1300,9 @@ function createPopUp(title, content, on_save) {
 					}),
 					Create('form', {
 						id: 'popup_form_data',
+						onsubmit: function () {
+							return false;
+						},
 						children: [
 							content
 						]

@@ -21,8 +21,14 @@ function getRealVariableParts(value) {
 				return_data.push({ real: split[i] });
 			}
 		} else {
+			// determine if pointer
+			let is_pointer = false;
+			if (split[i].slice(0, 11) == '**pointer**') {
+				split[i] = split[i].replace('**pointer**', '');
+				is_pointer = true;
+			}
 			// variable part
-			return_data.push({ variable: split[i] });
+			return_data.push({ variable: split[i], is_pointer: is_pointer });
 		}
 	}
 	return return_data.filter(x => {

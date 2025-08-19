@@ -320,7 +320,6 @@ function newStructureKey(key = null, index = 1) {
 						createPathVariableField({
 							name: 'dataset_value_untitled[]',
 							value: {
-								path_only: false,
 								value: ''
 							},
 							allow_path_only: true

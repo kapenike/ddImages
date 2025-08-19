@@ -49,7 +49,6 @@ function createColorPicker(value, on_save) {
 								createPathVariableField({
 									name: 'variable_color',
 									value: {
-										path_only: false,
 										value: isPathVariable(Select(instanced_select_id).dataset.path_value) ? Select(instanced_select_id).dataset.path_value : ''
 									},
 									allow_path_only: false

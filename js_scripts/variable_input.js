@@ -1,8 +1,12 @@
-function openPathEditor(elem, base_path = null, use_anchor = true) {
-	if (use_anchor) {
-		//window.getSelection()
-	}
+function openPathEditor(elem, open_path = null, base_path = null) {
+	/*if (use_anchor) {
+		use anchor to determine which variable has been selected and use it to modify
+		window.getSelection()
+	}*/
 	
+	if (open_path == '') {
+		open_path = null;
+	}
 	if (base_path == '') {
 		base_path = null;
 	}
@@ -11,10 +15,13 @@ function openPathEditor(elem, base_path = null, use_anchor = true) {
 	GLOBAL.ui.active_path_field_id = elem.data;
 	
 	closePathEditor(elem.data, elem.contentEditable == 'true');
+	
+	// open path selection dialog, change class name if path only or not
 	elem.parentNode.appendChild(Create('div', {
 		id: 'path_selection_dialog',
+		className: elem.contentEditable == 'true' ? '' : 'path_selection_dialog_path_only',
 		data: elem.data,
-		children: createPathListForEditor(base_path, base_path)
+		children: createPathListForEditor(open_path, base_path)
 	}));
 	toggleSelectionEditorButton(true, elem.data);
 }
@@ -93,21 +100,38 @@ function createPathVariableEntry(path) {
 	});
 }
 
+function getOpenPath(id) {
+	// determine if whether to return an open path or not
+	if (Select('#input_is_path_only_'+id).value == 'true') {
+		let variable_parts = getRealVariableParts(Select('#var_set_input_form_value_'+id).value);
+		if (variable_parts.length > 0 && variable_parts[0].variable) {
+			// split and pop last element of path
+			variable_parts[0].variable = variable_parts[0].variable.split('/');
+			variable_parts[0].variable.pop();
+			// return open path
+			return variable_parts[0].variable.join('/');
+		}
+	}
+	return '';
+}
+
 function toggleSelectionEditorButton(is_remove, id) {
 	let elem = Select('#path_insert_button_'+id);
+	let is_path_only = Select('#input_is_path_only_'+id).value == 'true';
 	elem.innerHTML = is_remove ? '&times;' : '&#8594;';
-	elem.className = is_remove ? 'path_insert_button close_path_selection_editor' : 'path_insert_button';
+	elem.className = is_remove ? 'path_insert_button close_path_selection_editor' : 'path_insert_button'+(is_path_only ? ' path_insert_button_is_reference_path' : '');
 	elem.onclick = (
 		is_remove
 			? function () {
 					closePathEditor(this.data);
 				}
 			: function () {
-					openPathEditor(Select('#var_set_input_'+this.data), Select('#input_base_path_'+this.data).data);
+					openPathEditor(Select('#var_set_input_'+this.data), getOpenPath(this.data), Select('#input_base_path_'+this.data).data);
 				}
 	);
 }
 
+// drop down path selection list generator
 function createPathListForEditor(path = null, base_path = null) {
 	let curr_path = GLOBAL.active_project.data;
 	let is_path_only = Select('#input_is_path_only_'+GLOBAL.ui.active_path_field_id).value == 'true';
@@ -240,7 +264,8 @@ function getFormValueOfPathSelection(id, value) {
 		} else if (node.className == 'path_real_entry') {
 			output += node.innerHTML.replaceAll('&nbsp;','');
 		} else if (node.className == 'path_variable_entry') {
-			output += '$var$'+node.innerHTML+'$/var$';
+			// add pointer to value if path only
+			output += '$var$'+(Select('#input_is_path_only_'+id).value == 'true' ? '**pointer**' : '')+node.innerHTML+'$/var$';
 		}
 	});
 	return output;
@@ -266,6 +291,13 @@ function getPathSelectionValueFromFormValue(value) {
 	return variableFieldProperSpacing(output);
 }
 
+// clear input field
+function clearVariableInput(id) {
+	Select('#var_set_input_'+id).innerHTML = '';
+	Select('#var_set_input_form_value_'+id).innerHTML = '';
+	Select('#var_set_input_form_value_'+id).onedit();
+}
+
 function createPathVariableField(settings = {}) {
 
 	// ensure defaults exists
@@ -277,32 +309,49 @@ function createPathVariableField(settings = {}) {
 	// increment global unique naming id
 	GLOBAL.unique_id++;
 	
+	// allow path only
 	if (typeof settings.allow_path_only === 'undefined') {
 		settings.allow_path_only = true;
 	}
+	
+	// init a data structure if none given
 	if (typeof settings.value === 'undefined') {
 		settings.value = {
 			path_only: false,
 			value: ''
 		};
 	}
+	
+	// init placeholder for if path only logic
+	settings.value.path_only = false;
+	
+	// force path only input, if true it by default sets value to path only
 	if (typeof settings.force_path_only === 'undefined') {
 		settings.force_path_only = false;
 	} else if (settings.force_path_only) {
 		settings.allow_path_only = false;
 		settings.value.path_only = true;
 	}
-	if (typeof settings.show_setters === 'undefined') {
-		settings.show_setters = false;
-	}
+	
+	// default on edit value
 	if (typeof settings.on_edit === 'undefined') {
 		settings.on_edit = function(){};
 	}
+	
+	// base path of variable input directory tree
 	if (typeof settings.base_path === 'undefined') {
 		settings.base_path = '';
 	}
 	
+	// determine if value contains pointer to init with path only
+	if (settings.value.value.slice(5, 16) == '**pointer**') {
+		settings.value.path_only = true;
+	}
+	
+	// default value is content editable
 	let is_content_editable = !settings.force_path_only && !settings.value.path_only;
+	
+	// javascript friendly path only name used during collection of 'value_depth' in create_ui
 	let is_path_only_name = settings.name;
 	if (is_path_only_name.slice(-2) == '[]') {
 		is_path_only_name = is_path_only_name.slice(0, -2)+'_is_path_only[]';
@@ -345,13 +394,21 @@ function createPathVariableField(settings = {}) {
 						value: settings.force_path_only && typeof settings.override_source_setter === 'undefined' ? 'true' : 'false'
 					}),
 					Create('div', {
+						className: 'variable_input_clear',
+						innerHTML: '&times;',
+						data: GLOBAL.unique_id,
+						onclick: function () {
+							clearVariableInput(this.data);
+						}
+					}),
+					Create('div', {
 						id: 'var_set_input_'+GLOBAL.unique_id,
 						data: GLOBAL.unique_id,
 						className: 'variable_set_input_field has_path_insert',
 						contentEditable: is_content_editable,
 						onclick: function () {
 							if (this.contentEditable == 'false') {
-								openPathEditor(this, Select('#input_base_path_'+this.data).data, false);
+								openPathEditor(this, getOpenPath(this.data), Select('#input_base_path_'+this.data).data);
 							}
 						},
 						oninput: function () {
@@ -363,10 +420,10 @@ function createPathVariableField(settings = {}) {
 					Create('div', {
 						id: 'path_insert_button_'+GLOBAL.unique_id,
 						data: GLOBAL.unique_id,
-						className: 'path_insert_button',
+						className: 'path_insert_button'+(settings.value.path_only ? ' path_insert_button_is_reference_path' : ''),
 						innerHTML: '&#8594;',
 						onclick: function () {
-							openPathEditor(Select('#var_set_input_'+this.data), Select('#input_base_path_'+this.data).data);
+							openPathEditor(Select('#var_set_input_'+this.data), getOpenPath(this.data), Select('#input_base_path_'+this.data).data);
 						}
 					})
 				]
@@ -390,8 +447,11 @@ function createPathVariableField(settings = {}) {
 											if (!is_now_content_editable) {
 												Select('#input_is_path_only_'+this.data).value = 'true';
 												stripAndEnsureSinglePath(this.data);
+												Select('#path_insert_button_'+this.data).className = 'path_insert_button path_insert_button_is_reference_path';
 											} else {
 												Select('#input_is_path_only_'+this.data).value = 'false';
+												clearVariableInput(this.data);
+												Select('#path_insert_button_'+this.data).className = 'path_insert_button';
 												input_field.focus();
 											}
 										}

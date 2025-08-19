@@ -482,7 +482,6 @@ function setupLayerInfo() {
 									createPathVariableField({
 										name: 'editor_value',
 										value: {
-											path_only: false,
 											value: layer.value
 										},
 										allow_path_only: false,
@@ -502,7 +501,6 @@ function setupLayerInfo() {
 												name: 'editor_value',
 												override_source_setter: true,
 												value: {
-													path_only: false,
 													value: layer.value,
 													image_search: true
 												},
@@ -524,7 +522,6 @@ function setupLayerInfo() {
 							createPathVariableField({
 								name: 'editor_toggle',
 								value: {
-									path_only: false,
 									value: layer.toggle ?? '' //temp
 								},
 								force_path_only: true,

@@ -39,16 +39,20 @@
 	- [ ] documentation
 
 - FULL release features
-	- [ ] variable inputs need to safe reference path as an in-built string like `(**pointer**$var$some/path$/var$)`
-		- [ ] when re-opening a path variable, it should start at the current path directory
 	- [ ] create section app that highjacks the region and creates a bracket system within using all generate ui components and datasets
 	- [ ] restructure edit overlay app and generate overlay, classify and break into sub methods and a master state
 		- [ ] add feature for selecting layer onclick and scroll wheel through
 		- [ ] allow center position images and rotation on them
-	- [ ] offer color picker as a tool for variable inputs
+	- [ ] offer color picker as a tool for variable inputs and remove popup method on edit overlay
 	- [ ] classify and make browser sources a library manager
 	 - [ ] allow p2p connection to browser sources that live update with Switchboard data
 	- [ ] create banner browser source app
 	
+- QOL
+	- [ ] variable input drop down should open as a window container with matching positioning as current, but as an absolute poisitioned element it would not be resitricted to overflow parent containers
+	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
+	
+- TO CONSIDER
+	- [ ] Parsed path value now contains logic for determining path only reference values, but create_ui converts and uses this as an integer for path depth search `depth_value`. This logic can be removed for use of the simpler pointer value within a path datas returned real results ... but would lose access to using an integer to access specific depth values within a long chain. Will this feature ever be needed? Will create ui use those features if they do exist?
