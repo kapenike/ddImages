@@ -23,6 +23,7 @@
 		- `upload_max_filesize=8M` -> `upload_max_filesize=2G`
 		- `post_max_size=8M` -> `post_max_size=2G`
 		- `memory_limit=128M` -> `memory_limit=2G`
+		- `max_input_vars=1000` -> `max_input_vars=10000`
 		
 - Clone or Download and extract the repository
 - Navigate to the **ddImages** primary directory and launch the application using:
@@ -47,6 +48,8 @@
 	- [ ] classify and make browser sources a library manager
 	 - [ ] allow p2p connection to browser sources that live update with Switchboard data
 	- [ ] create banner browser source app
+	- [ ] search field on assets, datasets, fonts etc
+	- [ ] search field on large variable input result lists (10+)
 	
 - QOL
 	- [ ] variable input drop down should open as a window container with matching positioning as current, but as an absolute poisitioned element it would not be resitricted to overflow parent containers
