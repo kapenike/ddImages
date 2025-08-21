@@ -41,6 +41,7 @@
 		- [ ] remove path_only post capture and instead use string parsed pointer to include depth value and use from variable parsing method
 	- [ ] custom clipping path / simple for now, click / place / move / remove
 	- [ ] websocket server to share specific overlays
+	- [ ] Comparison toggle using `>`, `<`, `==` and `!=`
 	- [ ] documentation
 
 - FULL release features

@@ -157,6 +157,11 @@ function setRealValue(string_path, value) {
 	// remove path delimiters
 	let path = string_path.slice(5, -6);
 	
+	// if path contains pointer, remove
+	if (path.slice(0, 11) == '**pointer**') {
+		path = path.replace('**pointer**', '');
+	}
+	
 	// split path
 	path = path.split('/');
 	

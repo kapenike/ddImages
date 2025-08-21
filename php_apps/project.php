@@ -160,6 +160,11 @@ class project {
 			
 			// if variable path
 			if (substr($key, 0, 5) == '$var$' && substr($key, -6) == '$/var$') {
+
+				// if containers pointer, remove
+				if (substr($key, 5, 11) == '**pointer**') {
+					$key = str_replace('**pointer**', '', $key);
+				}
 				
 				// create base path as reference to project data property
 				$base_path = &$project_data;
