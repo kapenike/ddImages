@@ -294,7 +294,7 @@ function getPathSelectionValueFromFormValue(value) {
 // clear input field
 function clearVariableInput(id) {
 	Select('#var_set_input_'+id).innerHTML = '';
-	Select('#var_set_input_form_value_'+id).innerHTML = '';
+	Select('#var_set_input_form_value_'+id).value = '';
 	Select('#var_set_input_form_value_'+id).onedit();
 }
 

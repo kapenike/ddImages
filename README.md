@@ -36,7 +36,11 @@
 - BETA release
 	- [x] font manager
 	- [x] text rotation
-	- [ ] custom clipping path
+	- [ ] 505 error on no location of ddimages directory
+	- [ ] depth value selection on path only variable input field (exclude force path only)
+		- [ ] remove path_only post capture and instead use string parsed pointer to include depth value and use from variable parsing method
+	- [ ] custom clipping path / simple for now, click / place / move / remove
+	- [ ] websocket server to share specific overlays
 	- [ ] documentation
 
 - FULL release features
@@ -56,6 +60,3 @@
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
-	
-- TO CONSIDER
-	- [ ] Parsed path value now contains logic for determining path only reference values, but create_ui converts and uses this as an integer for path depth search `depth_value`. This logic can be removed for use of the simpler pointer value within a path datas returned real results ... but would lose access to using an integer to access specific depth values within a long chain. Will this feature ever be needed? Will create ui use those features if they do exist?
