@@ -6,6 +6,9 @@ error_reporting(E_ALL);
 // no htaccess or hierarchical structure so create a relative base path method
 function getBasePath() {
 	$cwd = getcwd();
+	if (!str_contains($cwd, 'ddImages')) {
+		http_response_code(400);
+	}
 	$pos = strrpos($cwd, 'ddImages');
 	return substr($cwd, 0, $pos).'ddImages/';
 }

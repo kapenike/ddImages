@@ -167,15 +167,10 @@ function toggleTrue(layer) {
 		return true;
 	} else {
 		
-		// check for comparison
-		let comparitor_index = layer.toggle.indexOf('$/var$=$var$');
-		if (comparitor_index > -1) {
+		// check for comparison toggle
+		if (isComparator(layer.toggle)) {
 			
-			// split and compare real values of comparison
-			let comp_split = layer.toggle.split('$/var$=$var$');
-			if (getRealValue(comp_split[0]+'$/var$') == getRealValue('$var$'+comp_split[1])) {
-				return true;
-			}
+			return toggleOnComparison(layer.toggle);
 			
 		} else {
 			

@@ -167,6 +167,8 @@ html, body {
 .variable_set_input {
 	position: relative;
 	font-size: 16px;
+	border-radius: 3px;
+	background-color: #333333;
 }
 
 .variable_set_input_field {

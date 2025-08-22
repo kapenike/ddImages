@@ -6,6 +6,34 @@ function isPathOnlyVariable(value) {
 	return typeof value === 'string' && getRealVariableParts(value).filter(x => typeof x.variable !== 'undefined').length == 1;
 }
 
+function isComparator(v) {
+	v = spaceTrim(v);
+	if (v.indexOf('$comp$') > -1 && v.indexOf('$/comp$') > -1) {
+		return v.split('$comp$')[1].split('$/comp$')[0];
+	}
+	return false;
+}
+
+function toggleOnComparison(value) {
+	let comparator = isComparator(value);
+	if (comparator) {
+		let parts = value.split('$comp$'+comparator+'$/comp$');
+		let left = spaceTrim(getRealValue(parts[0]));
+		let right = spaceTrim(getRealValue(parts[1]));
+		if (
+			comparator == 'equal' && left == right ||
+			comparator == 'not equal' && left != right ||
+			comparator == 'less than' && parseFloat(left) < parseFloat(right) ||
+			comparator == 'more than' && parseFloat(left) > parseFloat(right) ||
+			comparator == 'less than or equal' && parseFloat(left) <= parseFloat(right) ||
+			comparator == 'more than or equal' && parseFloat(left) >= parseFloat(right)
+		) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // not all comparisons are similar, allow ui setup to determine value depth to compare
 function getDepthComparisonValue(field) {
 	return getRealValue(field.source, (typeof field.value_depth === 'undefined' ? null : field.value_depth));

@@ -36,12 +36,12 @@
 - BETA release
 	- [x] font manager
 	- [x] text rotation
-	- [ ] 505 error on no location of ddimages directory
+	- [x] 505 error on no location of ddimages directory
 	- [ ] depth value selection on path only variable input field (exclude force path only)
 		- [ ] remove path_only post capture and instead use string parsed pointer to include depth value and use from variable parsing method
 	- [ ] custom clipping path / simple for now, click / place / move / remove
 	- [ ] websocket server to share specific overlays
-	- [ ] Comparison toggle using `>`, `<`, `==` and `!=`
+	- [x] Comparison toggle using `>`, `<`, `<=`, `>=`, `==` and `!=`
 	- [ ] documentation
 
 - FULL release features

@@ -18,3 +18,7 @@ function rotate(x, y, cx, cy, angle) {
 	let ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
 	return { x: precise(nx), y: precise(ny) };
 }
+
+function spaceTrim(v) {
+	return v.trim().replaceAll('&nbsp;', '');
+}
