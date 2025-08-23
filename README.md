@@ -36,9 +36,9 @@
 - BETA release
 	- [x] font manager
 	- [x] text rotation
-	- [x] 505 error on no location of ddimages directory
-	- [ ] depth value selection on path only variable input field (exclude force path only)
-		- [ ] remove path_only post capture and instead use string parsed pointer to include depth value and use from variable parsing method
+	- [x] 400 error on no location of ddimages directory
+	- [x] depth value selection on path only variable input field, just available during create ui, any other use case is reading the full value path
+		- [x] remove path_only post capture and instead use string parsed pointer to include depth value and use from variable parsing method
 	- [ ] custom clipping path / simple for now, click / place / move / remove
 	- [ ] websocket server to share specific overlays
 	- [x] Comparison toggle using `>`, `<`, `<=`, `>=`, `==` and `!=`
@@ -49,7 +49,9 @@
 	- [ ] restructure edit overlay app and generate overlay, classify and break into sub methods and a master state
 		- [ ] add feature for selecting layer onclick and scroll wheel through
 		- [ ] allow center position images and rotation on them
+		- [ ] improve and fix bugs on grid feature
 	- [ ] offer color picker as a tool for variable inputs and remove popup method on edit overlay
+	- [ ] variable input cleanup and improvements, use window anchor to allow edit of variable(s) that arent a path only, e.g. edit concatted variable rather than just append new selection to end
 	- [ ] classify and make browser sources a library manager
 	 - [ ] allow p2p connection to browser sources that live update with Switchboard data
 	- [ ] create banner browser source app

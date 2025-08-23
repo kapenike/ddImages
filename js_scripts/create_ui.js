@@ -121,8 +121,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 														dataset_values = [null, ...Object.keys(dataset)].map(key => {
 															return {
 																display: key == null ? '-Empty-' : dataset[key].display,
-																value: key == null ? '' : '$var$sets/'+field.set+'/entries/'+key+'$/var$',
-																value_depth: 1
+																value: key == null ? '' : '$var$$pointer$1$/pointer$sets/'+field.set+'/entries/'+key+'$/var$'
 															};
 														});
 														
@@ -149,13 +148,10 @@ function createUIFromData(container, data, submit_to_application, editor = false
 																	children: (dataset_values == null ? field.values : dataset_values).map(option => {
 																		
 																		// check save source value based on 1 extra depth value than its compared option value (because source itself is a reference to the stored value)
-																		let depth_value = getDepthComparisonValue({
-																			source: field.source,
-																			value_depth: (typeof option.value_depth === 'undefined' ? undefined : option.value_depth+1)
-																		});
+																		let depth_value = getDepthComparisonValue(field.source, 1);
 																		
 																		// get value of option based on depth value
-																		let option_value = getDepthComparisonValue({ source: option.value, value_depth: option.value_depth });
+																		let option_value = getDepthComparisonValue(option.value);
 																		
 																		return Create('option', {
 																			innerHTML: getRealValue(option.display),
@@ -181,13 +177,10 @@ function createUIFromData(container, data, submit_to_application, editor = false
 															children: field.values.map(radio => {
 																
 																// check save source value based on 1 extra depth value than its compared radio value (because source itself is a reference to the stored value)
-																let depth_value = getDepthComparisonValue({
-																	source: field.source,
-																	value_depth: (typeof radio.value_depth === 'undefined' ? undefined : radio.value_depth+1)
-																});
+																let depth_value = getDepthComparisonValue(field.source, 1);
 																
 																// get value of radio based on depth value
-																let radio_value = getDepthComparisonValue({ source: radio.value, value_depth: radio.value_depth });
+																let radio_value = getDepthComparisonValue(radio.value);
 																
 																return Create('label', {
 																	children: [
@@ -212,7 +205,7 @@ function createUIFromData(container, data, submit_to_application, editor = false
 											} else if (field.type == 'checkbox') {
 												
 												// get value of field based on depth value, checked status is based on if a value exists at all before depth value search
-												let field_value = getDepthComparisonValue({ source: field.value, value_depth: field.value_depth });
+												let field_value = getDepthComparisonValue(field.value);
 												
 												return Create('div', {
 													className: 'ui_field',
@@ -308,8 +301,8 @@ function logSourceChange(field, is_sub_setter_call = false) {
 			let sub_setters = JSON.parse(field.sub_setters);
 			if (sub_setters) {
 				sub_setters.forEach(sub_setter => {
-					// re call log source change on sub setter values, flag as sub setter call
-					logSourceChange({ name: sub_setter.path, value: getDepthComparisonValue(sub_setter) }, true);
+					// re call log source change on sub setter names, flag as sub setter call
+					logSourceChange({ name: sub_setter.path }, true);
 				});
 			}
 		}
@@ -355,7 +348,7 @@ function updateSourceChanges() {
 					// set sub setters in form details
 					sub_setters.forEach(sub_setter => {
 						// allow depth value setting here as well
-						form_details[sub_setter.path] = getDepthComparisonValue(sub_setter);
+						form_details[sub_setter.path] = getDepthComparisonValue(sub_setter.source);
 					});
 				}
 				break;
@@ -924,8 +917,7 @@ function editUIField(elem, is_create = false) {
 					type: 'checkbox',
 					title: form_data.input_label,
 					source: form_data.source_path,
-					value: form_data.checked_value_output,
-					value_depth: form_data.checked_value_output_is_path_only == 'true' ? 1 : undefined
+					value: form_data.checked_value_output
 				}
 			} else if (form_data.input_type == 'radio' || form_data.input_type == 'select') {
 				new_field_data = {
@@ -935,8 +927,7 @@ function editUIField(elem, is_create = false) {
 					values: form_data['pair_value_display[]'].map((display, index) => {
 						let key_value = {
 							display: display,
-							value: form_data['pair_value_value[]'][index],
-							value_depth: form_data['pair_value_value_is_path_only[]'][index] == 'true' ? 1 : undefined
+							value: form_data['pair_value_value[]'][index]
 						};
 						// set sub setters
 						let sub_setter_id = form_data['stash_pair_sub_setter_id_ref[]'][index];
@@ -945,8 +936,7 @@ function editUIField(elem, is_create = false) {
 							form_data['sub_pair_value_display_'+sub_setter_id+'[]'].forEach((source, sub_index) => {
 								sub_setters.push({
 									path: source,
-									source: form_data['sub_pair_value_value_'+sub_setter_id+'[]'][sub_index],
-									value_depth: form_data['sub_pair_value_value_'+sub_setter_id+'_is_path_only[]'][sub_index] == 'true' ? 1 : undefined
+									source: form_data['sub_pair_value_value_'+sub_setter_id+'[]'][sub_index]
 								});
 							});
 							key_value.sub_setters = sub_setters;
@@ -959,8 +949,7 @@ function editUIField(elem, is_create = false) {
 					type: 'dataset',
 					title: form_data.input_label,
 					source: form_data.source_path,
-					set: form_data.input_dataset,
-					value_depth: 1
+					set: form_data.input_dataset
 				}
 			} else if (form_data.input_type == 'display') {
 				new_field_data = {
@@ -1029,8 +1018,9 @@ function fieldBuilderForCheckbox(data) {
 					createPathVariableField({
 						name: 'checked_value_output',
 						value: {
-							value: data == null ? '' : current_data.value
+							value: data == null ? '' : current_data.value,
 						},
+						allow_depth_value: true,
 						allow_path_only: true
 					})
 				]
@@ -1254,6 +1244,7 @@ function createNewSubSetterField(key_value, id) {
 						value: {
 							value: key_value.source
 						},
+						allow_depth_value: true,
 						allow_path_only: true
 					})
 				]

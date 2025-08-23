@@ -75,13 +75,41 @@ function updatePathEditor(path, base_path) {
 
 function setPathEditorValue(path) {
 	let id = Select('#path_selection_dialog').data;
+	let is_path_only = Select('#input_is_path_only_'+id).value == 'true' && Select('#depth_value_'+id);
 	let input_field = Select('#var_set_input_'+id);
 	if (input_field.contentEditable == 'false') {
-		input_field.innerHTML = '';
+		input_field.innerHTML = '';	
+		if (is_path_only) {
+			// clear depth value so that the new field generation will default to depth value 1
+			Select('#depth_value_'+id, {
+				innerHTML: '',
+				style: {
+					display: 'none'
+				},
+				children: [
+					Create('option', {
+						innerHTML: '',
+						value: ''
+					})
+				]
+			});
+		}
 	}
 	input_field.appendChild(createPathVariableEntry(path));
 	Select('#var_set_input_form_value_'+id).value = getFormValueOfPathSelection(id, input_field.innerHTML);
 	Select('#var_set_input_form_value_'+id).onedit();
+	
+	// if path only, also update depth value list
+	if (is_path_only) {
+		Select('#depth_value_'+id, {
+			innerHTML: '',
+			style: {
+				display: 'inline-block'
+			},
+			children: generateDepthValueList(Select('#var_set_input_form_value_'+id).value)
+		});
+	}
+	
 	closePathEditor(id);
 }
 
@@ -264,11 +292,43 @@ function getFormValueOfPathSelection(id, value) {
 		} else if (node.className == 'path_real_entry') {
 			output += node.innerHTML.replaceAll('&nbsp;','');
 		} else if (node.className == 'path_variable_entry') {
-			// add pointer to value if path only
-			output += '$var$'+(Select('#input_is_path_only_'+id).value == 'true' ? '**pointer**' : '')+node.innerHTML+'$/var$';
+			let pointer_value = 1;
+			if (Select('#depth_value_'+id)) {
+				pointer_value = Select('#depth_value_'+id).value;
+				if (pointer_value == '') {
+					pointer_value = 1;
+				}
+			}
+			output += '$var$'+(Select('#input_is_path_only_'+id).value == 'true' ? '$pointer$'+pointer_value+'$/pointer$' : '')+node.innerHTML+'$/var$';
 		}
 	});
 	return output;
+}
+
+function generateDepthValueList(value) {
+	if (value.indexOf('$pointer') > -1) {
+		let current_depth = value.split('$pointer$')[1].split('$/pointer$')[0];
+		let pointer_list = getRealValueHeadList(value);
+		return pointer_list.map((v, index) => {
+			return Create('option', {
+				innerHTML: (index+1)+': '+v,
+				value: index+1,
+				selected: (current_depth == (index+1))
+			})
+		});
+	} else {
+		return [
+			Create('option', {
+				innerHTML: '',
+				value: ''
+			})
+		];
+	}
+}
+
+function updateDepthValue(value, id) {
+	let field = Select('#var_set_input_form_value_'+id);
+	field.value = field.value.split('$pointer$')[0]+'$pointer$'+value+'$/pointer$'+field.value.split('$/pointer$')[1];
 }
 
 // created with appended string because the document element doesnt exist yet
@@ -298,6 +358,13 @@ function clearVariableInput(id) {
 	Select('#var_set_input_form_value_'+id).onedit();
 }
 
+
+/*
+	!!Important!!
+	pointer / depth value selection will by default be used on setters although only used for getters. this keeps logic simple
+	a method within data_pathing.js->setRealValue strips this value
+	:explanation: when getting a value to be set, a pointer depth determines what value in the chain to set, the setter value when saved and then requested will result in the full path end result, thus pointer depth is useless
+*/
 function createPathVariableField(settings = {}) {
 
 	// ensure defaults exists
@@ -333,6 +400,11 @@ function createPathVariableField(settings = {}) {
 		settings.value.path_only = true;
 	}
 	
+	// default allow depth value
+	if (typeof settings.allow_depth_value === 'undefined') {
+		settings.allow_depth_value = false;
+	}
+	
 	// default on edit value
 	if (typeof settings.on_edit === 'undefined') {
 		settings.on_edit = function(){};
@@ -344,20 +416,12 @@ function createPathVariableField(settings = {}) {
 	}
 	
 	// determine if value contains pointer to init with path only
-	if (settings.value.value.slice(5, 16) == '**pointer**') {
+	if (settings.value.value.indexOf('$pointer$') > -1) {
 		settings.value.path_only = true;
 	}
 	
 	// default value is content editable
 	let is_content_editable = !settings.force_path_only && !settings.value.path_only;
-	
-	// javascript friendly path only name used during collection of 'value_depth' in create_ui
-	let is_path_only_name = settings.name;
-	if (is_path_only_name.slice(-2) == '[]') {
-		is_path_only_name = is_path_only_name.slice(0, -2)+'_is_path_only[]';
-	} else {
-		is_path_only_name += '_is_path_only'; 
-	}
 	
 	return Create('div', {
 		className: 'variable_set_input',
@@ -374,13 +438,11 @@ function createPathVariableField(settings = {}) {
 					Create('input', {
 						type: 'hidden',
 						id: 'input_is_image_search_'+GLOBAL.unique_id,
-						name: '',
 						value: settings.value.image_search ? 'true' : 'false'
 					}),
 					Create('input', {
 						type: 'hidden',
 						id: 'input_is_path_only_'+GLOBAL.unique_id,
-						name: is_path_only_name,
 						value: settings.value.path_only ? 'true' : 'false'
 					}),
 					Create('input', {
@@ -434,28 +496,68 @@ function createPathVariableField(settings = {}) {
 						className: 'path_var_container',
 						children: [
 							Create('label', {
-								innerHTML: 'Save as Reference Path ',
+								innerHTML: 'Reference Path ',
 								children: [
 									Create('input', {
 										type: 'checkbox',
 										data: GLOBAL.unique_id,
 										checked: !is_content_editable,
 										onchange: function () {
+											
 											let input_field = Select('#var_set_input_'+this.data);
 											let is_now_content_editable = !this.checked;
 											input_field.contentEditable = is_now_content_editable;
+											
+											// if depth value editing allowed
+											if (Select('#depth_value_'+this.data)) {
+												// empty depth value list
+												Select('#depth_value_'+this.data, {
+													innerHTML: '',
+													children: [
+														Create('option', {
+															innerHTML: '',
+															value: ''
+														})
+													]
+												});
+												
+												// toggle its display
+												Select('#depth_value_'+this.data).style.display = is_now_content_editable ? 'none' : 'inline-block';
+											}
+											
+											// clear input field
+											clearVariableInput(this.data);
+
 											if (!is_now_content_editable) {
+
 												Select('#input_is_path_only_'+this.data).value = 'true';
-												stripAndEnsureSinglePath(this.data);
 												Select('#path_insert_button_'+this.data).className = 'path_insert_button path_insert_button_is_reference_path';
+												
 											} else {
+
 												Select('#input_is_path_only_'+this.data).value = 'false';
-												clearVariableInput(this.data);
 												Select('#path_insert_button_'+this.data).className = 'path_insert_button';
 												input_field.focus();
+												
 											}
+
 										}
-									})
+									}),
+									(settings.allow_depth_value
+										? Create('select', {
+												id: 'depth_value_'+GLOBAL.unique_id,
+												data: GLOBAL.unique_id,
+												className: 'variable_input_path_only_depth_value',
+												style: {
+													display: is_content_editable ? 'none' : 'inline-block',
+												},
+												onchange: function () {
+													updateDepthValue(this.value, this.data);
+												},
+												children: generateDepthValueList(settings.value.value)
+											})
+										: Create('div')
+									)
 								]
 							})
 						]

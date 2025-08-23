@@ -162,8 +162,8 @@ class project {
 			if (substr($key, 0, 5) == '$var$' && substr($key, -6) == '$/var$') {
 
 				// if containers pointer, remove
-				if (substr($key, 5, 11) == '**pointer**') {
-					$key = str_replace('**pointer**', '', $key);
+				if (str_contains($key, '$pointer$')) {
+					$key = explode('$pointer$', $key)[0].explode('$/pointer$', $key)[1];
 				}
 				
 				// create base path as reference to project data property

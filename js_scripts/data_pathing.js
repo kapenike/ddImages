@@ -14,6 +14,21 @@ function isComparator(v) {
 	return false;
 }
 
+function isPointer(v) {
+	if (v.indexOf('$pointer$') > -1 && v.indexOf('$/pointer$') > -1) {
+		return parseInt(v.split('$pointer$')[1].split('$/pointer$')[0]);
+	}
+	return null;
+}
+
+function stripPointer(v) {
+	let is_pointer = isPointer(v);
+	if (is_pointer) {
+		v = v.replace('$pointer$'+is_pointer+'$/pointer$', '');
+	}
+	return v;
+}
+
 function toggleOnComparison(value) {
 	let comparator = isComparator(value);
 	if (comparator) {
@@ -35,8 +50,13 @@ function toggleOnComparison(value) {
 }
 
 // not all comparisons are similar, allow ui setup to determine value depth to compare
-function getDepthComparisonValue(field) {
-	return getRealValue(field.source, (typeof field.value_depth === 'undefined' ? null : field.value_depth));
+// edge case to add to depth if available
+function getDepthComparisonValue(value, inc = null) {
+	let is_pointer = isPointer(value);
+	if (is_pointer && inc) {
+		is_pointer += inc
+	}
+	return getRealValue(value, is_pointer);
 }
 
 function getRealVariableParts(value) {
@@ -49,14 +69,14 @@ function getRealVariableParts(value) {
 				return_data.push({ real: split[i] });
 			}
 		} else {
-			// determine if pointer
+			// determine if pointer and set as depth value
 			let is_pointer = false;
-			if (split[i].slice(0, 11) == '**pointer**') {
-				split[i] = split[i].replace('**pointer**', '');
-				is_pointer = true;
+			if (split[i].indexOf('$pointer$') > -1) {
+				is_pointer = split[i].split('$pointer$')[1].split('$/pointer$')[0];
+				split[i] = split[i].split('$/pointer$')[1];
 			}
 			// variable part
-			return_data.push({ variable: split[i], is_pointer: is_pointer });
+			return_data.push({ variable: split[i], depth_value: is_pointer });
 		}
 	}
 	return return_data.filter(x => {
@@ -66,6 +86,20 @@ function getRealVariableParts(value) {
 
 function clearSourceChanges() {
 	GLOBAL.source_changes = [];
+}
+
+// assumes value is path only reference
+// just like getRealValue, traversal ends if a split path is found
+function getRealValueHeadList(value, base_path = GLOBAL.active_project.data, head = []) {
+	let path = getRealVariableParts(value);
+	if (path.length == 1 && path[0].variable) {
+		head.push(path[0].variable);
+		let upcoming_value = getRealValue('$var$'+path[0].variable+'$/var$', 2);
+		if (!isObject(upcoming_value)) {
+			head = getRealValueHeadList(upcoming_value, base_path, head);
+		}
+	}
+	return head;
 }
 
 function getRealValue(value, depth = null, base_path = GLOBAL.active_project.data, head = null) {
@@ -119,6 +153,12 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_project.dat
 		// log change to current depth
 		if (depth != null) {
 			depth -= 1;
+			
+			// if depth value counter meets a diverging path, it must end here logically
+			if (var_real_parts.length > 1) {
+				depth = 0;
+			}
+			
 		}
 		
 		// if depth reached, return now
@@ -186,8 +226,8 @@ function setRealValue(string_path, value) {
 	let path = string_path.slice(5, -6);
 	
 	// if path contains pointer, remove
-	if (path.slice(0, 11) == '**pointer**') {
-		path = path.replace('**pointer**', '');
+	if (path.indexOf('$pointer$') > -1) {
+		path = path.split('$pointer$')[0]+path.split('$/pointer$')[1];
 	}
 	
 	// split path
