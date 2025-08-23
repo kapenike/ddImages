@@ -63,3 +63,5 @@
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
+	- [ ] depth value that can no longer produce its current depth in a chain because dynamic data has chained, will break its value and revert to pointer 1 on save of a field edit to its parent. need to fill up to current depth with "unidentified" values so that it isnt broken if editting live data rather than setup "ideal" data. two cheers for loosey logic
+	      probs easy fix in `generateDepthValueList`

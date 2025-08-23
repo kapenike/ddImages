@@ -226,9 +226,7 @@ function setRealValue(string_path, value) {
 	let path = string_path.slice(5, -6);
 	
 	// if path contains pointer, remove
-	if (path.indexOf('$pointer$') > -1) {
-		path = path.split('$pointer$')[0]+path.split('$/pointer$')[1];
-	}
+	path = stripPointer(path);
 	
 	// split path
 	path = path.split('/');

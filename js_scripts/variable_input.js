@@ -306,9 +306,12 @@ function getFormValueOfPathSelection(id, value) {
 }
 
 function generateDepthValueList(value) {
-	if (value.indexOf('$pointer') > -1) {
-		let current_depth = value.split('$pointer$')[1].split('$/pointer$')[0];
+	let current_depth = isPointer(value);
+	if (current_depth) {
 		let pointer_list = getRealValueHeadList(value);
+		while (pointer_list.length < current_depth) {
+			pointer_list.push('currently undefined');
+		}
 		return pointer_list.map((v, index) => {
 			return Create('option', {
 				innerHTML: (index+1)+': '+v,
@@ -416,7 +419,7 @@ function createPathVariableField(settings = {}) {
 	}
 	
 	// determine if value contains pointer to init with path only
-	if (settings.value.value.indexOf('$pointer$') > -1) {
+	if (isPointer(settings.value.value)) {
 		settings.value.path_only = true;
 	}
 	

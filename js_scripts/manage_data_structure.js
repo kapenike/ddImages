@@ -35,6 +35,10 @@ function isObject(v) {
 	return v != null && v.constructor.name === 'Object';
 }
 
+function ensureProperNaming(elem) {
+	elem.value = elem.value.replaceAll(' ', '_').replace(/[\W]/g, '');
+}
+
 function recurseSetKeyInputs(data, path) {
 	if (isObject(data)) {
 		return Create('div', {
@@ -54,7 +58,10 @@ function recurseSetKeyInputs(data, path) {
 							Create('input', {
 								type: 'text',
 								name: curr_name_path,
-								value: key
+								value: key,
+								onkeyup: function () {
+									ensureProperNaming(this);
+								}
 							}),
 							Create('div', {
 								className: 'remove_data_key',
