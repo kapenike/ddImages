@@ -40,7 +40,6 @@
 	- [x] depth value selection on path only variable input field, just available during create ui, any other use case is reading the full value path
 		- [x] remove path_only post capture and instead use string parsed pointer to include depth value and use from variable parsing method
 	- [ ] custom clipping path / simple for now, click / place / move / remove
-	- [ ] websocket server to share specific overlays
 	- [x] Comparison toggle using `>`, `<`, `<=`, `>=`, `==` and `!=`
 	- [ ] documentation
 
@@ -54,6 +53,8 @@
 	- [ ] variable input cleanup and improvements, use window anchor to allow edit of variable(s) that arent a path only, e.g. edit concatted variable rather than just append new selection to end
 	- [ ] classify and make browser sources a library manager
 	 - [ ] allow p2p connection to browser sources that live update with Switchboard data
+	 - [ ] create better timer app
+	 - [ ] create banner app
 	- [ ] create banner browser source app
 	- [ ] search field on assets, datasets, fonts etc
 	- [ ] search field on large variable input result lists (10+)
@@ -63,5 +64,3 @@
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
-	- [ ] depth value that can no longer produce its current depth in a chain because dynamic data has chained, will break its value and revert to pointer 1 on save of a field edit to its parent. need to fill up to current depth with "unidentified" values so that it isnt broken if editting live data rather than setup "ideal" data. two cheers for loosey logic
-	      probs easy fix in `generateDepthValueList`
