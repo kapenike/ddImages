@@ -374,7 +374,8 @@ function updateSourceChanges() {
 			});
 			
 			// generate new overlays with updated sources, once complete, reset updated sources
-			generateStreamOverlays(GLOBAL.source_changes, () => {
+			// strip pointers from source changes before sending to overlay generator
+			generateStreamOverlays(GLOBAL.source_changes.map(v => stripPointer(v)), () => {
 				GLOBAL.source_changes = [];
 			});
 			

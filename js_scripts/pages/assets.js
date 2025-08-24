@@ -109,9 +109,20 @@ function updateAssetData() {
 	ajax('POST', '/requestor.php', form_details, (status, data) => {
 		
 		if (status) {
+			
+			// log previous source
+			let previous_source = null;
+			if (GLOBAL.active_project.data.assets[form_details.asset_registration_type].source) {
+				previous_source = GLOBAL.active_project.data.assets[form_details.asset_registration_type].source;
+			}
 
 			// update local asset list
 			GLOBAL.active_project.data.assets[form_details.asset_slug] = data.msg;
+			
+			// add previous source to new object
+			if (previous_source) {
+				GLOBAL.active_project.data.assets[form_details.asset_slug].source = previous_source;
+			}
 			
 			// if updated slug, remove old path
 			if (form_details.asset_registration_type != 'create' && form_details.asset_registration_type != form_details.asset_slug) {

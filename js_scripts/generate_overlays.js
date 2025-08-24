@@ -33,7 +33,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 
 		// if overlay contains an updated source, or sources is null, or is set to generate specific overlay
 		if (sources == null || (isObject(sources) && sources.slug == slug) || (overlay.sources.length > 0 && sources.length > 0 && overlay.sources.some(x => sources.includes(x)))) {
-			
+
 			// define output canvas
 			let canvas = Create('canvas', {
 				width: overlay.dimensions.width,
@@ -247,7 +247,6 @@ function printImage(ctx, layer) {
 				output_width = (layer.dimensions.height / value.height) * output_width;
 			}
 		}
-		
 		ctx.drawImage(
 			value.source,
 			layer.offset.x + parseInt(value.offset_x),
