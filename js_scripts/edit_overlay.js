@@ -353,7 +353,16 @@ function setupMoveOnGridContainer() {
 							if (GLOBAL.overlay_editor.grid_settings.origin.y == 'center') {
 								new_y -= layer_dim.height/2;
 							} else if (GLOBAL.overlay_editor.grid_settings.origin.y == 'bottom') {
-								new_x -= layer_dim.height;
+								new_y -= layer_dim.height;
+							}
+							
+							// if was text layer, re-orient around left origin based on alignment
+							if (layer.type == 'text') {
+								if (layer.style.align == 'center') {
+									new_x += layer_dim.width/2;
+								} else if (layer.style.align == 'right') {
+									new_x += layer_dim.width;
+								}
 							}
 							
 							if (layer.type == 'clip_path') {
