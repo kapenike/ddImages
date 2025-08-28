@@ -22,3 +22,10 @@ function rotate(x, y, cx, cy, angle) {
 function spaceTrim(v) {
 	return v.trim().replaceAll('&nbsp;', '');
 }
+
+function searchPageItemList(value) {
+	value = value.toLowerCase();
+	Array.from(MSelect('.selection_list_block')).forEach(elem => {
+		elem.style.display = ((value == '' || elem.innerHTML.toLowerCase().indexOf(value) > -1) ? 'block' : 'none');
+	});
+}

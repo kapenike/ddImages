@@ -54,7 +54,10 @@ function setNavigationOverlays() {
 									}),
 									Create('input', {
 										type: 'text',
-										placeholder: 'Search...'
+										placeholder: 'Search...',
+										onkeyup: function () {
+											searchPageItemList(this.value);
+										}
 									}),
 									Create('div', {
 										id: 'overlay_list',

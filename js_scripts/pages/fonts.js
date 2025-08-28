@@ -54,7 +54,10 @@ function setNavigationFontManager() {
 									}),
 									Create('input', {
 										type: 'text',
-										placeholder: 'Search...'
+										placeholder: 'Search...',
+										onkeyup: function () {
+											searchPageItemList(this.value);
+										}
 									}),
 									Create('div', {
 										id: 'font_face_list',

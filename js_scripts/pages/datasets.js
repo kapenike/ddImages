@@ -54,7 +54,10 @@ function setNavigationDatasets() {
 									}),
 									Create('input', {
 										type: 'text',
-										placeholder: 'Search...'
+										placeholder: 'Search...',
+										onkeyup: function () {
+											searchPageItemList(this.value);
+										}
 									}),
 									Create('div', {
 										id: 'dataset_list',
