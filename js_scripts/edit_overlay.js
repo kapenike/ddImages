@@ -1042,6 +1042,7 @@ function setupLayerInfo() {
 												selected: layer.clip_path.type == 'square'
 											}),
 											Create('option', {
+												disabled: true,
 												innerHTML: 'Custom',
 												value: 'custom',
 												selected: layer.clip_path.type == 'custom'
@@ -1527,10 +1528,10 @@ function targetIsLayerElem(elem) {
 function imageEditorMouseCTX(event) {
 	
 	// if active layer is a custom clip path and target is the editor window
-	if (GLOBAL.overlay_editor.active_layer != null && getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.type == 'custom' && event.target.id == 'workspace') {
+	/*if (GLOBAL.overlay_editor.active_layer != null && getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.type == 'custom' && event.target.id == 'workspace') {
 		console.log('here');
 		event.preventDefault();
-	}
+	}*/
 	
 	// if not a layer element, prevent context menu click
 	if (!targetIsLayerElem(event.target)) {
@@ -1541,9 +1542,51 @@ function imageEditorMouseCTX(event) {
 
 function imageEditorZoom(event) {
 	if (event.target.id == 'workspace') {
-		let delta = event.deltaY > 0 ? 1 : -1;
+		
+		// translate window cursor position to canvas position (before new scale)
+		let translate_cursor_pre = translateWindowToCanvas(event.clientX, event.clientY);
+		
+		// change canvas scale
 		GLOBAL.overlay_editor.scale *= event.deltaY < 0 ? 1.09 : .81;
+		
+		// translate window cursor position to canvas position (after new scale)
+		let translate_cursor_post = translateWindowToCanvas(event.clientX, event.clientY);
+		
+		// get difference of cursor position based on scale change and add to current canvas window offset
+		// scaled cursor position difference must be re-scaled with current scale change since the conversion does not directly relate
+		GLOBAL.overlay_editor.canvas_window.x -= (translate_cursor_post.x - translate_cursor_pre.x)*GLOBAL.overlay_editor.scale;
+		GLOBAL.overlay_editor.canvas_window.y -= (translate_cursor_post.y - translate_cursor_pre.y)*GLOBAL.overlay_editor.scale;
+		
 		printCurrentCanvas();
+	}
+}
+
+function translateWindowToCanvas(x, y) {
+	
+	// get canvas dimensions and offset
+	let canvas_elem = Select('#workspace');
+	let canvas_dimensions = {
+		offset_y: canvas_elem.getBoundingClientRect().top,
+		width: canvas_elem.width,
+		height: canvas_elem.height
+	}
+	
+	// relate y to canvas origin
+	y -= canvas_dimensions.offset_y;
+	// relate y to translated origins within drawn canvas
+	y -= (GLOBAL.overlay_editor.dimensions.height/2) - ((GLOBAL.overlay_editor.current.dimensions.height/2)*GLOBAL.overlay_editor.scale) - GLOBAL.overlay_editor.canvas_window.y;
+	// scale y up for 1 to 1 in overlay comparison
+	y = y/GLOBAL.overlay_editor.scale;
+	
+	// x already at canvas origin
+	// relate x to translate origins within drawn canvas
+	x -= (GLOBAL.overlay_editor.dimensions.width/2) - ((GLOBAL.overlay_editor.current.dimensions.width/2)*GLOBAL.overlay_editor.scale) - GLOBAL.overlay_editor.canvas_window.x;
+	// scale x up for 1 to 1 in overlay comparison
+	x = x/GLOBAL.overlay_editor.scale;
+	
+	return {
+		x: x,
+		y: y
 	}
 }
 
@@ -1565,47 +1608,28 @@ function imageEditorMouseDown(event) {
 		
 		// if active selection
 		if (GLOBAL.overlay_editor.active_layer_selection) {
-			let translate_scale_x = event.clientX;
-			let translate_scale_y = event.clientY;
-			
-			let canvas_elem = Select('#workspace');
-			let canvas_dimensions = {
-				offset_y: canvas_elem.getBoundingClientRect().top,
-				width: canvas_elem.width,
-				height: canvas_elem.height
-			}
-			
-			// relate y to canvas origin
-			translate_scale_y -= canvas_dimensions.offset_y;
-			// relate y to translated origins within drawn canvas
-			translate_scale_y -= (GLOBAL.overlay_editor.dimensions.height/2) - ((GLOBAL.overlay_editor.current.dimensions.height/2)*GLOBAL.overlay_editor.scale) - GLOBAL.overlay_editor.canvas_window.y;
-			// scale y up for 1 to 1 in overlay comparison
-			translate_scale_y = translate_scale_y/GLOBAL.overlay_editor.scale;
-			
-			// x already at canvas origin
-			// relate x to translate origins within drawn canvas
-			translate_scale_x -= (GLOBAL.overlay_editor.dimensions.width/2) - ((GLOBAL.overlay_editor.current.dimensions.width/2)*GLOBAL.overlay_editor.scale) - GLOBAL.overlay_editor.canvas_window.x;
-			// scale x up for 1 to 1 in overlay comparison
-			translate_scale_x = translate_scale_x/GLOBAL.overlay_editor.scale;
+
+			// translate window cursor position to canvas position
+			let translate_cursor = translateWindowToCanvas(event.clientX, event.clientY);
 			
 			// if rotated layer, rotate cursor position in the opposite direction around the origin
 			if (GLOBAL.overlay_editor.active_layer_selection.rotation) {
 				let rotated = rotate(
-					translate_scale_x,
-					translate_scale_y,
+					translate_cursor.x,
+					translate_cursor.y,
 					GLOBAL.overlay_editor.active_layer_selection.rotation_origin.x,
 					GLOBAL.overlay_editor.active_layer_selection.rotation_origin.y,
 					GLOBAL.overlay_editor.active_layer_selection.rotation
 				);
-				translate_scale_x = rotated.x;
-				translate_scale_y = rotated.y;
+				translate_cursor.x = rotated.x;
+				translate_cursor.y = rotated.y;
 			}
 			
 			if (
-				translate_scale_x > GLOBAL.overlay_editor.active_layer_selection.x &&
-				translate_scale_y > GLOBAL.overlay_editor.active_layer_selection.y &&
-				translate_scale_x < GLOBAL.overlay_editor.active_layer_selection.x + GLOBAL.overlay_editor.active_layer_selection.width &&
-				translate_scale_y < GLOBAL.overlay_editor.active_layer_selection.y + GLOBAL.overlay_editor.active_layer_selection.height
+				translate_cursor.x > GLOBAL.overlay_editor.active_layer_selection.x &&
+				translate_cursor.y > GLOBAL.overlay_editor.active_layer_selection.y &&
+				translate_cursor.x < GLOBAL.overlay_editor.active_layer_selection.x + GLOBAL.overlay_editor.active_layer_selection.width &&
+				translate_cursor.y < GLOBAL.overlay_editor.active_layer_selection.y + GLOBAL.overlay_editor.active_layer_selection.height
 			) {
 				GLOBAL.overlay_editor.layer_selection_drag = {
 					origin: {
