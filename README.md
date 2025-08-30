@@ -48,7 +48,7 @@
 	- [ ] restructure edit overlay app and generate overlay, classify and break into sub methods and a master state
 		- [ ] add feature for selecting layer onclick and scroll wheel through
 		- [ ] allow center position images and rotation on them
-		- [ ] improve and fix bugs on grid feature
+		- [x] improve and fix bugs on grid feature
 	- [ ] offer color picker as a tool for variable inputs and remove popup method on edit overlay
 	- [ ] variable input cleanup and improvements, use window anchor to allow edit of variable(s) that arent a path only, e.g. edit concatted variable rather than just append new selection to end
 	- [ ] classify and make browser sources a library manager
@@ -56,7 +56,7 @@
 	 - [ ] create better timer app
 	 - [ ] create banner app
 	- [ ] create banner browser source app
-	- [ ] search field on assets, datasets, fonts etc
+	- [x] search field on assets, datasets, fonts etc
 	- [ ] search field on large variable input result lists (10+)
 	
 - QOL
