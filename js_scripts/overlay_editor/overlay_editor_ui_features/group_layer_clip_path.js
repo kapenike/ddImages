@@ -21,7 +21,6 @@ function featureGroupLayerClipPath(layer) {
 								selected: layer.clip_path.type == 'square'
 							}),
 							Create('option', {
-								disabled: true,
 								innerHTML: 'Custom',
 								value: 'custom',
 								selected: layer.clip_path.type == 'custom'

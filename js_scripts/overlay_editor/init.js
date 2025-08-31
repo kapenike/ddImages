@@ -47,6 +47,18 @@ function editOverlay(slug) {
 		origins: null
 	};
 	
+	// init storage for custom clip path editting data
+	GLOBAL.overlay_editor.custom_clip_path = {
+		allow_drag_move: true,
+		event_position: {
+			x: null,
+			y: null
+		},
+		insert_point: null,
+		active_point: null,
+		drag_point: null
+	};
+	
 	// init active layer index
 	GLOBAL.overlay_editor.active_layer = null;
 	

@@ -116,6 +116,26 @@ function generateOverlay(ctx, output_overlays, overlay) {
 					ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y);
 					ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
 					ctx.closePath();
+				} else if (layer.clip_path.type == 'custom') {
+					// custom clipping path
+
+					// if empty clip points, dont print layer
+					if (layer.clip_path.clip_points.length == 0) {
+						continue;
+					}
+					
+					ctx.beginPath();
+					ctx.moveTo(layer.clip_path.clip_points[0].x, layer.clip_path.clip_points[0].y);
+					for (let i2=0; i2<layer.clip_path.clip_points.length; i2++) {
+						ctx.lineTo(layer.clip_path.clip_points[i2].x, layer.clip_path.clip_points[i2].y);
+					}
+					ctx.lineTo(layer.clip_path.clip_points[0].x, layer.clip_path.clip_points[0].y);
+					ctx.closePath();
+					
+				}
+				
+				// if a clip path, allow border and fill
+				if (layer.clip_path.type != 'none') {
 					if (layer.clip_path.color) {
 						let clip_color = getRealValue(layer.clip_path.color);
 						if (clip_color.length == 7 || clip_color.length == 9) {

@@ -65,6 +65,17 @@ function imageEditorMouseMove(event) {
 				}
 			}
 		}
+
+		// if custom clip path, move all points
+		if (selection_layer_reference.type == 'clip_path' && selection_layer_reference.clip_path.type == 'custom') {
+			for (let i=0; i<selection_layer_reference.clip_path.clip_points.length; i++) {
+				let origin = GLOBAL.overlay_editor.layer_selection_drag.custom_clip_path_origins[i];
+				selection_layer_reference.clip_path.clip_points[i] = {
+					x: preciseAndTrim(origin.x - x_diff),
+					y: preciseAndTrim(origin.y - y_diff)
+				}
+			}
+		}
 		
 		// if group container, change reference for container movement
 		if (selection_layer_reference.type == 'clip_path' && selection_layer_reference.clip_path.type == 'square') {
@@ -86,6 +97,19 @@ function imageEditorMouseMove(event) {
 		// project drag
 		GLOBAL.overlay_editor.canvas_window.x = GLOBAL.overlay_editor.canvas_window.origins.x - event.clientX;
 		GLOBAL.overlay_editor.canvas_window.y = GLOBAL.overlay_editor.canvas_window.origins.y - event.clientY;
+		printCurrentCanvas();
+		
+	} else if (GLOBAL.overlay_editor.custom_clip_path.drag_point) {
+		
+		// translate window cursor position to canvas position
+		let translate_cursor = translateWindowToCanvas(event.clientX, event.clientY);
+		
+		// custom clip path point drag
+		let layer = getLayerById(GLOBAL.overlay_editor.active_layer);
+		layer.clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.drag_point.index] = {
+			x: GLOBAL.overlay_editor.custom_clip_path.drag_point.origin.x - (GLOBAL.overlay_editor.custom_clip_path.drag_point.cursor_origin.x - translate_cursor.x),
+			y: GLOBAL.overlay_editor.custom_clip_path.drag_point.origin.y - (GLOBAL.overlay_editor.custom_clip_path.drag_point.cursor_origin.y - translate_cursor.y)
+		}
 		printCurrentCanvas();
 		
 	}

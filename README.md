@@ -1,6 +1,6 @@
 # FSD[ ddImages ]
 ![Dynamic Data Images](/logo.png)
-- Automate image changes using custom data fields, datasets and asset lists.
+- Automate image changes using custom data fields, datasets and asset lists
 - ddImages changes will automatically update live in an OBS scene
 
 > [!IMPORTANT]  
@@ -26,6 +26,7 @@
 		- `max_input_vars=1000` -> `max_input_vars=10000`
 		
 - Clone or Download and extract the repository
+- Rename the primary directory to `ddImages` NOT `ddImages-main`
 - Navigate to the **ddImages** primary directory and launch the application using:
 	> php -S localhost:8000
 	
@@ -33,19 +34,9 @@
 
 ## To-DO
 
-- BETA release
-	- [x] font manager
-	- [x] text rotation
-	- [x] 400 error on no location of ddimages directory
-	- [x] depth value selection on path only variable input field, just available during create ui, any other use case is reading the full value path
-		- [x] remove path_only post capture and instead use string parsed pointer to include depth value and use from variable parsing method
-	- [ ] custom clipping path / simple for now, click / place / move / remove
-	- [x] Comparison toggle using `>`, `<`, `<=`, `>=`, `==` and `!=`
-	- [ ] documentation
-
 - FULL release features
 	- [ ] create section app that highjacks the region and creates a bracket system within using all generate ui components and datasets
-	- [ ] restructure edit overlay app and generate overlay, classify and break into sub methods and a master state
+	- [x] restructure edit overlay app and generate overlay, classify and break into sub methods and a master state
 		- [ ] add feature for selecting layer onclick and scroll wheel through
 		- [ ] allow center position images and rotation on them
 		- [x] improve and fix bugs on grid feature
@@ -61,6 +52,7 @@
 	
 - QOL
 	- [ ] variable input drop down should open as a window container with matching positioning as current, but as an absolute poisitioned element it would not be resitricted to overflow parent containers
+	- [ ] detection of valid color code in clip path should also allow use of rgb incase it is set that way in dataset/data inputs. currently only checks length for hex code or hex with opacity
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line

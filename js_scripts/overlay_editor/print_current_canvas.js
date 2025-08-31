@@ -51,6 +51,26 @@ function printCurrentCanvas() {
 					ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y);
 					ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
 					ctx.closePath();
+				} else if (layer.clip_path.type == 'custom') {
+					// custom clipping path
+
+					// if empty clip points, dont print layer
+					if (layer.clip_path.clip_points.length == 0) {
+						continue;
+					}
+					
+					ctx.beginPath();
+					ctx.moveTo(layer.clip_path.clip_points[0].x, layer.clip_path.clip_points[0].y);
+					for (let i2=0; i2<layer.clip_path.clip_points.length; i2++) {
+						ctx.lineTo(layer.clip_path.clip_points[i2].x, layer.clip_path.clip_points[i2].y);
+					}
+					ctx.lineTo(layer.clip_path.clip_points[0].x, layer.clip_path.clip_points[0].y);
+					ctx.closePath();
+					
+				}
+				
+				// if a clip path, allow border and fill
+				if (layer.clip_path.type != 'none') {
 					if (layer.clip_path.color) {
 						let clip_color = getRealValue(layer.clip_path.color);
 						if (clip_color.length == 7 || clip_color.length == 9) {
@@ -99,40 +119,80 @@ function printCurrentCanvas() {
 	// active layer indicator
 	if (selection_layer != null) {
 		
-		let out_dim = getLayerOutputDimensions(selection_layer);
-
-		if (out_dim != null) {
-			ctx.lineWidth = 2;
-			ctx.setLineDash([6, 8]);
-			ctx.strokeStyle = '#0051ff';
+		ctx.lineWidth = 2;
+		ctx.setLineDash([6, 8]);
+		ctx.strokeStyle = '#0051ff';
+		
+		if (selection_layer.type == 'clip_path' && selection_layer.clip_path.type == 'custom') {
 			
-			if (selection_layer.type == 'text' && selection_layer.style.rotation && selection_layer.style.rotation != 0) {
-				ctx.save();
-				let alignment_offset = (
-					selection_layer.style.align == 'center' 
-						? out_dim.width/2
-						: (selection_layer.style.align == 'right'
-							? out_dim.width
-							: 0
-							)
-				);
-				ctx.translate(out_dim.x + alignment_offset, out_dim.y);
-				ctx.rotate(degToRad(selection_layer.style.rotation));
-				ctx.strokeRect(0 - alignment_offset, 0, out_dim.width, out_dim.height);
-				ctx.restore();
-				out_dim.rotation = selection_layer.style.rotation;
-				out_dim.rotation_origin = {
-					x: out_dim.x + alignment_offset,
-					y: out_dim.y
-				};
-			} else {
-				ctx.strokeRect(out_dim.x, out_dim.y, out_dim.width, out_dim.height);
+			GLOBAL.overlay_editor.active_layer_selection = {
+				custom_clip_path: true,
+				points: JSON.parse(JSON.stringify(selection_layer.clip_path.clip_points)),
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0
+			};
+			
+			if (selection_layer.clip_path.clip_points.length > 0) {
+			
+				// draw selection path
+				ctx.beginPath();
+				ctx.moveTo(selection_layer.clip_path.clip_points[0].x, selection_layer.clip_path.clip_points[0].y);
+				for (let i2=0; i2<selection_layer.clip_path.clip_points.length; i2++) {
+					ctx.lineTo(selection_layer.clip_path.clip_points[i2].x, selection_layer.clip_path.clip_points[i2].y);
+				}
+				ctx.lineTo(selection_layer.clip_path.clip_points[0].x, selection_layer.clip_path.clip_points[0].y);
+				ctx.closePath();
+				ctx.stroke();
+				
+				// if drag point enabled, draw drag circles
+				if (GLOBAL.overlay_editor.custom_clip_path.allow_drag_move) {
+					ctx.setLineDash([]);
+					selection_layer.clip_path.clip_points.forEach(point => {
+						ctx.beginPath();
+						ctx.arc(point.x, point.y, 10, 0, 2 * Math.PI);
+						ctx.stroke();
+					});
+				}
+			
 			}
 			
-			// save selection area for dragging logic
-			GLOBAL.overlay_editor.active_layer_selection = out_dim;
 		} else {
-			GLOBAL.overlay_editor.active_layer_selection = null;
+		
+			let out_dim = getLayerOutputDimensions(selection_layer);
+
+			if (out_dim != null) {
+				
+				if (selection_layer.type == 'text' && selection_layer.style.rotation && selection_layer.style.rotation != 0) {
+					ctx.save();
+					let alignment_offset = (
+						selection_layer.style.align == 'center' 
+							? out_dim.width/2
+							: (selection_layer.style.align == 'right'
+								? out_dim.width
+								: 0
+								)
+					);
+					ctx.translate(out_dim.x + alignment_offset, out_dim.y);
+					ctx.rotate(degToRad(selection_layer.style.rotation));
+					ctx.strokeRect(0 - alignment_offset, 0, out_dim.width, out_dim.height);
+					ctx.restore();
+					out_dim.rotation = selection_layer.style.rotation;
+					out_dim.rotation_origin = {
+						x: out_dim.x + alignment_offset,
+						y: out_dim.y
+					};
+				} else {
+					ctx.strokeRect(out_dim.x, out_dim.y, out_dim.width, out_dim.height);
+				}
+				
+				// save selection area for dragging logic
+				GLOBAL.overlay_editor.active_layer_selection = out_dim;
+			} else {
+				GLOBAL.overlay_editor.active_layer_selection = null;
+			}
+		
 		}
 	}
 	

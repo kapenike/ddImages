@@ -29,17 +29,20 @@ function setImageEditorDialog(event, menu_items, width_override = null) {
 						: Create('span')
 					),
 					...menu_items.items.map(item => {
-						return (typeof item.title === 'string'
-							? Create('div', {
-									innerHTML: item.title,
-									onclick: item.click,
-									className: (typeof item.remove === 'undefined' ? (typeof item.action === 'undefined' ? '' : 'ui_edit_menu_save') : 'ui_edit_menu_remove')
-								})
-							: Create('div', {
-									children: [ item.title ],
-									onclick: item.click,
-									className: (typeof item.remove === 'undefined' ? (typeof item.action === 'undefined' ? '' : 'ui_edit_menu_save') : 'ui_edit_menu_remove')
-								})
+						return (typeof item !== 'undefined'
+							? (typeof item.title === 'string'
+									? Create('div', {
+											innerHTML: item.title,
+											onclick: item.click,
+											className: (typeof item.remove === 'undefined' ? (typeof item.action === 'undefined' ? '' : 'ui_edit_menu_save') : 'ui_edit_menu_remove')
+										})
+									: Create('div', {
+											children: [ item.title ],
+											onclick: item.click,
+											className: (typeof item.remove === 'undefined' ? (typeof item.action === 'undefined' ? '' : 'ui_edit_menu_save') : 'ui_edit_menu_remove')
+										})
+								)
+							: Create('div', { style: { display: 'none' } })
 						);
 					}),
 					Create('div', {
