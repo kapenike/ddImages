@@ -6,74 +6,62 @@ function imageEditorMouseUp(event) {
 				let drag_layer = getLayerById(GLOBAL.overlay_editor.image_editor_drag.id);
 				let hover_layer = getLayerById(GLOBAL.overlay_editor.image_editor_drag.active_hover);
 				
-				// ensure drag is not a drop into a group
-				if (
-					drag_layer.type == 'clip_path' &&
-					(
-						(hover_layer.type == 'clip_path' && event.target.className.split(' ').includes('editor_layer_group')) ||
-						GLOBAL.overlay_editor.image_editor_drag.active_hover.split('_').filter(v => v != 'layer').length > 1
-					)
-				) {
+
 					
-					// not allowed
-					
+				// if hover target is an empty layer group area, append sub layer id to mock an insert
+				if (event.target.className.split(' ').includes('editor_layer_group')) {
+					GLOBAL.overlay_editor.image_editor_drag.active_hover += '_0';
+				}
+				
+				// get reference to containing layers objects of dragged element, where the last id in pull_ids will be used later
+				let pull_ids = GLOBAL.overlay_editor.image_editor_drag.id.toString().split('_').filter(v => v != 'layer');
+				let last_pull_id = parseInt(pull_ids.pop());
+				let pull_reference = GLOBAL.overlay_editor.current.layers;
+				for (let i=0; i<pull_ids.length; i++) {
+					pull_reference = pull_reference[pull_ids[i]].layers;
+				}
+				
+				// get reference to containing layers objects of dropped element, where the last id in insert_ids will be used later
+				let insert_ids = GLOBAL.overlay_editor.image_editor_drag.active_hover.toString().split('_').filter(v => v != 'layer');
+				let last_insert_id = parseInt(insert_ids.pop());
+				let insert_reference = GLOBAL.overlay_editor.current.layers;
+				for (let i=0; i<insert_ids.length; i++) {
+					insert_reference = insert_reference[insert_ids[i]].layers;
+				}
+				
+				// detached clone pull for insert
+				let insert_layer_copy = JSON.parse(JSON.stringify(pull_reference[last_pull_id]));
+				
+				// insert cloned layer
+				if (last_insert_id == 0) {
+					insert_reference.unshift(insert_layer_copy);
 				} else {
+					insert_reference.splice(last_insert_id, 0, insert_layer_copy);
+				}
+				
+				// if path of pull id does not diverge from insert id, if can affect splice order or new layer position
+				if (pull_ids.every((id, index) => id == insert_ids[index])) {
 					
-					// if hover target is an empty layer group area, append sub layer id to mock an insert
-					if (event.target.className.split(' ').includes('editor_layer_group')) {
-						GLOBAL.overlay_editor.image_editor_drag.active_hover += '_0';
-					}
-					
-					// insert into group and pull from group flags
-					let insert_to_group = false;
-					let pull_from_group = false;
-					
-					// set insert to group flag and prepare ids
-					let insert_ids = GLOBAL.overlay_editor.image_editor_drag.active_hover.split('_');
-					insert_ids.shift();
-					if (insert_ids.length == 2) {
-						insert_ids.map(v => parseInt(v));
-						insert_to_group = true;
-					}
-					
-					// set pull from group flag and prepare ids
-					let pull_ids = GLOBAL.overlay_editor.image_editor_drag.id.split('_');
-					pull_ids.shift();
-					if (pull_ids.length == 2) {
-						pull_ids.map(v => parseInt(v));
-						pull_from_group = true;
-					}
-					
-					let insert_index = insert_ids.length > 1 ? insert_ids[1] : insert_ids[0];
-					let pull_index = pull_ids.length > 1 ? pull_ids[1] : pull_ids[0];
-					
-					let pull_base = GLOBAL.overlay_editor.current;
-					if (pull_from_group) {
-						pull_base = pull_base.layers[pull_ids[0]];
+					if (pull_ids.length == insert_ids.length && last_pull_id >= last_insert_id) {
+						
+						// if insert and pull in the same list and the pull id was greater than the insert id, after insert the last pull id now needs incremented to splice its new location
+						last_pull_id++;
+						
+					} else if (insert_ids.length > pull_ids.length && insert_ids[pull_ids.length] > last_pull_id) {
+						
+						// if insert is a sub layer that extends past a pull layer, but the pull layer removal would change that lists index of the parent insert id path, its id must be decremented at that index for the new layer to activated properly
+						insert_ids[pull_ids.length]--;
+						
 					}
 
-					// if pull from index is less than insert index, and not in groups or within the same group, decrement insert index because of splice index change to array
-					if (
-						(!insert_to_group && !pull_from_group && pull_ids[0] < insert_ids[0]) ||
-						(insert_to_group && pull_from_group && pull_ids[0] == insert_ids[0] && pull_ids[1] < insert_ids[1])
-					) {
-						insert_index--;
-					} else if (insert_to_group && !pull_from_group && pull_ids[0] < insert_ids[0]) {
-						// if pulling from non group into insert group after, group index needs decremented
-						insert_ids[0]--;
-					}
-					
-					if (insert_to_group) {
-						let pulled = pull_base.layers.splice(pull_index, 1);
-						GLOBAL.overlay_editor.current.layers[insert_ids[0]].layers.splice(insert_index, 0, ...pulled);
-					} else {
-						GLOBAL.overlay_editor.current.layers.splice(insert_index, 0, ...pull_base.layers.splice(pull_index, 1));
-					}
-					
-					// set new active layer
-					setActiveLayer(insert_ids.join('_'));
-					
 				}
+					
+				// remove pull layer
+				pull_reference.splice(last_pull_id, 1);
+					
+				// set new active layer
+				setActiveLayer([...insert_ids, last_insert_id].join('_'));	
+				
 			}
 			
 			// remove drag clone

@@ -21,103 +21,13 @@ function printCurrentCanvas() {
 	ctx.fillStyle = '#555555';
 	ctx.fillRect(0, 0, GLOBAL.overlay_editor.current.dimensions.width, GLOBAL.overlay_editor.current.dimensions.height);
 	
-	let selection_layer = null;
-	
-	// loop layers from back to front
-	for (let i=overlay.layers.length-1; i>-1; i--) {
-		
-		// active layer
-		let layer = overlay.layers[i];
-		
-		// current selection layer
-		if (i == GLOBAL.overlay_editor.active_layer) {
-			selection_layer = layer;
-		}
-		
-		if (layer.type == 'image') {
-			printImage(ctx, layer);
-		} else if (layer.type == 'text') {
-			printText(ctx, layer);
-		} else if (layer.type == 'clip_path') {
-			
-			if (toggleTrue(layer)) {
-			
-				// square clipping path
-				if (layer.clip_path.type == 'square') {
-					ctx.beginPath();
-					ctx.moveTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
-					ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
-					ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
-					ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y);
-					ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
-					ctx.closePath();
-				} else if (layer.clip_path.type == 'custom') {
-					// custom clipping path
-
-					// if empty clip points, dont print layer
-					if (layer.clip_path.clip_points.length == 0) {
-						continue;
-					}
-					
-					ctx.beginPath();
-					ctx.moveTo(layer.clip_path.clip_points[0].x, layer.clip_path.clip_points[0].y);
-					for (let i2=0; i2<layer.clip_path.clip_points.length; i2++) {
-						ctx.lineTo(layer.clip_path.clip_points[i2].x, layer.clip_path.clip_points[i2].y);
-					}
-					ctx.lineTo(layer.clip_path.clip_points[0].x, layer.clip_path.clip_points[0].y);
-					ctx.closePath();
-					
-				}
-				
-				// if a clip path, allow border and fill
-				if (layer.clip_path.type != 'none') {
-					if (layer.clip_path.color) {
-						let clip_color = getRealValue(layer.clip_path.color);
-						if (clip_color.length == 7 || clip_color.length == 9) {
-							ctx.fillStyle = clip_color;
-							ctx.fill();
-						}
-					}
-					if (layer.clip_path.border.use) {
-						ctx.setLineDash([]);
-						ctx.strokeStyle = layer.clip_path.border.color;
-						ctx.lineWidth = layer.clip_path.border.width;
-						ctx.stroke();
-					}
-					ctx.save();
-					ctx.clip();
-				}
-				
-				// print sub layers
-				for (let i2=layer.layers.length-1; i2>-1; i2--) {
-					
-					let sub_layer = layer.layers[i2];
-					
-					// current selection layer
-					if (i+'_'+i2 == GLOBAL.overlay_editor.active_layer) {
-						selection_layer = sub_layer;
-					}
-					
-					if (sub_layer.type == 'image') {
-						printImage(ctx, sub_layer);
-					} else if (sub_layer.type == 'text') {
-						printText(ctx, sub_layer);
-					}
-				} 
-				
-				// if clipping path, restore
-				if (layer.clip_path.type != 'none') {
-					ctx.restore();
-				}
-				
-			}
-			
-		}
-		
-	}
+	// print layers recursively
+	printLayers(ctx, overlay.layers);
 	
 	// active layer indicator
-	if (selection_layer != null) {
+	if (GLOBAL.overlay_editor.active_layer != null) {
+		
+		let selection_layer = getLayerById(GLOBAL.overlay_editor.active_layer);
 		
 		ctx.lineWidth = 2;
 		ctx.setLineDash([6, 8]);

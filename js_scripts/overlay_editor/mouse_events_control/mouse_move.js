@@ -54,19 +54,12 @@ function imageEditorMouseMove(event) {
 		// set reference incase of sub layer movement
 		let selection_layer_reference = getLayerById(GLOBAL.overlay_editor.active_layer);
 		
-		// group movement
+		// sub group movement
 		if (selection_layer_reference.type == 'clip_path') {
-			for (let i=0; i<selection_layer_reference.layers.length; i++) {
-				let group_move_layer = selection_layer_reference.layers[i];
-				let assoc_origin = GLOBAL.overlay_editor.layer_selection_drag.sub_layer_origins[i];
-				group_move_layer.offset = {
-					x: preciseAndTrim(assoc_origin.x - x_diff),
-					y: preciseAndTrim(assoc_origin.y - y_diff)
-				}
-			}
+			dragRecurseSubGroupMovement(selection_layer_reference.layers, GLOBAL.overlay_editor.layer_selection_drag.sub_layer_origins, x_diff, y_diff);
 		}
 
-		// if custom clip path, move all points
+		// if custom clip path, move all points of master layer
 		if (selection_layer_reference.type == 'clip_path' && selection_layer_reference.clip_path.type == 'custom') {
 			for (let i=0; i<selection_layer_reference.clip_path.clip_points.length; i++) {
 				let origin = GLOBAL.overlay_editor.layer_selection_drag.custom_clip_path_origins[i];
@@ -77,7 +70,7 @@ function imageEditorMouseMove(event) {
 			}
 		}
 		
-		// if group container, change reference for container movement
+		// if square group container, change reference for container movement below, making it the "moveable layer"
 		if (selection_layer_reference.type == 'clip_path' && selection_layer_reference.clip_path.type == 'square') {
 			selection_layer_reference = selection_layer_reference.clip_path;
 		}
@@ -111,6 +104,47 @@ function imageEditorMouseMove(event) {
 			y: GLOBAL.overlay_editor.custom_clip_path.drag_point.origin.y - (GLOBAL.overlay_editor.custom_clip_path.drag_point.cursor_origin.y - translate_cursor.y)
 		}
 		printCurrentCanvas();
+		
+	}
+	
+}
+
+function dragRecurseSubGroupMovement(layers, origins, x_diff, y_diff) {
+	
+	for (let i=0; i<layers.length; i++) {
+		let sub_layer = layers[i];
+		let sub_origins = origins[i];
+		
+		// if sub clip path
+		if (sub_layer.type == 'clip_path') {
+			
+			// if sub layer is custom clipping path, move them from origins
+			if (sub_layer.clip_path.type == 'custom') {
+				for (let i2=0; i2<sub_layer.clip_path.clip_points.length; i2++) {
+					layers[i].clip_path.clip_points[i2] = {
+						x: preciseAndTrim(sub_origins.custom_clip_path_origins[i2].x - x_diff),
+						y: preciseAndTrim(sub_origins.custom_clip_path_origins[i2].y - y_diff)
+					}
+				}
+			}
+			
+			// if sub layer is square clipping path, move its origins
+			if (sub_layer.clip_path.type == 'square') {
+				layers[i].clip_path.offset = {
+					x: preciseAndTrim(sub_origins.offset_origins.x - x_diff),
+					y: preciseAndTrim(sub_origins.offset_origins.y - y_diff)
+				}
+			}
+			
+			// recurse further
+			dragRecurseSubGroupMovement(layers[i].layers, origins[i].children, x_diff, y_diff);
+			
+		} else {
+			layers[i].offset = {
+				x: preciseAndTrim(sub_origins.x - x_diff),
+				y: preciseAndTrim(sub_origins.y - y_diff)
+			}
+		}
 		
 	}
 	

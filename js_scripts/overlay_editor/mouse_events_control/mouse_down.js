@@ -81,7 +81,7 @@ function imageEditorMouseDown(event) {
 					sub_layer_origins: null
 				}
 				
-				// if custom clip path, stash point origins
+				// if custom clip path, stash point origins for master drag, sub custom clip path origins are stored within the `sub_layer_origins` method below
 				if (GLOBAL.overlay_editor.active_layer_selection.custom_clip_path) {
 					GLOBAL.overlay_editor.layer_selection_drag.custom_clip_path_origins = GLOBAL.overlay_editor.active_layer_selection.points;
 				}
@@ -89,15 +89,10 @@ function imageEditorMouseDown(event) {
 				// stash group layer children origins
 				let layer = getLayerById(GLOBAL.overlay_editor.active_layer);
 				if (typeof layer.clip_path !== 'undefined') {
-					GLOBAL.overlay_editor.layer_selection_drag.sub_layer_origins = layer.layers.map(v => {
-						return {
-							x: v.offset.x,
-							y: v.offset.y
-						};
-					});
+					GLOBAL.overlay_editor.layer_selection_drag.sub_layer_origins = recurseLayerSubOrigins(layer.layers);
 				}
 				
-				// prevent canvas drag is selection drag true
+				// prevent canvas drag if selection drag true
 				return;
 			}
 		}
@@ -110,4 +105,30 @@ function imageEditorMouseDown(event) {
 	
 	}
 	
+}
+
+function recurseLayerSubOrigins(layers) {
+	return layers.map(v => {
+		// stash coordinate of non clip path
+		if (v.type != 'clip_path') {
+			return {
+				x: v.offset.x,
+				y: v.offset.y
+			};
+		} else {
+			// return sub layer origins
+			let return_sub_origins = {
+				children: recurseLayerSubOrigins(v.layers)
+			}
+			// if custom clip path, also stash point origins (dereferenced)
+			if (v.clip_path.type == 'custom') {
+				return_sub_origins.custom_clip_path_origins = JSON.parse(JSON.stringify(v.clip_path.clip_points));
+			}
+			// if square clip path, also stash offset origins (dereferenced)
+			if (v.clip_path.type == 'square') {
+				return_sub_origins.offset_origins = JSON.parse(JSON.stringify(v.clip_path.offset));
+			}
+			return return_sub_origins;
+		}
+	});
 }

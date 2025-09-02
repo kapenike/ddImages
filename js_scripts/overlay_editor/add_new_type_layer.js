@@ -100,33 +100,16 @@ function addNewTypeLayer(type, index, duplicate = false) {
 		setActiveLayer(0);
 		
 	} else {
+
+		// get ids
+		let ids = index.toString().split('_').filter(x => x != 'layer');
 		
-		// if index insert specified
-		
-		// if index is a layer identifier
-		if (index.toString().indexOf('_') > -1) {
-			
-			// get ids
-			let ids = index.split('_').filter(x => x != 'layer');
-			
-			if (ids.length > 1) {
-				
-				// if sub layer, insert in sub group layers list
-				GLOBAL.overlay_editor.current.layers[ids[0]].layers.splice(ids[1], 0, new_layer);
-				
-			} else {
-				
-				// insert in top layer list
-				GLOBAL.overlay_editor.current.layers.splice(ids[0], 0, new_layer);
-				
-			}
-			
-		} else {
-			
-			// if not, just splice into list at index
-			GLOBAL.overlay_editor.current.layers.splice(index, 0, new_layer);
-			
+		// loop nested ids and splice after last
+		let insert_layer = GLOBAL.overlay_editor.current.layers;
+		for (let i=0; i<ids.length-1; i++) {
+			insert_layer = insert_layer[ids[i]].layers;
 		}
+		insert_layer.splice(ids.pop(), 0, new_layer);
 		
 		// set layer at specified index as active (splice has pushed the new layer to the current insert index)
 		setActiveLayer(index);

@@ -53,6 +53,7 @@
 - QOL
 	- [ ] variable input drop down should open as a window container with matching positioning as current, but as an absolute poisitioned element it would not be resitricted to overflow parent containers
 	- [ ] detection of valid color code in clip path should also allow use of rgb incase it is set that way in dataset/data inputs. currently only checks length for hex code or hex with opacity
+	- [ ] nbd but drag move of group layers has pre-logical that handles its own edge cases and newer logic to handle drag logic of infinite nested children, these should be combined so the old is merged in
 	
 - BUGS
 	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line

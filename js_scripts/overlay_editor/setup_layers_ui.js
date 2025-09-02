@@ -1,31 +1,29 @@
+function createLayersUI(layers, parent_index = '') {
+	if (parent_index != '') {
+		parent_index += '_';
+	}
+	return layers.map((layer, index) => {
+		let full_index = parent_index+index;
+		return Create('div', {
+			id: 'layer_'+full_index,
+			className: 'editor_layer'+(full_index == GLOBAL.overlay_editor.active_layer ? ' active_editor_layer' : ''),
+			innerHTML: '<span id="layer_'+full_index+'_title">'+layer.title+'</span>',
+			children: (layer.type == 'clip_path'
+				?	[Create('div', {
+						className: 'editor_layer_group',
+						children: createLayersUI(layer.layers, full_index)
+					})]
+				: []
+			),
+			onclick: () => { setActiveLayer(full_index); event.stopPropagation(); },
+			oncontextmenu: function () { editLayer(this); event.stopPropagation(); }
+		})
+	});
+}
+
 function setupLayersUI() {
 	Select('#lower_editor', {
 		innerHTML: '',
-		children: GLOBAL.overlay_editor.current.layers.map((layer, index) => {
-			return Create('div', {
-				id: 'layer_'+index,
-				className: 'editor_layer'+(index == GLOBAL.overlay_editor.active_layer ? ' active_editor_layer' : ''),
-				innerHTML: '<span id="layer_'+index+'_title">'+layer.title+'</span>',
-				children: (layer.type == 'clip_path'
-					?	[
-							Create('div', {
-								className: 'editor_layer_group',
-								children: layer.layers.map((group_layer, sub_index) => {
-									return Create('div', {
-										id: 'layer_'+index+'_'+sub_index,
-										className: 'editor_layer'+(index+'_'+sub_index == GLOBAL.overlay_editor.active_layer ? ' active_editor_layer' : ''),
-										innerHTML: '<span id="layer_'+index+'_'+sub_index+'_title">'+group_layer.title+'</span>',
-										onclick: () => { setActiveLayer(index+'_'+sub_index); event.stopPropagation(); },
-										oncontextmenu: function () { editLayer(this); event.stopPropagation(); }
-									})
-								})
-							})
-						]
-					: []
-				),
-				onclick: () => { setActiveLayer(index); },
-				oncontextmenu: function () { editLayer(this); }
-			})
-		})
+		children: createLayersUI(GLOBAL.overlay_editor.current.layers)
 	});
 }

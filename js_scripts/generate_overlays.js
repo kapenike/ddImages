@@ -88,16 +88,13 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	
 }
 
-function generateOverlay(ctx, output_overlays, overlay) {
-	
-	// reset canvas
-	ctx.clearRect(0, 0, 1920, 1080);
+function printLayers(ctx, layers) {
 	
 	// loop layers from back to front
-	for (let i=overlay.layers.length-1; i>-1; i--) {
-		
+	for (let i=layers.length-1; i>-1; i--) {
+	
 		// active layer
-		let layer = overlay.layers[i];
+		let layer = layers[i];
 		
 		if (layer.type == 'image') {
 			printImage(ctx, layer);
@@ -154,16 +151,7 @@ function generateOverlay(ctx, output_overlays, overlay) {
 				}
 				
 				// print sub layers
-				for (let i2=layer.layers.length-1; i2>-1; i2--) {
-					let sub_layer = layer.layers[i2];
-					if (sub_layer.type == 'image') {
-						printImage(ctx, sub_layer);
-					} else if (sub_layer.type == 'text') {
-						printText(ctx, sub_layer);
-					} else if (sub_layer.type == 'rect') {
-						printRect(ctx, sub_layer);
-					}
-				} 
+				printLayers(ctx, layer.layers);
 				
 				// if clipping path, restore
 				if (layer.clip_path.type != 'none') {
@@ -175,8 +163,18 @@ function generateOverlay(ctx, output_overlays, overlay) {
 		} else if (layer.type == 'rect') {
 			printRect(ctx, layer);
 		}
-		
+	
 	}
+	
+}
+
+function generateOverlay(ctx, output_overlays, overlay) {
+	
+	// reset canvas
+	ctx.clearRect(0, 0, 1920, 1080);
+	
+	// print layers recursively
+	printLayers(ctx, overlay.layers);
 	
 }
 
