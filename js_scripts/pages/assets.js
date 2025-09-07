@@ -115,7 +115,7 @@ function updateAssetData() {
 			
 			// log previous source
 			let previous_source = null;
-			if (GLOBAL.active_project.data.assets[form_details.asset_registration_type].source) {
+			if (form_details.asset_registration_type != 'create' && GLOBAL.active_project.data.assets[form_details.asset_registration_type].source) {
 				previous_source = GLOBAL.active_project.data.assets[form_details.asset_registration_type].source;
 			}
 
