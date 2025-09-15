@@ -37,7 +37,7 @@ class uid {
 	}
 	
 	function generateRandUID() {
-		return 'uid_'.bin2hex(random_bytes(8));
+		return 'uid_'.bin2hex(random_bytes(4));
 	}
 	
 }

@@ -1,5 +1,10 @@
 function setActiveLayer(index) {
 	
+	// if null, also nullify active layer selection
+	if (index == null) {
+		GLOBAL.overlay_editor.active_layer_selection = null;
+	}
+	
 	// set active layer index
 	GLOBAL.overlay_editor.active_layer = index;
 	

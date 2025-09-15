@@ -736,7 +736,7 @@ button, input[type="submit"] {
 	background-color: #444444;
 	color: #ffffff;
 	text-align: center;
-	padding: 12px 24px;
+	padding: 8px 12px;
 	border-bottom: 1px solid #333333;
 	cursor: pointer;
 }
@@ -748,16 +748,13 @@ button, input[type="submit"] {
 #image_editor #lower_editor .editor_layer .editor_layer_group {
 	min-height: 20px;
 	margin-left: 8px;
-	border-left: 2px solid #eeeeee;
+	border-left: 2px solid #888888;
+	border-top: 2px solid #888888;
 }
 
 #image_editor #lower_editor .active_editor_layer {
 	background-color: #388ff9;
 	color: #444444;
-}
-
-#image_editor #lower_editor .active_editor_layer .editor_layer_group {
-	border-left: 2px solid #444444;
 }
 
 #image_editor #upper_editor .editor_section_block {

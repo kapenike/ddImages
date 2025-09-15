@@ -131,7 +131,7 @@ function printLayers(ctx, layers) {
 					
 				}
 				
-				// if a clip path, allow border and fill
+				// if a clip path, allow fill
 				if (layer.clip_path.type != 'none') {
 					if (layer.clip_path.color) {
 						let clip_color = getRealValue(layer.clip_path.color);
@@ -139,12 +139,6 @@ function printLayers(ctx, layers) {
 							ctx.fillStyle = clip_color;
 							ctx.fill();
 						}
-					}
-					if (layer.clip_path.border.use) {
-						ctx.setLineDash([]);
-						ctx.strokeStyle = layer.clip_path.border.color;
-						ctx.lineWidth = layer.clip_path.border.width;
-						ctx.stroke();
 					}
 					ctx.save();
 					ctx.clip();
@@ -155,6 +149,15 @@ function printLayers(ctx, layers) {
 				
 				// if clipping path, restore
 				if (layer.clip_path.type != 'none') {
+					
+					// if border, print after clip
+					if (layer.clip_path.border.use) {
+						ctx.setLineDash([]);
+						ctx.strokeStyle = layer.clip_path.border.color;
+						ctx.lineWidth = layer.clip_path.border.width;
+						ctx.stroke();
+					}
+					
 					ctx.restore();
 				}
 				

@@ -52,6 +52,11 @@ function imageEditorMouseUp(event) {
 						// if insert is a sub layer that extends past a pull layer, but the pull layer removal would change that lists index of the parent insert id path, its id must be decremented at that index for the new layer to activated properly
 						insert_ids[pull_ids.length]--;
 						
+					} else if (pull_ids.length == insert_ids.length && last_pull_id < last_insert_id) {
+						
+						// insert and pull same depth but pull < than insert, last insert id must decrement
+						last_insert_id--;
+						
 					}
 
 				}
