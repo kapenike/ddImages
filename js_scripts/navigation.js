@@ -219,6 +219,14 @@ function openFileDropdown() {
 									GLOBAL.navigation.on_save = ()=>{},
 									setNavigationBrowserSources();
 								}
+							}),
+							Create('div', {
+								className: 'dropdown_action',
+								innerHTML: 'P2P Server',
+								onclick: function () {
+									GLOBAL.navigation.on_save = ()=>{},
+									setNavigationP2PServer();
+								}
 							})
 						]
 					})

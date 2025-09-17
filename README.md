@@ -36,18 +36,17 @@
 
 - FULL release features
 	- [ ] create section app that highjacks the region and creates a bracket system within using all generate ui components and datasets
-	- [x] restructure edit overlay app and generate overlay, classify and break into sub methods and a master state
-		- [ ] add feature for selecting layer onclick and scroll wheel through
-		- [ ] allow center position images and rotation on them
-		- [x] improve and fix bugs on grid feature
-	- [ ] offer color picker as a tool for variable inputs and remove popup method on edit overlay
+	- overlay editor features
+		- [ ] position image from different origins
+			- [ ] after, allow image rotation
+		- [ ] allow quick upload of asset from editor
+		- [ ] allow right click tool to select layer from output window
+		- [ ] CTRL + T open transform feature that adhocs scaling and rotation of text and images
 	- [ ] variable input cleanup and improvements, use window anchor to allow edit of variable(s) that arent a path only, e.g. edit concatted variable rather than just append new selection to end
 	- [ ] classify and make browser sources a library manager
-	 - [ ] allow p2p connection to browser sources that live update with Switchboard data
-	 - [ ] create better timer app
-	 - [ ] create banner app
-	- [ ] create banner browser source app
-	- [x] search field on assets, datasets, fonts etc
+		- [ ] improve timer app and include current time option
+		- [ ] create banner app
+	- [ ] allow p2p connection to browser sources that live update with Switchboard data
 	- [ ] search field on large variable input result lists (10+)
 	
 - QOL

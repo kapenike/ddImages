@@ -27,7 +27,8 @@ function initGlobal() {
 			active_path_field_id: null
 		},
 		overlay_editor: {},
-		unique_id: 0
+		unique_id: 0,
+		p2p: null
 	}
 }
 
