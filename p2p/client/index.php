@@ -1,28 +1,9 @@
 <?php
 
-if (!file_exists('web_socket_server_details.json')) {
-	echo '
-		<html>
-		<style>
-		 h1 {
-			 font-size: 120px;
-			 position: absolute;
-			 top: 50%;
-			 left: 50%;
-			 transform: translate(-50%, -50%);
-			 text-align: center;
-		 }
-		</style>
-		<body>
-			<h1>x_x <br /> server is dead</h1>
-		</body>
-		</html>
-	';
-	exit;
-}
+require('../server_details.php');
 
 // load server configuration
-$config = json_decode(file_get_contents('web_socket_server_details.json'));
+$config = requestServerDetails();
 
 // parse init variables
 $init = ['state' => 'connect'];

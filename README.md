@@ -46,7 +46,6 @@
 	- [ ] classify and make browser sources a library manager
 		- [ ] improve timer app and include current time option
 		- [ ] create banner app
-	- [ ] allow p2p connection to browser sources that live update with Switchboard data
 	- [ ] search field on large variable input result lists (10+)
 	
 - QOL

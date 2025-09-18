@@ -204,9 +204,6 @@ function createUIFromData(container, data, submit_to_application, editor = false
 												
 											} else if (field.type == 'checkbox') {
 												
-												// get value of field based on depth value, checked status is based on if a value exists at all before depth value search
-												let field_value = getDepthComparisonValue(field.value);
-												
 												return Create('div', {
 													className: 'ui_field',
 													data: JSON.stringify({ section: section_index, column: col_index, field: field_index }),
@@ -219,8 +216,8 @@ function createUIFromData(container, data, submit_to_application, editor = false
 																	type: field.type,
 																	name: field.source,
 																	onkeydown: function () { logSourceChange(this); },
-																	data: field_value,
-																	checked: field.value != ''
+																	data: getDepthComparisonValue(field.value),
+																	checked: getRealValue(field.source) != ''
 																}),
 																Create('br')
 															]
@@ -1019,7 +1016,7 @@ function fieldBuilderForCheckbox(data) {
 					createPathVariableField({
 						name: 'checked_value_output',
 						value: {
-							value: data == null ? '' : current_data.value,
+							value: data == null ? '' : data.value,
 						},
 						allow_depth_value: true,
 						allow_path_only: true

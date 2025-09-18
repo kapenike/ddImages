@@ -6,6 +6,7 @@ class websocket {
 	private $controller_key = null;
 	private $clients = [];
 	private $client_details = [];
+	private $client_uid = 0;
 	
 	public $server = null;
 	
@@ -100,6 +101,7 @@ class websocket {
 		// init client details object
 		$this->client_details[] = (object)[
 			'ip' => $ip,
+			'uid' => str_pad(++$this->client_uid, 4, '0', STR_PAD_LEFT),
 			'state' => 'accept',
 			'type' => null,
 			'project_uid' => null,
@@ -151,7 +153,8 @@ class websocket {
 			// notify controller of disconnect
 			$this->notifyController([
 				'type' => 'disconnect',
-				'ip' => $this->client_details[$index]->ip
+				'ip' => $this->client_details[$index]->ip,
+				'uid' => this->client_details[$index]->uid
 			]);
 			
 		}
@@ -160,6 +163,28 @@ class websocket {
 		unset($this->clients[$index]);
 		unset($this->client_details[$index]);
 		
+	}
+	
+	private function sendNewClientInitData($index) {
+		
+		$client_details = $this->client_details[$index];
+		
+		// if no initialized data, return here
+		if ($client_details.project_uid != null && $client_details.listeners.data.length == 0 && $client_details.listeners.overlays.length == 0) {
+			return;
+		}
+		
+		$init_data = [];
+		
+		// TODO: init DATA passing
+		if ($client_details.listeners.data.length > 0) {
+			
+		}
+		
+		
+		
+
+		socket_write($this->clients[$index], $this->package(json_encode($init_data)));
 	}
 	
 	private function processInputList() {
@@ -199,7 +224,7 @@ class websocket {
 						
 						// inform controller of control state
 						socket_write($this->clients[$index], $this->package(json_encode([
-							'status' => true
+							'upgrade_to_controller' => true
 						])));
 						
 					} else {
@@ -212,8 +237,13 @@ class websocket {
 				} else {
 				
 					// client connect
-					$this->client_details[$index]->type = 'client';
+					$this->client_details[$index]->type = 'controlled_client';
 					$this->client_details[$index]->state = 'accepted';
+					
+					// if client defines listeners, uncontrollable
+					if (isset($json->self_controlled) && $json->self_controlled == true) {
+						$this->client_details[$index]->type = 'uncontrolled_client';
+					}
 					
 					// check for initial project uid declaration
 					if (isset($json->project_uid)) {
@@ -231,16 +261,17 @@ class websocket {
 							}
 							
 						}
-						
-						// if init, send back requested data
-						socket_write($this->clients[$index], $this->package(json_encode($this->client_details[$index])));
 					
 					}
+					
+					// send initialized project data to new client
+					$this->sendNewClientInitData($index);
 					
 					// notify controller of new client
 					$this->notifyController([
 						'type' => 'new_client',
 						'ip' => $this->client_details[$index]->ip,
+						'uid' => $this->client_details[$index]->uid,
 						'listeners' => $this->client_details[$index]->listeners
 					]);
 				
