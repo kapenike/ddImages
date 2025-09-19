@@ -170,19 +170,27 @@ class websocket {
 		$client_details = $this->client_details[$index];
 		
 		// if no initialized data, return here
-		if ($client_details.project_uid != null && $client_details.listeners.data.length == 0 && $client_details.listeners.overlays.length == 0) {
+		if ($client_details->project_uid != null && count($client_details->listeners->data.length) && count($client_details->listeners->overlays.length)) {
 			return;
 		}
 		
-		$init_data = [];
+		$init_data = [
+			'data' => [],
+			'overlays' => []
+		];
 		
-		// TODO: init DATA passing
-		if ($client_details.listeners.data.length > 0) {
-			
+		if (count($client_details->listeners->data) > 0) {
+			// request master data list using project id
+			foreach ($client_details->listeners->data as $data_point) {
+				// push data point
+			}
 		}
 		
-		
-		
+		if (count($client_details->listeners->overlays) > 0) {
+			foreach ($client_details->listeners->overlays as $overlay_slug) {
+				$init_data['overlays'][] = $overlay_slug;
+			}
+		}
 
 		socket_write($this->clients[$index], $this->package(json_encode($init_data)));
 	}
@@ -269,7 +277,7 @@ class websocket {
 					
 					// notify controller of new client
 					$this->notifyController([
-						'type' => 'new_client',
+						'type' => $this->client_details[$index]->type,
 						'ip' => $this->client_details[$index]->ip,
 						'uid' => $this->client_details[$index]->uid,
 						'listeners' => $this->client_details[$index]->listeners

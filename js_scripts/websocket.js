@@ -58,6 +58,7 @@ class wsct {
 				}
 			} else if (this.state == 'control') {
 				
+				// new connection
 				console.log(data);
 				
 			}

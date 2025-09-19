@@ -24,6 +24,10 @@ if (isset($_GET['project_uid'])) {
 <html>
 <script>
 
+function requestImageFromServer(uid, overlay_slug) {
+	return '<?php echo $config->host.':'.$config->host_port; ?>/request_image.php?uid='+uid+'&overlay_slug='+overlay_slug;
+}
+
 const socket = new WebSocket('ws://<?php echo $config->host; ?>:<?php echo $config->ws_port; ?>');
 
 socket.addEventListener('open', (event) => {
