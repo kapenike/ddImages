@@ -1,12 +1,12 @@
 function removeLayer(index) {
 	
-	// detect sub layer / layer removal and splice from correct list
-	let ids = index.split('_').filter(x => x != 'layer');
-	if (ids.length > 1) {
-		GLOBAL.overlay_editor.current.layers[ids[0]].layers.splice(ids[1], 1);
-	} else {
-		GLOBAL.overlay_editor.current.layers.splice(ids[0], 1);
+	ids = index.toString().split('_').filter(v => v != 'layer');
+	let layer = GLOBAL.overlay_editor.current;
+	let i=0;
+	for (i=0; i<ids.length-1; i++) {
+		layer = layer.layers[ids[i]];
 	}
+	layer.layers.splice(ids[i], 1);
 	
 	// set to no active layer
 	setActiveLayer(null);
