@@ -119,24 +119,6 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_project.dat
 		var_real_parts.forEach(split_part => {
 			if (split_part.variable) {
 				
-				// if global flag, add variable paths to overlay sources
-				if (GLOBAL.generate_sources == true) {
-					if (!GLOBAL.active_project.overlays[GLOBAL.active_overlay_slug].sources.includes('$var$'+split_part.variable+'$/var$')) {
-						GLOBAL.active_project.overlays[GLOBAL.active_overlay_slug].sources.push('$var$'+split_part.variable+'$/var$');
-					}
-					// due to the variable nature of the application and not being able to 100% determine if a source will be or become a dataset, a crude method must be used here
-					// if a field element saves a dataset path and the editor uses a property of that dataset, the sources will mismatch and not generate the associated overlay
-					// fix by also logging sub path
-					let variable_split_path = split_part.variable.split('/');
-					if (variable_split_path.length > 1) {
-						variable_split_path.pop();
-						let sub_path = variable_split_path.join('/');
-						if (!GLOBAL.active_project.overlays[GLOBAL.active_overlay_slug].sources.includes('$var$'+sub_path+'$/var$')) {
-							GLOBAL.active_project.overlays[GLOBAL.active_overlay_slug].sources.push('$var$'+sub_path+'$/var$');
-						}
-					}
-				}
-				
 				// if source is already in head, return to prevent infinite loop
 				if (head.includes(split_part.variable)) {
 					return '';
@@ -218,6 +200,86 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_project.dat
 	
 	// if not a variable, return value
 	return value;
+}
+
+function sourcesFromValue(value) {
+	let sources = [];
+	getRealVariableParts(value).forEach(v => {
+		if (v.variable) {
+			sources.push('$var$'+v.variable+'$/var$');
+		}
+	});
+	return sources;
+}
+
+function sourcesFromLayer(layer) {
+	let sources = [];
+	
+	// push values stashed within toggle
+	sources.push(...sourcesFromValue(layer.toggle));
+	
+	if (layer.type == 'clip_path') {
+		
+		// clip path border and background color
+		sources.push(...sourcesFromValue(layer.clip_path.color));
+		sources.push(...sourcesFromValue(layer.clip_path.border.color));
+		
+	} else {
+		
+		// image and text value
+		sources.push(...sourcesFromValue(layer.value));
+		
+		if (layer.type == 'text') {
+			
+			// text layer color
+			sources.push(...sourcesFromValue(layer.style.color));
+			
+		}
+		
+	}
+	
+	// if sub layers
+	if (layer.layers) {
+		layer.layers.forEach(sub_layer => {
+			sources.push(...sourcesFromLayer(sub_layer));
+		});
+	}
+	
+	return sources;
+}
+
+function requestSourceList(overlay) {
+	let sources = [];
+	
+	overlay.layers.forEach(layer => {
+		sources.push(...sourcesFromLayer(layer));
+	});
+	
+	// due to the variable nature of the application and not being able to 100% determine if a source will be or become a dataset, a crude method must be used here
+	// if a field element saves a dataset path and the editor uses a property of that dataset, the sources will mismatch and not generate the associated overlay
+	// fix by also logging sub path
+	let sub_sources = [];
+	sources.forEach(source => {
+		let split = source.replaceAll('$var$','').replaceAll('$/var$','').split('/');
+		if (split.length > 1) {
+			split.pop();
+			sub_sources.push('$var$'+split.join('/')+'$/var$');
+		}
+	});
+	sources.push(...sub_sources);
+	
+	// remove duplicate sources
+	for (let i=0; i<sources.length; i++) {
+		let source = sources[i];
+		for (let i2=i+1; i2<sources.length; i2++) {
+			if (sources == sources[i2]) {
+				sources = sources.splice(i2, 1);
+				i2--;
+			}
+		}
+	}
+	
+	return sources;
 }
 
 function setRealValue(string_path, value) {

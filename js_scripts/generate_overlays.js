@@ -48,10 +48,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 			
 			// if global flag, reset overlay sources
 			if (GLOBAL.generate_sources == true) {
-				GLOBAL.active_project.overlays[slug].sources = [];
-				
-				// also stash overlay slug for when layer inserts new sources
-				GLOBAL.active_overlay_slug = slug;
+				GLOBAL.active_project.overlays[slug].sources = requestSourceList(GLOBAL.active_project.overlays[slug]);
 			}
 		
 			// log overlay slug for capture with PHP
