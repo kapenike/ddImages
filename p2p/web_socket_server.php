@@ -308,7 +308,7 @@ class websocket {
 			$except = [];
 			
 			// if no actions, continue
-			if (socket_select($read, $write, $except, 0) < 1) {
+			if (socket_select($read, $write, $except, null) < 1) {
 				
 				// check all clients to determine if processing of inputs required
 				$this->processInputList();

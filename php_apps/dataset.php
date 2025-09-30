@@ -98,33 +98,52 @@ class dataset {
 			: $this->load($post['project_uid'], $post['dataset_manager_type'])
 		);
 		
-		// load all entries against saved and determine if create / update / or remove of sub values
-		foreach($post['dataset_value_uid'] as $index => $entry_uid) {
+		// log present uids
+		$existing_uids = [];
+		
+		// if any dataset submissions exist
+		if (isset($post['dataset_value_uid'])) {
 			
-			// load or create entry uid
-			$uid = $entry_uid == 'create' ? app('uid')->generate($post['project_uid']) : $entry_uid;
-			if (!isset($dataset->entries->{$uid})) {
-				$dataset->entries->{$uid} = (object)[];
-			}
-			
-			// update values in dataset and log updated keys
-			foreach($post['structure'] as $key) {
-				foreach($post['dataset_value_'.$key] as $index_2 => $value) {
-					if ($index == $index_2) {
-						$dataset->entries->{$uid}->{$key} = $value;
+			// load all entries against saved and determine if create / update / or remove of sub values
+			foreach($post['dataset_value_uid'] as $index => $entry_uid) {
+				
+				// load or create entry uid
+				$uid = $entry_uid == 'create' ? app('uid')->generate($post['project_uid']) : $entry_uid;
+				if (!isset($dataset->entries->{$uid})) {
+					$dataset->entries->{$uid} = (object)[];
+				}
+				
+				// push updated uid
+				$existing_uids[] = $uid;
+				
+				// update values in dataset and log updated keys
+				foreach($post['structure'] as $key) {
+					foreach($post['dataset_value_'.$key] as $index_2 => $value) {
+						if ($index == $index_2) {
+							$dataset->entries->{$uid}->{$key} = $value;
+						}
 					}
 				}
-			}
-			
-			// remove any dataset key values not present in the posted structure
-			foreach (get_object_vars($dataset->entries->{$uid}) as $existing_key) {
-				if (!array_search($existing_key, $post['structure'])) {
-					unset($dataset->entries->{$uid}->{$existing_key});
+				
+				// remove any dataset key values not present in the posted structure
+				foreach (get_object_vars($dataset->entries->{$uid}) as $existing_key) {
+					if (array_search($existing_key, $post['structure']) === false) {
+						unset($dataset->entries->{$uid}->{$existing_key});
+					}
 				}
+				
 			}
 			
 		}
 		
+		
+		// remove any entries whos UID was not found, it was removed from the dataset
+		foreach (array_keys(get_object_vars($dataset->entries)) as $existing_uid) {
+			if (array_search($existing_uid, $existing_uids) === false) {
+				unset($dataset->entries->{$existing_uid});
+			}
+		}
+	
 		// update structure array in dataset
 		$dataset->structure = $post['structure'];
 			
