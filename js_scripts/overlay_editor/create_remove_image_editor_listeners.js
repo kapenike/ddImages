@@ -4,6 +4,7 @@ function createImageEditorListeners() {
 	window.addEventListener('mouseup', imageEditorMouseUp);
 	window.addEventListener('contextmenu', imageEditorMouseCTX);
 	window.addEventListener('wheel', imageEditorZoom);
+	window.addEventListener('resize', resizeValueInits)
 }
 
 function removeImageEditorListeners() {
@@ -12,4 +13,5 @@ function removeImageEditorListeners() {
 	window.removeEventListener('mouseup', imageEditorMouseUp);
 	window.removeEventListener('contextmenu', imageEditorMouseCTX);
 	window.removeEventListener('wheel', imageEditorZoom);
+	window.removeEventListener('resize', resizeValueInits)
 }
