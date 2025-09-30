@@ -150,7 +150,7 @@ function printLayers(ctx, layers) {
 					// if border, print after clip
 					if (layer.clip_path.border.use) {
 						ctx.setLineDash([]);
-						ctx.strokeStyle = layer.clip_path.border.color;
+						ctx.strokeStyle = getRealValue(layer.clip_path.border.color);
 						ctx.lineWidth = layer.clip_path.border.width;
 						ctx.stroke();
 					}
