@@ -8,6 +8,13 @@ function initHotKeyListeners() {
 		reset: false
 	};
 	
+	// add event listener that prevents mouse wheel document zoom
+	document.addEventListener('wheel', function (event) {
+		if (event.ctrlKey) {
+			event.preventDefault();
+		}
+	}, { passive: false });
+	
 	window.addEventListener('keydown', function (event) {
 		if (GLOBAL.held_keys.reset == true) {
 			event.preventDefault();
