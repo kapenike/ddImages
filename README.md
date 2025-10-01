@@ -41,7 +41,9 @@ FEATURES:
 - Create section app that highjacks the regions and auto creates a bracket system from a select dataset
 
 - Overlay editor features
+	- ctrl + z, ctrl + y: undo and redo
 	- position image from different origins, then allow image rotations
+	- allow text to overflow when prompted and provide a new height dimension, with that allow vertical positioning, default top but allow center and bottom
 	- quick asset upload from editor
 	- right click tool on overlay editor to:
 		- create new layer
