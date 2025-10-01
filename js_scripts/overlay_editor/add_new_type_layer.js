@@ -1,3 +1,91 @@
+// new layer structure
+function requestNewLayer(type = 'text') {
+	
+	// default x and y will not be defined during application legacy check init
+	let x = 0;
+	let y = 0;
+	if (GLOBAL.overlay_editor.current) {
+		x = GLOBAL.overlay_editor.current.dimensions.width/2;
+		y = GLOBAL.overlay_editor.current.dimensions.height/2;
+	}
+	
+	if (type == 'text') {
+
+		// new TEXT layer
+		return {
+			type: 'text',
+			toggle: '',
+			title: 'Untitled Text Layer',
+			value: '',
+			style: {
+				font: 'Arial',
+				fontStyle: 'normal',
+				fontWeight: '400',
+				fontSize: '22',
+				fontMeasure: 'px',
+				color: '#000000',
+				align: 'left',
+				caps: false
+			},
+			offset: {
+				x: x,
+				y: y
+			},
+			dimensions: {
+				width: 300
+			}
+		};
+		
+	} else if (type == 'image') {
+		
+		// new IMAGE layer
+		return {
+			type: 'image',
+			toggle: '',
+			title: 'Untitled Image Layer',
+			value: '',
+			offset: {
+				x: x,
+				y: y
+			},
+			dimensions: {
+				width: '',
+				height: ''
+			}
+		};
+		
+	} else if (type == 'clip_path') {
+		
+		// new GROUP layer (clip_path)
+		return {
+			type: 'clip_path',
+			toggle: '',
+			title: 'Untitled Group',
+			clip_path: {
+				type: 'none',
+				color: '',
+				offset: {
+					x: x,
+					y: y
+				},
+				dimensions: {
+					width: 100,
+					height: 100
+				},
+				border: {
+					use: false,
+					color: '',
+					width: '2'
+				},
+				clip_points: []
+			},
+			layers: []
+		};
+	}
+}
+
+
+
 // create a new layer of the given type, index passed from addNewLayer will determine its insert location
 // boolian determines if the new layer will be duplcated from the layer at the specified index
 function addNewTypeLayer(type, index, duplicate = false) {
@@ -8,79 +96,7 @@ function addNewTypeLayer(type, index, duplicate = false) {
 	// if not a duplicate, generate a new layer object
 	if (duplicate == false) {
 	
-		if (type == 'text') {
-			
-			// new TEXT layer
-			new_layer = {
-				type: 'text',
-				toggle: '',
-				title: 'Untitled Text Layer',
-				value: '',
-				style: {
-					font: 'Arial',
-					fontStyle: 'normal',
-					fontWeight: '400',
-					fontSize: '22',
-					fontMeasure: 'px',
-					color: '#000000',
-					align: 'left',
-					caps: false
-				},
-				offset: {
-					x: GLOBAL.overlay_editor.current.dimensions.width/2,
-					y: GLOBAL.overlay_editor.current.dimensions.height/2
-				},
-				dimensions: {
-					width: 300
-				}
-			};
-			
-		} else if (type == 'image') {
-			
-			// new IMAGE layer
-			new_layer = {
-				type: 'image',
-				toggle: '',
-				title: 'Untitled Image Layer',
-				value: '',
-				offset: {
-					x: GLOBAL.overlay_editor.current.dimensions.width/2,
-					y: GLOBAL.overlay_editor.current.dimensions.height/2
-				},
-				dimensions: {
-					width: '',
-					height: ''
-				}
-			};
-			
-		} else if (type == 'clip_path') {
-			
-			// new GROUP layer (clip_path)
-			new_layer = {
-				type: 'clip_path',
-				toggle: '',
-				title: 'Untitled Group',
-				clip_path: {
-					type: 'none',
-					color: '',
-					offset: {
-						x: GLOBAL.overlay_editor.current.dimensions.width/2,
-						y: GLOBAL.overlay_editor.current.dimensions.height/2
-					},
-					dimensions: {
-						width: 100,
-						height: 100
-					},
-					border: {
-						use: false,
-						color: '',
-						width: '2'
-					},
-					clip_points: []
-				},
-				layers: []
-			};
-		}
+		new_layer = requestNewLayer(type);
 		
 	} else {
 		

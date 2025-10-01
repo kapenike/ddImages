@@ -34,24 +34,31 @@
 
 ## To-DO
 
-- FULL release features
-	- [ ] create section app that highjacks the region and creates a bracket system within using all generate ui components and datasets
-	- overlay editor features
-		- [ ] position image from different origins
-			- [ ] after, allow image rotation
-		- [ ] allow quick upload of asset from editor
-		- [ ] allow right click tool to select layer from output window
-		- [ ] CTRL + T open transform feature that adhocs scaling and rotation of text and images
-	- [ ] variable input cleanup and improvements, use window anchor to allow edit of variable(s) that arent a path only, e.g. edit concatted variable rather than just append new selection to end
-	- [ ] classify and make browser sources a library manager
-		- [ ] improve timer app and include current time option
-		- [ ] create banner app
-	- [ ] search field on large variable input result lists (10+)
+FEATURES:
+
+- P2P overlay and data share
+
+- Create section app that highjacks the regions and auto creates a bracket system from a select dataset
+
+- Overlay editor features
+	- position image from different origins, then allow image rotations
+	- quick asset upload from editor
+	- right click tool on overlay editor to:
+		- create new layer
+		- remove layer if selection is within active layer bounds
+		- select layer, behind layer, layer container
+		- ctrl + t for a new UI to control rotation and dimensions of layer object
+
+- variable input
+	- needs to allow window anchor selection to change specific concatted variables rather than just appending the new variable selection
+	- offer search option for lists containing more than 10 values
 	
-- QOL
-	- [ ] variable input drop down should open as a window container with matching positioning as current, but as an absolute poisitioned element it would not be resitricted to overflow parent containers
-	- [ ] detection of valid color code in clip path should also allow use of rgb incase it is set that way in dataset/data inputs. currently only checks length for hex code or hex with opacity
-	- [ ] nbd but drag move of group layers has pre-logical that handles its own edge cases and newer logic to handle drag logic of infinite nested children, these should be combined so the old is merged in
-	
-- BUGS
-	- [ ] Head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
+- browser sources need an overhaul and new features like a banner app
+
+- QOL: drag move of group layers has old logic to handle the dragged contents of the direct drag object, it needs to be updated to merge with the new logic for dragging all infinite sub groups of a parent container
+
+BUGS:
+
+- generate overlay while using variable color override on a layer needs to detect all color value types, not just hexcode and hexcode alpha
+
+- head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line

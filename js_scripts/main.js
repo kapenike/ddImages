@@ -51,6 +51,10 @@ function streamDataLoaded(status, data) {
 		
 		// save initial project data in GLOBAL
 		GLOBAL.active_project = data.msg;
+		
+		// ensure project overlay layers are updated to the current version of the editor
+		// this is so all projects will continue to work no matter the new layer changes in the future supporting multiple new features
+		legacyLayerCheck();
 
 		// load dependent image sources into GLOBAL
 		loadOverlayDependencies();
