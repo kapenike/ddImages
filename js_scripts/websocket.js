@@ -3,6 +3,7 @@ class wsct {
 	
 	connection = null;
 	details = null;
+	status = false;
 	state = 'await_control';
 	clients = [];
 	
@@ -12,17 +13,20 @@ class wsct {
 		ajax('POST', '/p2p/server_details.php', { request_server_details: true }, (v, data) => {
 			if (v && data) {
 				this.details = data;
+				this.status = true;
 				this.connect();
 			}
 		});
 		
 	}
 	
-	// start public web docket and http server
+	// start public web socket and http server
 	start() {
 		ajax('POST', '/p2p/init.php', {}, (v, data) => {
 			if (v && data) {
 				this.details = data;
+				this.status = true;
+				updateServerStatus();
 				setTimeout(() => this.connect(), 500);
 			}
 		});
@@ -30,7 +34,10 @@ class wsct {
 	
 	// stop public web socket and http server
 	stop() {
-		// use PIDs to kill local processes
+		ajax('POST', '/p2p/kill.php', {}, (v, data) => {
+			this.status = false;
+			updateServerStatus();
+		}, 'main');
 	}
 	
 	connect() {
@@ -55,12 +62,14 @@ class wsct {
 			if (this.state == 'await_control') {
 				if (data.upgrade_to_controller) {
 					this.state = 'control';
+					this.clients = data.clients;
+					generateConnectionList();
 				}
 			} else if (this.state == 'control') {
 				
 				// new connection
-				console.log(data);
-				
+				this.clients.push(data);
+				generateConnectionList();
 			}
 			
 		});

@@ -5,73 +5,86 @@ function setNavigationP2PServer() {
 		children: [
 			Create('div', {
 				className: 'block',
-				style: {
-					height: '100%'
-				},
 				children: [
 					Create('div', {
+						id: 'server_status',
 						className: 'row',
-						children: [
-							Create('div', {
-								className: 'col',
-								style: {
-									width: '30%',
-									height: '100%'
-								},
-								children: [
-									Create('div', {
-										className: 'row',
-										children: [
-											Create('div', {
-												className: 'col',
-												style: {
-													width: '50%'
-												},
-												children: [
-													Create('h3', {
-														innerHTML: 'Generate Static Link'
-													})
-												]
-											})
-										]
-									}),
-									Create('div', {
-										style: {
-											height: 'calc(100% - 150px)',
-											overflowY: 'scroll'
-										},
-										children: [
-											Create('div', {
-												innerHTML: 'Countdown Clock',
-												className: 'selection_list_block',
-												onclick: setupCountdownClockWidget,
-												style: {
-													backgroundColor: '#000000',
-													color: '#ffffff'
-												}
-											})
-										]
-									})
-								]
-							}),
-							Create('div', {
-								className: 'col',
-								style: {
-									width: '70%',
-									height: '100%',
-									overflowY: 'scroll'
-								},
-								children: [
-									Create('div', {
-										
-									})
-								]
-							})
-						]
+						style: {
+							textAlign: 'center'
+						},
+						innerHTML: ''
 					})
 				]
+			}),
+			Create('div', {
+				id: 'connection_list'
 			})
 		]
 	});
+	
+	updateServerStatus();
+	generateConnectionList();
 		
+}
+
+function generateConnectionList() {
+	// create list from non server, non controller clients
+	if (Select('#connection_list')) {
+		Select('#connection_list', {
+			innerHTML: '',
+			children: P2P_SERVER.clients.filter(x => x != null && x.type != 'controller').map(client => {
+				console.log(client);
+				return Create('div', {
+					className: 'row block',
+					children: [
+						Create('div', {
+							className: 'col',
+							style: {
+								width: '20%',
+							},
+							innerHTML: client.uid
+						}),
+						Create('div', {
+							className: 'col',
+							style: {
+								width: '30%',
+							},
+							innerHTML: client.ip
+						})
+					]
+				});
+			})
+		});
+	}
+}
+
+function commandServer() {
+	if (P2P_SERVER.status) {
+		P2P_SERVER.stop();
+	} else {
+		P2P_SERVER.start();
+	}
+}
+
+function updateServerStatus() {
+	if (Select('#server_status')) {
+		Select('#server_status', {
+			innerHTML: '',
+			children: [
+				Create('div', {
+					className: 'col',
+					style: {
+						width: '20%',
+						height: '100px',
+						backgroundColor: (P2P_SERVER.status ? '#B22222' : '#5bb450'),
+						color: '#ffffff',
+						textAlign: 'center',
+						cursor: 'cursor',
+					},
+					onclick: commandServer,
+					innerHTML: '<span style="font-size:22px">'+(P2P_SERVER.status ? 'STOP' : 'START')+'</span><br />server'
+				})
+			]
+		});
+	}
 }

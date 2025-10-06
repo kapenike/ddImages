@@ -8,9 +8,9 @@ $config = requestServerDetails();
 // parse init variables
 $init = ['state' => 'connect'];
 
-if (isset($_GET['project_uid'])) {
+if (isset($_GET['uid'])) {
 	
-	$init['project_uid'] = $_GET['project_uid'];
+	$init['uid'] = $_GET['uid'];
 	
 	if (isset($_GET['overlay'])) {
 		
@@ -31,6 +31,7 @@ function requestImageFromServer(uid, overlay_slug) {
 const socket = new WebSocket('ws://<?php echo $config->host; ?>:<?php echo $config->ws_port; ?>');
 
 socket.addEventListener('open', (event) => {
+	document.body.innerHTML = '<h1>^_^<br />server connected</h1>';
 	socket.send('<?php echo json_encode($init); ?>');
 });
 
@@ -39,11 +40,11 @@ socket.addEventListener('message', (event) => {
 });
 
 socket.addEventListener('error', (event) => {
-	document.body.innerHTML = '<h1>x_x <br /> server is dead</h1>';
+	document.body.innerHTML = '<h1>x_x<br />server is dead</h1>';
 });
 
 socket.addEventListener('close', (event) => {
-	document.body.innerHTML = '<h1>-_- <br /> closed connection</h1>';
+	document.body.innerHTML = '<h1>@_@<br />closed connection</h1>';
 });
 
 </script>

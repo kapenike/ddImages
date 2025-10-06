@@ -23,6 +23,7 @@ class websocket {
 		socket_set_option($this->server, SOL_SOCKET, SO_REUSEADDR, 1);
 		socket_bind($this->server, $config->host, $config->ws_port);
 		socket_listen($this->server);
+		socket_set_nonblock($this->server);
 		
 		// add server to client process list
 		$this->clients[] = $this->server;
@@ -108,10 +109,6 @@ class websocket {
 			'listeners' => (object) [
 				'data' => [],
 				'overlays' => []
-			],
-			'input' => (object) [
-				'state' => false,
-				'read_buffer' => ''
 			]
 		];
 		
@@ -154,14 +151,14 @@ class websocket {
 			$this->notifyController([
 				'type' => 'disconnect',
 				'ip' => $this->client_details[$index]->ip,
-				'uid' => this->client_details[$index]->uid
+				'uid' => $this->client_details[$index]->uid
 			]);
 			
 		}
 		
 		// remove client and client details data from server
-		unset($this->clients[$index]);
-		unset($this->client_details[$index]);
+		array_splice($this->clients, $index, 1);
+		array_splice($this->client_details, $index, 1);
 		
 	}
 	
@@ -170,7 +167,7 @@ class websocket {
 		$client_details = $this->client_details[$index];
 		
 		// if no initialized data, return here
-		if ($client_details->project_uid != null && count($client_details->listeners->data.length) && count($client_details->listeners->overlays.length)) {
+		if ($client_details->project_uid != null && count($client_details->listeners->data.length) == 0 && count($client_details->listeners->overlays.length) == 0) {
 			return;
 		}
 		
@@ -195,24 +192,7 @@ class websocket {
 		socket_write($this->clients[$index], $this->package(json_encode($init_data)));
 	}
 	
-	private function processInputList() {
-		foreach ($this->clients as $index => $client) {
-			if ($index > 0) {
-				$this->processInput($index);
-			}
-		}
-	}
-	
-	private function processInput($index) {
-		
-		// stash read buffer
-		$json = $this->client_details[$index]->input->read_buffer;
-		
-		// set input state to false
-		$this->client_details[$index]->input->state = false;
-		
-		// reset client read buffer
-		$this->client_details[$index]->input->read_buffer = '';
+	private function processInput($index, $json) {
 		
 		// read buffer must be valid json
 		if (json_validate($json)) {
@@ -230,9 +210,10 @@ class websocket {
 						$this->client_details[$index]->type = 'controller';
 						$this->client_details[$index]->state = 'accepted';
 						
-						// inform controller of control state
+						// inform controller of control state and give list of current clients
 						socket_write($this->clients[$index], $this->package(json_encode([
-							'upgrade_to_controller' => true
+							'upgrade_to_controller' => true,
+							'clients' => $this->client_details
 						])));
 						
 					} else {
@@ -276,12 +257,7 @@ class websocket {
 					$this->sendNewClientInitData($index);
 					
 					// notify controller of new client
-					$this->notifyController([
-						'type' => $this->client_details[$index]->type,
-						'ip' => $this->client_details[$index]->ip,
-						'uid' => $this->client_details[$index]->uid,
-						'listeners' => $this->client_details[$index]->listeners
-					]);
+					$this->notifyController($this->client_details[$index]);
 				
 				}
 				
@@ -308,11 +284,7 @@ class websocket {
 			$except = [];
 			
 			// if no actions, continue
-			if (socket_select($read, $write, $except, null) < 1) {
-				
-				// check all clients to determine if processing of inputs required
-				$this->processInputList();
-				
+			if (socket_select($read, $write, $except, .5) < 1) {
 				continue;
 			}
 			
@@ -321,18 +293,7 @@ class websocket {
 				
 				// if no action on client, skip
 				if (!in_array($client, $read)) {
-					
-					// if read state was true, process data
-					if ($index > 0 && $this->client_details[$index]->input->state == true) {
-						$this->processInput($index);
-					}
-					
 					continue;
-				} else if ($index > 0) {
-					
-					// if read action, ensure read state
-					$this->client_details[$index]->input->state = true;
-					
 				}
 				
 				// if client is server, handle new connection
@@ -342,7 +303,7 @@ class websocket {
 				}
 				
 				// handle client sent data in blocks to prevent blocking
-				$data = socket_read($client, 1024);
+				$data = socket_read($client, 1000000000);
 				
 				// if socket_select passed empty read data, close connection identified
 				if ($data === false || strlen($data) == 0) {
@@ -350,9 +311,9 @@ class websocket {
 					$this->closeClientConnection($client, $index);
 					
 				} else {
-					
-					// otherwise, append to client input buffer
-					$this->client_details[$index]->input->read_buffer .= $this->removeMask($data);
+
+					// process data
+					$this->processInput($index, $this->removeMask($data));
 					
 					
 				}
