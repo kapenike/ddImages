@@ -6,6 +6,7 @@ class wsct {
 	status = false;
 	state = 'await_control';
 	clients = [];
+	project_overlay_pairs = {};
 	
 	constructor() {
 		
@@ -35,7 +36,12 @@ class wsct {
 	// stop public web socket and http server
 	stop() {
 		ajax('POST', '/p2p/kill.php', {}, (v, data) => {
+			this.connection = null;
 			this.status = false;
+			this.details = null;
+			this.state = 'await_control';
+			this.clients = [];
+			generateConnectionList();
 			updateServerStatus();
 		}, 'main');
 	}
@@ -57,7 +63,7 @@ class wsct {
 		this.connection.addEventListener('message', (event) => {
 			
 			let data = JSON.parse(event.data);
-			
+
 			// if awaiting control status
 			if (this.state == 'await_control') {
 				if (data.upgrade_to_controller) {
@@ -66,10 +72,20 @@ class wsct {
 					generateConnectionList();
 				}
 			} else if (this.state == 'control') {
-				
-				// new connection
-				this.clients.push(data);
-				generateConnectionList();
+
+				if (data.type && data.type == 'disconnect') {
+					
+					// remove disconnected client from clients list
+					this.clients.splice(this.clients.findIndex(x => x.uid == data.uid), 1);
+					generateConnectionList();
+					
+				} else if (data.ip) {
+					
+					// new connection
+					this.clients.push(data);
+					generateConnectionList();
+					
+				}
 			}
 			
 		});

@@ -1,29 +1,42 @@
 function setNavigationP2PServer() {
 
-	Select('#main', {
-		innerHTML: '',
-		children: [
-			Create('div', {
-				className: 'block',
+	// request project overlay pairs before showing application
+	ajax('POST', '/requestor.php', {
+		application: 'request_project_overlay_pairs'
+	}, (status, data) => {
+		if (status) {
+			
+			P2P_SERVER.project_overlay_pairs = data.msg;
+			
+			Select('#main', {
+				innerHTML: '',
 				children: [
 					Create('div', {
-						id: 'server_status',
-						className: 'row',
-						style: {
-							textAlign: 'center'
-						},
-						innerHTML: ''
+						className: 'block',
+						children: [
+							Create('div', {
+								id: 'server_status',
+								className: 'row',
+								style: {
+									textAlign: 'center'
+								},
+								innerHTML: ''
+							})
+						]
+					}),
+					Create('div', {
+						id: 'connection_list'
 					})
 				]
-			}),
-			Create('div', {
-				id: 'connection_list'
-			})
-		]
-	});
+			});
+			
+			updateServerStatus();
+			generateConnectionList();
 	
-	updateServerStatus();
-	generateConnectionList();
+		}
+	}, 'body');
+	
+	
 		
 }
 
@@ -32,24 +45,89 @@ function generateConnectionList() {
 	if (Select('#connection_list')) {
 		Select('#connection_list', {
 			innerHTML: '',
-			children: P2P_SERVER.clients.filter(x => x != null && x.type != 'controller').map(client => {
-				console.log(client);
+			children: P2P_SERVER.clients.map((client, index) => {
+				if (client == null || client.type == 'controller') {
+					return Create('div');
+				}
 				return Create('div', {
 					className: 'row block',
 					children: [
 						Create('div', {
 							className: 'col',
 							style: {
-								width: '20%',
+								width: '10%',
 							},
 							innerHTML: client.uid
 						}),
 						Create('div', {
 							className: 'col',
 							style: {
-								width: '30%',
+								width: '24%',
 							},
 							innerHTML: client.ip
+						}),
+						Create('div', {
+							className: 'col',
+							style: {
+								width: '33%'
+							},
+							children: [
+								Create('select', {
+									data: index,
+									onchange: function () {
+										P2P_SERVER.clients[this.data].project_uid = this.value;
+										Select('#project_overlay_server_pair_list_'+this.data, {
+											innerHTML: '',
+											children: [null, ...P2P_SERVER.project_overlay_pairs[this.value].overlays].map(v => {
+												return Create('option', {
+													innerHTML: v == null ? ' ------ ' : v,
+													value: v == null ? '' : v
+												});
+											})
+										});
+									},
+									children: [null, ...Object.keys(P2P_SERVER.project_overlay_pairs)].map(v => {
+										return Create('option', {
+											innerHTML: v == null ? ' ------ ' : P2P_SERVER.project_overlay_pairs[v].title,
+											value: v == null ? '' : v,
+											selected: client.project_uid == v
+										});
+									})
+								})
+							]
+						}),
+						Create('div', {
+							className: 'col',
+							style: {
+								width: '33%'
+							},
+							children: [
+								Create('select', {
+									id: 'project_overlay_server_pair_list_'+index,
+									data: index,
+									onchange: function () {
+										if (P2P_SERVER.clients[this.data].listeners.overlays.length == 0) {
+											P2P_SERVER.clients[this.data].listeners.overlays.push(this.value);
+										}
+										P2P_SERVER.clients[this.data].listeners.overlays[0] = this.value;
+										if (this.value != '') {
+											P2P_SERVER.connection.send(JSON.stringify({
+												action: 'client_reinit',
+												client_uid: P2P_SERVER.clients[this.data].uid,
+												project_uid: P2P_SERVER.clients[this.data].project_uid,
+												overlay: P2P_SERVER.clients[this.data].listeners.overlays[0]
+											}));
+										}
+									},
+									children: (client.project_uid == null ? [] : [null, ...P2P_SERVER.project_overlay_pairs[client.project_uid].overlays]).map(v => {
+										return Create('option', {
+											innerHTML: v == null ? ' ------ ' : v,
+											value: v == null ? '' : v,
+											selected: client.listeners.overlays.includes(v)
+										});
+									})
+								})
+							]
 						})
 					]
 				});

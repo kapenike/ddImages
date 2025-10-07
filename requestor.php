@@ -13,11 +13,24 @@ if (isset($_GET['download_export'])) {
 // application switch, defined by string value in $_POST['application']
 switch($_POST['application']) {
 	
+	case 'request_project_overlay_pairs':
+		$projects = app('project')->readRegistry();
+		foreach ($projects as $key => $value) {
+			$projects->{$key} = (object)[
+				'title' => $value,
+				'overlays' => json_decode(file_get_contents(getBasePath().'/data/'.$key.'/overlay_registry.json'))
+			];
+		}
+		app('respond')->json(true, $projects);
+		break;
+	
 	case 'update_font_face':
 		app('fonts')->update($_POST, $_FILES);
+		break;
 		
 	case 'remove_font':
 		app('fonts')->remove($_POST['font_face']);
+		break;
 
 	case 'import_project':
 		app('project')->import($_POST['uid'], $_FILES['file_0']);

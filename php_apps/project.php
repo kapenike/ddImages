@@ -12,6 +12,10 @@ class project {
 		$this->registry = json_decode(file_get_contents(getBasePath().'/php_apps/app_data/project_registry.json'));
 	}
 	
+	function readRegistry() {
+		return $this->registry;
+	}
+	
 	function returnRegistry() {
 		app('respond')->json(true, $this->registry);
 	}

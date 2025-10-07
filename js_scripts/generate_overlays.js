@@ -77,9 +77,20 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 		ajaxRemoveLoader('body');
 		
 	} else {
-
+		
 		// pass output_overlays object to PHP for file write
-		ajax('POST', '/requestor.php', output_overlays, callback, 'body');
+		ajax('POST', '/requestor.php', output_overlays, () => {
+			callback();
+			
+			// if P2P server running, notify clients of overlay updates
+			if (P2P_SERVER.status) {
+				P2P_SERVER.connection.send(JSON.stringify({
+					action: 'overlay_update',
+					overlays: output_overlays.changed
+				}));
+			}
+			
+		}, 'body');
 		
 	}
 	

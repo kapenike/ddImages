@@ -84,6 +84,7 @@ class websocket {
 		} else if ($len > 125 && $len < 65536) {
 			$header = pack('CCn', $b1, 126, $len);
 		} else if ($len >= 65536) {
+			// this doesn't actually work :/ more discovery needed
 			$header = pack('CCNN', $b1, 127, $len);
 		}
 		
@@ -139,10 +140,10 @@ class websocket {
 		
 	}
 	
-	private function closeClientConnection($client, $index) {
+	private function closeClientConnection($index) {
 		
 		// close socket connection
-		socket_shutdown($client);
+		socket_shutdown($this->clients[$index]);
 		
 		// if client is not server or controller
 		if ($index > 0 && $this->client_details[$index]->type != 'controller') {
@@ -165,28 +166,32 @@ class websocket {
 	private function sendNewClientInitData($index) {
 		
 		$client_details = $this->client_details[$index];
-		
-		// if no initialized data, return here
-		if ($client_details->project_uid != null && count($client_details->listeners->data.length) == 0 && count($client_details->listeners->overlays.length) == 0) {
-			return;
-		}
-		
+
 		$init_data = [
-			'data' => [],
-			'overlays' => []
+			'identifier' => $client_details->uid,
 		];
 		
-		if (count($client_details->listeners->data) > 0) {
-			// request master data list using project id
-			foreach ($client_details->listeners->data as $data_point) {
-				// push data point
+		// if initializing data, append to initial response
+		if ($client_details->project_uid != null && (count($client_details->listeners->data) > 0 || count($client_details->listeners->overlays) > 0)) {
+			
+			$init_data['project_uid'] = $client_details->project_uid;
+			$init_data['data'] = [];
+			$init_data['overlays'] = [];
+
+			if (count($client_details->listeners->data) > 0) {
+				// request master data list using project id
+				foreach ($client_details->listeners->data as $data_point) {
+					// push data point
+					// TOCOMPLETE: init send data to uncontrolled client
+				}
 			}
-		}
+			
+			if (count($client_details->listeners->overlays) > 0) {
+				foreach ($client_details->listeners->overlays as $overlay_slug) {
+					$init_data['overlays'][] = $overlay_slug;
+				}
+			}
 		
-		if (count($client_details->listeners->overlays) > 0) {
-			foreach ($client_details->listeners->overlays as $overlay_slug) {
-				$init_data['overlays'][] = $overlay_slug;
-			}
 		}
 
 		socket_write($this->clients[$index], $this->package(json_encode($init_data)));
@@ -200,7 +205,7 @@ class websocket {
 			$json = json_decode($json);
 			
 			// initial connection
-			if ($json->state == 'connect' && $this->client_details[$index]->state == 'accept') {
+			if (isset($json->state) && $json->state == 'connect' && $this->client_details[$index]->state == 'accept') {
 
 				// if controller, log and confirm
 				if (isset($json->controller_key)) {
@@ -213,13 +218,13 @@ class websocket {
 						// inform controller of control state and give list of current clients
 						socket_write($this->clients[$index], $this->package(json_encode([
 							'upgrade_to_controller' => true,
-							'clients' => $this->client_details
+							'clients' => array_slice($this->client_details, 1) // exclude server connection when sending to controller
 						])));
 						
 					} else {
 						
 						// controller denied, disconnect
-						$this->closeClientConnection($this->clients[$index], $index);
+						$this->closeClientConnection($index);
 						
 					}
 					
@@ -265,8 +270,33 @@ class websocket {
 			
 				if ($this->client_details[$index]->type == 'controller') {
 					
-					// send logged data to proper clients
-					
+					// TOCOMPLETE: notify clients listening to specific data points not just overlays
+					// controller notifying clients of overlay update
+					if ($json->action == 'overlay_update') {
+						foreach ($this->clients as $sub_index => $client) {
+							if ($sub_index > 0 && $sub_index != $index) {
+								$overlay_changes = array_intersect($json->overlays, $this->client_details[$sub_index]->listeners->overlays);
+								if (!empty($overlay_changes)) {
+									socket_write($this->clients[$sub_index], $this->package(json_encode((object)[
+										'update' => (object)[
+											'overlays' => $overlay_changes
+										]
+									])));
+								}
+							}
+						}
+					} else if ($json->action == 'client_reinit') {
+						// re-init controlled client overlay
+						foreach ($this->clients as $sub_index => $client) {
+							if ($sub_index > 0 && $sub_index != $index && $this->client_details[$sub_index]->uid == $json->client_uid) {
+								$this->client_details[$sub_index]->project_uid = $json->project_uid;
+								$this->client_details[$sub_index]->listeners->overlays = [$json->overlay];
+								$this->sendNewClientInitData($sub_index);
+								break;
+							}
+						}
+					}
+
 				}
 			
 			}
@@ -284,7 +314,7 @@ class websocket {
 			$except = [];
 			
 			// if no actions, continue
-			if (socket_select($read, $write, $except, .5) < 1) {
+			if (socket_select($read, $write, $except, 1) < 1) {
 				continue;
 			}
 			
@@ -308,7 +338,8 @@ class websocket {
 				// if socket_select passed empty read data, close connection identified
 				if ($data === false || strlen($data) == 0) {
 					
-					$this->closeClientConnection($client, $index);
+					$this->closeClientConnection($index);
+					$index--;
 					
 				} else {
 

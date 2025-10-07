@@ -10,7 +10,7 @@ if (serverIsRunning()) {
 
 // config host:port and init controller key
 $config = (object)[
-	'host' => gethostbyname(trim(`hostname`)),
+	'host' => '10.1.10.123',
 	'ws_port' => 8137,
 	'ws_pid' => null,
 	'host_port' => 8136,

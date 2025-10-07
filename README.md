@@ -36,8 +36,6 @@
 
 FEATURES:
 
-- P2P overlay and data share
-
 - Create section app that highjacks the regions and auto creates a bracket system from a select dataset
 
 - Overlay editor features
@@ -54,13 +52,18 @@ FEATURES:
 - variable input
 	- needs to allow window anchor selection to change specific concatted variables rather than just appending the new variable selection
 	- offer search option for lists containing more than 10 values
-	
-- browser sources need an overhaul and new features like a banner app
 
-- QOL: drag move of group layers has old logic to handle the dragged contents of the direct drag object, it needs to be updated to merge with the new logic for dragging all infinite sub groups of a parent container
 
 BUGS:
 
 - generate overlay while using variable color override on a layer needs to detect all color value types, not just hexcode and hexcode alpha
 
 - head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
+
+OUTSTANDING WORK:
+
+- QOL: drag move of group layers has old logic to handle the dragged contents of the direct drag object, it needs to be updated to merge with the new logic for dragging all infinite sub groups of a parent container
+
+- P2P server only handles the update of overlays, it needs to allow for a custom "uncontrolled client" to listen for the changes of datapoints made on the switchboard, also allow controller to disconnect a client
+
+- Create example project that showcases everything as well as a custom P2P server uncontrolled client

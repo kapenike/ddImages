@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					loaded_fonts++;
 					if (loaded_fonts == to_load_fonts) {
 						// (./js_scripts/main.js)
-						initStreamOverlay();
+						setTimeout(initStreamOverlay(), 1);
 					}
 				});
 			});

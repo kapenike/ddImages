@@ -81,7 +81,7 @@ function generateUI(navigation = null) {
 		children: [
 			Create('div', {
 				className: 'project_title',
-				innerHTML: '<span style="cursor: pointer; font-weight:bold" onclick="generateprojectSelectionScreen();">&larr;</span> project &#x2772; <span id="project_title">'+GLOBAL.active_project.title+'</span> &#x2773;'
+				innerHTML: '<span style="cursor: pointer; font-weight:bold" onclick="generateprojectSelectionScreen();">&larr;</span> project &#x2772; <span id="project_title">'+GLOBAL.active_project.title+'</span> &#x2773; <span style="font-style:italic; font-size:12px">'+GLOBAL.active_project.uid+'</span>'
 			}),
 			Create('div', {
 				className: 'navigation_logo',
