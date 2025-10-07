@@ -279,7 +279,7 @@ class websocket {
 								if (!empty($overlay_changes)) {
 									socket_write($this->clients[$sub_index], $this->package(json_encode((object)[
 										'update' => (object)[
-											'overlays' => $overlay_changes
+											'overlays' => array_values($overlay_changes)
 										]
 									])));
 								}
