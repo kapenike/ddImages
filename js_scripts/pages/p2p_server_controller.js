@@ -160,8 +160,94 @@ function updateServerStatus() {
 						cursor: 'cursor',
 					},
 					onclick: commandServer,
-					innerHTML: '<span style="font-size:22px">'+(P2P_SERVER.status ? 'STOP' : 'START')+'</span><br />server'
-				})
+					innerHTML: '<br /><span style="font-size:22px; font-weight: bold">'+(P2P_SERVER.status ? 'STOP' : 'START')+'</span><br />server'
+				}),
+				(P2P_SERVER.status
+					?	Create('div', {
+							children: [
+								Create('div', {
+									className: 'col',
+									style: {
+										width: '40%',
+										height: '100px'
+									},
+									children: [
+										Create('label', {
+											innerHTML: 'Client URL',
+											children: [
+												Create('input', {
+													type: 'text',
+													readOnly: 'true',
+													onclick: function () { this.focus(); this.select() },
+													type: 'text',
+													value: 'http://'+P2P_SERVER.details.host+':'+P2P_SERVER.details.host_port
+												})
+											]
+										})
+									]
+								}),
+								Create('div', {
+									className: 'col',
+									style: {
+										width: '40%',
+										height: '100px'
+									},
+									children: [
+										Create('label', {
+											innerHTML: 'Generate Auto-Overlay Connect URL',
+											children: [
+												Create('select', {
+													style: {
+														width: '50%',
+														float: 'left',
+														marginBottom: '0'
+													},
+													id: 'generate_auto_connect_overlay_project_id',
+													onchange: function () {
+														Select('#generate_auto_connect_overlay_slug', {
+															innerHTML: '',
+															children: [null, ...P2P_SERVER.project_overlay_pairs[this.value].overlays].map(v => {
+																return Create('option', {
+																	innerHTML: v == null ? '- Overlay -' : v,
+																	value: v == null ? '' : v
+																});
+															})
+														});
+													},
+													children: [null, ...Object.keys(P2P_SERVER.project_overlay_pairs)].map(v => {
+														return Create('option', {
+															innerHTML: v == null ? '- Project -' : P2P_SERVER.project_overlay_pairs[v].title,
+															value: v == null ? '' : v
+														});
+													})
+												}),
+												Create('select', {
+													style: {
+														width: '50%',
+														float: 'left',
+														marginBottom: '0'
+													},
+													id: 'generate_auto_connect_overlay_slug',
+													onchange: function () {
+														Select('#generate_auto_connect_overlay_output').value = 'http://'+P2P_SERVER.details.host+':'+P2P_SERVER.details.host_port+'?uid='+Select('#generate_auto_connect_overlay_project_id').value+'&overlay='+this.value
+													}
+												}),
+												Create('input', {
+													id: 'generate_auto_connect_overlay_output',
+													type: 'text',
+													readOnly: 'true',
+													onclick: function () { this.focus(); this.select() },
+													type: 'text',
+													value: ''
+												})
+											]
+										})
+									]
+								})
+							]
+						})
+					: Create('div')
+				)
 			]
 		});
 	}

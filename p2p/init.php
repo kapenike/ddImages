@@ -8,9 +8,15 @@ if (serverIsRunning()) {
 	exit;
 }
 
+// USE SYSTEM SHELL TO GET IPV4 ADDRESS
+// WINDOWS
+// $ipv4 = trim(explode("\n", explode('IPv4 Address. . . . . . . . . . . :', shell_exec('ipconfig'))[1])[0]);
+// LINUX
+$ipv4 = trim(explode('/', explode(' brd', explode('inet ', shell_exec('ip -4 addr show'))[2])[0])[0]);
+
 // config host:port and init controller key
 $config = (object)[
-	'host' => '10.1.10.123',
+	'host' => $ipv4,
 	'ws_port' => 8137,
 	'ws_pid' => null,
 	'host_port' => 8136,

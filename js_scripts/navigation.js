@@ -214,14 +214,6 @@ function openFileDropdown() {
 							}),
 							Create('div', {
 								className: 'dropdown_action',
-								innerHTML: 'Browser Sources',
-								onclick: function () {
-									GLOBAL.navigation.on_save = ()=>{},
-									setNavigationBrowserSources();
-								}
-							}),
-							Create('div', {
-								className: 'dropdown_action',
 								innerHTML: 'P2P Server',
 								onclick: function () {
 									GLOBAL.navigation.on_save = ()=>{},
