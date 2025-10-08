@@ -194,7 +194,7 @@ function updateServerStatus() {
 									},
 									children: [
 										Create('label', {
-											innerHTML: 'Generate Auto-Overlay Connect URL',
+											innerHTML: '<div>Generate Auto-Overlay Connect URL</div>',
 											children: [
 												Create('select', {
 													style: {
