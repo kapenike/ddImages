@@ -24,6 +24,7 @@
 		- `post_max_size=8M` -> `post_max_size=2G`
 		- `memory_limit=128M` -> `memory_limit=2G`
 		- `max_input_vars=1000` -> `max_input_vars=10000`
+		- ensure the php_zip extension is enabled `extension=zip`, no `;` preceding it
 		
 - Clone or Download and extract the repository
 - Rename the primary directory to `ddImages` NOT `ddImages-main`
