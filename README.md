@@ -8,7 +8,7 @@
 
 ## Windows Download
 - Download and extract from: holdonacoupledaysforbeta.url
-- Launch `MSLaunchFSDimages.bat`
+- Launch `LaunchFSDddImages.bat`
 
 ## Linux / MacOS install
 - Install PHP (will vary depending on your distro)
@@ -25,6 +25,8 @@
 		- `memory_limit=128M` -> `memory_limit=2G`
 		- `max_input_vars=1000` -> `max_input_vars=10000`
 		- ensure the php_zip extension is enabled `extension=zip`, no `;` preceding it
+		- ensure the php_curl extension is enabled `extension=curl`, no `;` preceding it
+		- ensure the php_curl extension is enabled `extension=sockets`, no `;` preceding it
 		
 - Clone or Download and extract the repository
 - Rename the primary directory to `ddImages` NOT `ddImages-main`
@@ -32,6 +34,8 @@
 	> php -S localhost:8000
 	
 - Visit `localhost:8000` in your web browser to start using the application!
+
+- Websockets works for Linux and Windows ... no test case for Mac available so either donate one to me or commit a change for all files under  `/p2p/`
 
 ## To-DO
 

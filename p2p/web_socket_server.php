@@ -23,7 +23,6 @@ class websocket {
 		socket_set_option($this->server, SOL_SOCKET, SO_REUSEADDR, 1);
 		socket_bind($this->server, $config->host, $config->ws_port);
 		socket_listen($this->server);
-		socket_set_nonblock($this->server);
 		
 		// add server to client process list
 		$this->clients[] = $this->server;
@@ -38,7 +37,7 @@ class websocket {
 	}
 	
 	private function clientHandshake($handshake) {
-		
+
 		preg_match('#Sec-WebSocket-Key: (.*)\r\n#', $handshake, $matches);
 		$headers = "HTTP/1.1 101 Switching Protocols\r\n";
 		$headers .= "Upgrade: websocket\r\n";

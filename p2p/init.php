@@ -1,4 +1,5 @@
 <?php
+$OS = file_get_contents('os.txt');
 
 require('server_details.php'); 
 
@@ -8,11 +9,12 @@ if (serverIsRunning()) {
 	exit;
 }
 
-// USE SYSTEM SHELL TO GET IPV4 ADDRESS
-// WINDOWS
-// $ipv4 = trim(explode("\n", explode('IPv4 Address. . . . . . . . . . . :', shell_exec('ipconfig'))[1])[0]);
-// LINUX
-$ipv4 = trim(explode('/', explode(' brd', explode('inet ', shell_exec('ip -4 addr show'))[2])[0])[0]);
+// use system shell to get local ipv4 address
+if ($OS == 'WINDOWS') {
+	$ipv4 = trim(explode("\n", explode('IPv4 Address. . . . . . . . . . . :', shell_exec('ipconfig'))[1])[0]);
+} else if ($OS == 'LINUX') {
+	$ipv4 = trim(explode('/', explode(' brd', explode('inet ', shell_exec('ip -4 addr show'))[2])[0])[0]);
+}
 
 // config host:port and init controller key
 $config = (object)[
@@ -28,10 +30,20 @@ $config = (object)[
 file_put_contents('web_socket_server_details.json', json_encode($config));
 
 // start websocket server and save pid
-$config->ws_pid = trim(shell_exec('php web_socket_server.php > /dev/null 2>&1 & echo $!'));
+if ($OS == 'WINDOWS') {
+	// run non-returning command to start web socket server, no PIDs are saved for windows because a query is required to shut them down at kill
+	pclose(popen('start /B .\..\php\php.exe web_socket_server.php > NUL 2>&1', 'r'));
+} else if ($OS == 'LINUX') {
+	$config->ws_pid = trim(shell_exec('php web_socket_server.php > /dev/null 2>&1 & echo $!'));
+}
 
 // start host server and save pid
-$config->host_pid = trim(shell_exec('php -S '.$config->host.':'.$config->host_port.' -t ./client > /dev/null 2>&1 & echo $!'));
+if ($OS == 'WINDOWS') {
+	// run non-returning command to start web socket server, no PIDs are saved for windows because a query is required to shut them down at kill
+	pclose(popen('start /B .\..\php\php.exe -S '.$config->host.':'.$config->host_port.' -t ./client > NUL 2>&1', 'r'));
+} else if ($OS == 'LINUX') {
+	$config->host_pid = trim(shell_exec('php -S '.$config->host.':'.$config->host_port.' -t ./client > /dev/null 2>&1 & echo $!'));
+}
 
 // re-stash config after pids have been logged
 file_put_contents('web_socket_server_details.json', json_encode($config));

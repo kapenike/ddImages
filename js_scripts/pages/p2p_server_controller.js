@@ -157,7 +157,7 @@ function updateServerStatus() {
 						backgroundColor: (P2P_SERVER.status ? '#B22222' : '#5bb450'),
 						color: '#ffffff',
 						textAlign: 'center',
-						cursor: 'cursor',
+						cursor: 'pointer',
 					},
 					onclick: commandServer,
 					innerHTML: '<br /><span style="font-size:22px; font-weight: bold">'+(P2P_SERVER.status ? 'STOP' : 'START')+'</span><br />server'
