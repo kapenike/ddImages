@@ -7,7 +7,7 @@
 > The primary directory **ddImages** cannot be renamed. ddImages does not use Apache and therefore has no hierarchical method to manage data paths. The directory named ddImages is used for relative pathing.
 
 ## Windows Download
-- Download and extract from: [https://firststepdesign.co/file/ddImages.zip](https://firststepdesign.co/file/ddImages.zip)
+- Download and extract from: [https://firststepdesign.co/file/ddImages.zip](https://firststepdesign.co/file/ddImages.zip) (35.2 MB)
 - Launch `LaunchFSDddImages.bat`
 
 ## Linux / MacOS install
@@ -57,6 +57,7 @@ FEATURES:
 - variable input
 	- needs to allow window anchor selection to change specific concatted variables rather than just appending the new variable selection
 	- offer search option for lists containing more than 10 values
+	- needs jesus tbh
 
 
 BUGS:

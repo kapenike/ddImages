@@ -285,6 +285,7 @@ function stripAndEnsureSinglePath(id) {
 
 function getFormValueOfPathSelection(id, value) {
 	let input_field = Select('#var_set_input_'+id);
+	let allow_html_input = Select('#input_allows_html_input_'+id).value == 'true';
 	let output = '';
 	input_field.childNodes.forEach(node => {
 		if (node.nodeName === '#text') {
@@ -300,6 +301,13 @@ function getFormValueOfPathSelection(id, value) {
 				}
 			}
 			output += '$var$'+(Select('#input_is_path_only_'+id).value == 'true' ? '$pointer$'+pointer_value+'$/pointer$' : '')+node.innerHTML+'$/var$';
+		} else {
+			// allow html input
+			if (allow_html_input) {
+				output += node.outerHTML;
+			} else {
+				output += node.textContent || node.innerText || ''
+			}
 		}
 	});
 	return output;
@@ -413,6 +421,11 @@ function createPathVariableField(settings = {}) {
 		settings.on_edit = function(){};
 	}
 	
+	// default allow html input value
+	if (typeof settings.allow_html_input === 'undefined') {
+		settings.allow_html_input = false;
+	}
+	
 	// base path of variable input directory tree
 	if (typeof settings.base_path === 'undefined') {
 		settings.base_path = '';
@@ -447,6 +460,11 @@ function createPathVariableField(settings = {}) {
 						type: 'hidden',
 						id: 'input_is_path_only_'+GLOBAL.unique_id,
 						value: settings.value.path_only ? 'true' : 'false'
+					}),
+					Create('input', {
+						type: 'hidden',
+						id: 'input_allows_html_input_'+GLOBAL.unique_id,
+						value: settings.allow_html_input ? 'true' : 'false'
 					}),
 					Create('input', {
 						type: 'hidden',

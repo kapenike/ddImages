@@ -886,6 +886,7 @@ function editUIField(elem, is_create = false) {
 							value: {
 								value: is_create ? '' : current_data.title
 							},
+							allow_html_input: true,
 							allow_path_only: false
 						})
 					]
