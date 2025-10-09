@@ -7,7 +7,7 @@
 > The primary directory **ddImages** cannot be renamed. ddImages does not use Apache and therefore has no hierarchical method to manage data paths. The directory named ddImages is used for relative pathing.
 
 ## Windows Download
-- Download and extract from: holdonacoupledaysforbeta.url
+- Download and extract from: [https://firststepdesign.co/file/ddImages.zip](https://firststepdesign.co/file/ddImages.zip)
 - Launch `LaunchFSDddImages.bat`
 
 ## Linux / MacOS install
