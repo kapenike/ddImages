@@ -43,6 +43,12 @@ html, body {
 .editable_ui_dragging * {
 	cursor: grabbing;
 }
+
+.editable_ui input, .editable_ui select, .editable_ui .radio_group {
+	background-color: red !important;
+	color: red !important;
+}
+
 #drag_clone {
 	position: absolute;
 	z-index: 888;
