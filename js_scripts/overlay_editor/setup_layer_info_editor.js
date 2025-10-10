@@ -66,8 +66,100 @@ function setupLayerInfoEditor() {
 			(layer.type == 'text' ? featureTextStyle(layer) : Create('div')), // text styling UI
 			(layer.type == 'text' ? featureTextRotation(layer) : Create('div')), // text rotation UI
 			(layer.type != 'clip_path' ? featureDimensionsAndPosition(layer) : Create('div')), // dimensions and position UI for non group layers
-			(layer.type == 'clip_path' ? featureGroupLayerClipPath(layer) : Create('div')) // UI for selecting clip path type and clip region
+			(layer.type == 'clip_path' ? featureGroupLayerClipPath(layer) : Create('div')), // UI for selecting clip path type and clip region
+			Create('div', {
+				className: 'editor_section_block',
+				children: [
+					Create('div', {
+						className: 'editor_section_title',
+						innerHTML: 'Flip Layer'
+					}),
+					Create('div', {
+						style: {
+							height: '4px'
+						}
+					}),
+					Create('button', {
+						type: 'button',
+						innerHTML: 'Horizontally',
+						onclick: function () {
+							let layer = getLayerById(GLOBAL.overlay_editor.active_layer);
+							layer = flipLayer(layer, 'horizontal');
+							printCurrentCanvas();
+						}
+					}),
+					Create('button', {
+						type: 'button',
+						innerHTML: 'Vertically',
+						onclick: function () {
+							let layer = getLayerById(GLOBAL.overlay_editor.active_layer);
+							layer = flipLayer(layer, 'vertical');
+							printCurrentCanvas();
+						}
+					})
+				]
+			})
 		]
 	});
 
+}
+
+// invert layer or layers across x or y axis
+function flipLayer(layer, direction) {
+	
+	let d = direction == 'horizontal';
+	
+	if (layer.type == 'clip_path') {
+		if (layer.clip_path.type == 'square') {
+			if (d) {
+				layer.clip_path.offset.x = (GLOBAL.overlay_editor.current.dimensions.width - layer.clip_path.dimensions.width) - layer.clip_path.offset.x;
+			} else {
+				layer.clip_path.offset.y = (GLOBAL.overlay_editor.current.dimensions.height - layer.clip_path.dimensions.height) - layer.clip_path.offset.y;
+			}
+		} else if (layer.clip_path.type == 'custom') {
+			if (d) {
+				layer.clip_path.clip_points.forEach((point, index) => {
+					layer.clip_path.clip_points[index].x = GLOBAL.overlay_editor.current.dimensions.width - layer.clip_path.clip_points[index].x;
+				});
+			} else {
+				layer.clip_path.clip_points.forEach((point, index) => {
+					layer.clip_path.clip_points[index].y = GLOBAL.overlay_editor.current.dimensions.height - layer.clip_path.clip_points[index].y;
+				});
+			}
+		}
+	} else if (layer.type == 'image') {
+		// image can have null dimensions for aspect scaling, determine output dimensions then flip
+		let output_dimensions = getLayerOutputDimensions(layer);
+		if (d) {
+			layer.offset.x = (GLOBAL.overlay_editor.current.dimensions.width - output_dimensions.width) - layer.offset.x;
+		} else {
+			layer.offset.y = (GLOBAL.overlay_editor.current.dimensions.height - output_dimensions.height) - layer.offset.y;
+		}
+	} else if (layer.type == 'text') {
+		if (layer.style.rotation != 0) {
+			if (d) {
+				layer.style.rotation = 0-layer.style.rotation;
+			}
+		}
+		if (d) {
+			if (layer.style.align == 'left') {
+				layer.offset.x = (GLOBAL.overlay_editor.current.dimensions.width - layer.dimensions.width) - layer.offset.x;
+			} else if (layer.style.align == 'center') {
+				layer.offset.x = GLOBAL.overlay_editor.current.dimensions.width - layer.offset.x;
+			} else if (layer.style.align == 'right') {
+				layer.offset.x = (GLOBAL.overlay_editor.current.dimensions.width + layer.dimensions.width) - layer.offset.x;
+			}
+		} else {
+			layer.offset.y = (GLOBAL.overlay_editor.current.dimensions.height - layer.style.fontSize) - layer.offset.y;
+		}
+	}
+	
+	if (layer.layers) {
+		layer.layers.forEach((inner_layer, index) => {
+			inner_layer = flipLayer(inner_layer, direction);
+		});
+	}
+	
+	return layer;
+	
 }

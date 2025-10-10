@@ -45,8 +45,8 @@ FEATURES:
 
 - Overlay editor features
 	- ctrl + z, ctrl + y: undo and redo
-	- position image from different origins, then allow image rotations
-	- allow text to overflow when prompted and provide a new height dimension, with that allow vertical positioning, default top but allow center and bottom
+	- position image from different origins, then allow image rotations, update flipLayer function with new positioning possibilities
+	- allow text to overflow when prompted and provide a new height dimension, with that allow vertical positioning, default top but allow center and bottom, update flipLayer function with new positioning possibilities
 	- quick asset upload from editor
 	- right click tool on overlay editor to:
 		- create new layer
@@ -61,8 +61,6 @@ FEATURES:
 
 
 BUGS:
-
-- generate overlay while using variable color override on a layer needs to detect all color value types, not just hexcode and hexcode alpha
 
 - head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
 

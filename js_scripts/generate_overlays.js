@@ -142,8 +142,11 @@ function printLayers(ctx, layers) {
 				// if a clip path, allow fill
 				if (layer.clip_path.type != 'none') {
 					if (layer.clip_path.color) {
-						let clip_color = getRealValue(layer.clip_path.color);
-						if (clip_color.length == 7 || clip_color.length == 9) {
+						let clip_color = getRealValue(layer.clip_path.color).replaceAll(' ', '');
+						// test if valid color before using
+						let test_color = new Option().style;
+						test_color.color = clip_color;
+						if (test_color.color !== '') {
 							ctx.fillStyle = clip_color;
 							ctx.fill();
 						}
@@ -158,15 +161,53 @@ function printLayers(ctx, layers) {
 				// if clipping path, restore
 				if (layer.clip_path.type != 'none') {
 					
-					// if border, print after clip
+					ctx.restore();
+					
+					// if border in use
 					if (layer.clip_path.border.use) {
-						ctx.setLineDash([]);
-						ctx.strokeStyle = getRealValue(layer.clip_path.border.color);
-						ctx.lineWidth = layer.clip_path.border.width;
-						ctx.stroke();
+						
+						let border_color = getRealValue(layer.clip_path.border.color).replaceAll(' ', '');
+						// test if valid color before using
+						let test_border_color = new Option().style;
+						test_border_color.color = border_color;
+						
+						if (test_border_color.color !== '') {
+
+							// re-set path incase a sub layer was a clip path as well
+							if (layer.clip_path.type == 'square') {
+								ctx.beginPath();
+								ctx.moveTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
+								ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
+								ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y + layer.clip_path.dimensions.height);
+								ctx.lineTo(layer.clip_path.offset.x + layer.clip_path.dimensions.width, layer.clip_path.offset.y);
+								ctx.lineTo(layer.clip_path.offset.x, layer.clip_path.offset.y);
+								ctx.closePath();
+							} else if (layer.clip_path.type == 'custom') {
+								ctx.beginPath();
+								ctx.moveTo(layer.clip_path.clip_points[0].x, layer.clip_path.clip_points[0].y);
+								for (let i2=0; i2<layer.clip_path.clip_points.length; i2++) {
+									ctx.lineTo(layer.clip_path.clip_points[i2].x, layer.clip_path.clip_points[i2].y);
+								}
+								ctx.lineTo(layer.clip_path.clip_points[0].x, layer.clip_path.clip_points[0].y);
+								ctx.closePath();
+							}
+							
+							// clip and restore so border is only on the inside of the polygon
+							ctx.save();
+							ctx.clip();
+							
+							// print border
+							ctx.setLineDash([]);
+							ctx.strokeStyle = border_color;
+							ctx.lineWidth = layer.clip_path.border.width;
+							ctx.stroke();
+							
+							ctx.restore();
+							
+						}
+						
 					}
 					
-					ctx.restore();
 				}
 				
 			}

@@ -96,11 +96,11 @@ function imageEditorMouseCTX(event) {
 															step: 0.5,
 															value: getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].x,
 															onchange: function () {
-																getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].x = this.value;
+																getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].x = precise(this.value);
 																printCurrentCanvas();
 															},
 															onkeyup: function () {
-																getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].x = this.value;
+																getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].x = precise(this.value);
 																printCurrentCanvas();
 															}
 														})
@@ -117,11 +117,11 @@ function imageEditorMouseCTX(event) {
 															step: 0.5,
 															value: getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].y,
 															onchange: function () {
-																getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].y = this.value;
+																getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].y = precise(this.value);
 																printCurrentCanvas();
 															},
 															onkeyup: function () {
-																getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].y = this.value;
+																getLayerById(GLOBAL.overlay_editor.active_layer).clip_path.clip_points[GLOBAL.overlay_editor.custom_clip_path.active_point].y = precise(this.value);
 																printCurrentCanvas();
 															}
 														})

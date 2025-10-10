@@ -13,13 +13,14 @@ function moveGroupLayer(layer, obj) {
 			y_diff = typeof obj.y !== 'undefined' ? obj.y - layer_dim.y : 0;
 		}
 		layer.layers.forEach(sub_layer => {
-			sub_layer.offset.x += x_diff;
-			sub_layer.offset.y += y_diff;
+			sub_layer.offset.x = precise(sub_layer.offset.x + x_diff);
+			sub_layer.offset.y = precise(sub_layer.offset.y + y_diff);
 		});
 		// if contains clip path, move clip path origin coords too
 		if (layer.clip_path.type != 'none') {
-			layer.clip_path.offset.x += x_diff;
-			layer.clip_path.offset.y += y_diff;
+			layer.clip_path.offset.x = precise(layer.clip_path.offset.x + x_diff);
+			layer.clip_path.offset.y = precise(layer.clip_path.offset.y + y_diff);
 		}
+		
 	}
 }
