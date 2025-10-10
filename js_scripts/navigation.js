@@ -176,7 +176,13 @@ function closeApp(master, navigation = null) {
 }
 
 function onSaveAction() {
-	GLOBAL.navigation.on_save();
+	// edge case, if popup available, click popup save button
+	if (Select('#popup_save_action')) {
+		Select('#popup_save_action').click();
+	} else {
+		// else, run current app save
+		GLOBAL.navigation.on_save();
+	}
 }
 
 function openFileDropdown() {

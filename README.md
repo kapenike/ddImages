@@ -41,7 +41,9 @@
 
 FEATURES:
 
-- Create section app that highjacks the regions and auto creates a bracket system from a select dataset
+- Switchboard
+	- Create section app that highjacks the regions and auto creates a bracket system from a select dataset
+	- allow multiple pages
 
 - Overlay editor features
 	- ctrl + z, ctrl + y: undo and redo

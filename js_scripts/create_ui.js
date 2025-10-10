@@ -1303,6 +1303,7 @@ function createPopUp(title, content, on_save) {
 							Create('button', {
 								type: 'button',
 								innerHTML: 'Save',
+								id: 'popup_save_action',
 								onclick: () => {
 									on_save(formToObj('popup_form_data'))
 								}
