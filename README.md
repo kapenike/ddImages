@@ -49,7 +49,6 @@ FEATURES:
 	- ctrl + z, ctrl + y: undo and redo
 	- position image from different origins, then allow image rotations, update flipLayer function with new positioning possibilities
 	- allow text to overflow when prompted and provide a new height dimension, with that allow vertical positioning, default top but allow center and bottom, update flipLayer function with new positioning possibilities
-	- quick asset upload from editor
 	- right click tool on overlay editor to:
 		- create new layer
 		- remove layer if selection is within active layer bounds

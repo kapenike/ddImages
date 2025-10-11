@@ -92,7 +92,7 @@ function setNavigationAssets() {
 		
 }
 
-function updateAssetData() {
+function updateAssetData(use_from_quick_upload = false) {
 	
 	// use form style capture to easily inherit form capture methods
 	let form_details = formToObj('asset_creation_form');
@@ -133,11 +133,15 @@ function updateAssetData() {
 				delete GLOBAL.active_project.data.assets[form_details.asset_registration_type];
 			}
 
-			// load asset data into form
-			setupAssetEditor(form_details.asset_slug);
+			if (use_from_quick_upload == false) {
+				// load asset data into form
+				setupAssetEditor(form_details.asset_slug);
+			}
 			
-			// re-create asset selection list
-			generateAssetSelectionList();
+			if (use_from_quick_upload == false) {
+				// re-create asset selection list
+				generateAssetSelectionList();
+			}
 			
 			// if file was included in the form submission, load file into source and update affected overlays
 			if (form_details.asset_file.length > 0) {
@@ -157,12 +161,18 @@ function updateAssetData() {
 						GLOBAL.active_project.data.assets[form_details.asset_slug].source = image;
 						generateStreamOverlays(['$assets/'+form_details.asset_slug+'$']);
 					}
+					
+					// if quick upload, call back to finish popup close and print actions
+					if (use_from_quick_upload) {
+						closePopup();
+						printCurrentCanvas();
+					}
 				}
 			}
 			
 		}
 		
-	}, 'asset_manager_form_block');
+	}, 'body');
 }
 
 function checkForAssetSlug(slug, live_update = true) {
@@ -212,11 +222,11 @@ function autoGenerateAssetSlug(v) {
 	Select('[name="asset_slug"]').value = v;
 }
 
-function setupAssetEditor(slug = null) {
+function setupAssetEditor(slug = null, override_location_write = false) {
 	
 	let asset_data = (slug == null ? null : GLOBAL.active_project.data.assets[slug]);
 	
-	Select('#asset_manager_form_block', {
+	Select((override_location_write ? override_location_write : '#asset_manager_form_block'), {
 		innerHTML: '',
 		children: [
 			Create('h3', {
