@@ -7,10 +7,13 @@
 > The primary directory **ddImages** cannot be renamed. ddImages does not use Apache and therefore has no hierarchical method to manage data paths. The directory named ddImages is used for relative pathing.
 
 ## Windows Download
-- Download and extract from: [https://firststepdesign.co/file/ddImages.zip](https://firststepdesign.co/file/ddImages.zip) (35.2 MB)
+- Download and extract from: [https://firststepdesign.co/file/ddImages.zip](https://firststepdesign.co/file/ddImages.zip) (35.9 MB)
 - Launch `LaunchFSDddImages.bat`
+*The windows download includes an example project by default. Check it out to learn how the application works!*
 
 ## Linux / MacOS install
+*The base code does not include an example project by default, download and import it from: [https://firststepdesign.co/file/Example.fsdi](https://firststepdesign.co/file/Example.fsdi) (220.3 KB)*
+
 - Install PHP (will vary depending on your distro)
 	> sudo apt install php
 	
