@@ -9,6 +9,7 @@
 ## Windows Download
 - Download and extract from: [https://firststepdesign.co/file/ddImages.zip](https://firststepdesign.co/file/ddImages.zip) (35.9 MB)
 - Launch `LaunchFSDddImages.bat`
+
 *The windows download includes an example project by default. Check it out to learn how the application works!*
 
 ## Linux / MacOS install
