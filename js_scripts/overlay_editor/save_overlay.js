@@ -12,7 +12,7 @@ function saveOverlay() {
 		if (status) {
 			
 			// update local overlay
-			GLOBAL.active_project.overlays[GLOBAL.overlay_editor.slug] = GLOBAL.overlay_editor.current;
+			GLOBAL.active_project.overlays[GLOBAL.overlay_editor.slug] = JSON.parse(JSON.stringify(GLOBAL.overlay_editor.current));
 			
 			// update overlay output
 			generateStreamOverlays({ slug: GLOBAL.overlay_editor.slug });

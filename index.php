@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (typeof fontface.is_default === 'undefined') {
 			fontface.fonts.forEach(font => {
 				to_load_fonts++;
-				new FontFace(fontface.name, 'url("/fonts/'+font.filename+'")', {
+				new FontFace(fontfacekey, 'url("/fonts/'+font.filename+'")', {
 					style: font.style,
 					weight: font.weight
 				}).load().then(loaded_font => {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					loaded_fonts++;
 					if (loaded_fonts == to_load_fonts) {
 						// (./js_scripts/main.js)
-						setTimeout(initStreamOverlay(), 1);
+						initStreamOverlay();
 					}
 				});
 			});
