@@ -97,7 +97,7 @@ class project {
 	}
 	
 	// $project_uid(string) - project uid
-	function load($project_uid) {
+	function load($project_uid, $backend_return = false) {
 		
 		// check if project exists
 		if (isset($this->registry->{$project_uid})) {
@@ -133,13 +133,21 @@ class project {
 				$project_data->cwd = getcwd();
 				
 				// return project data
-				app('respond')->json(true, $project_data);
+				if ($backend_return) {
+					return $project_data;
+				} else {
+					app('respond')->json(true, $project_data);
+				}
 				
 			}
 			
 		}
 		
-		app('respond')->json(false, 'project UID not found.');
+		if ($backend_return) {
+			return false;
+		} else {
+			app('respond')->json(false, 'project UID not found.');
+		}
 		
 	}
 	

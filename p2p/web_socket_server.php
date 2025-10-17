@@ -1,5 +1,7 @@
 <?php
 
+require('../app.php');
+
 class websocket {
 	
 	private $running = false;
@@ -174,14 +176,17 @@ class websocket {
 		if ($client_details->project_uid != null && (count($client_details->listeners->data) > 0 || count($client_details->listeners->overlays) > 0)) {
 			
 			$init_data['project_uid'] = $client_details->project_uid;
-			$init_data['data'] = [];
+			$init_data['data'] = (object)[];
 			$init_data['overlays'] = [];
 
 			if (count($client_details->listeners->data) > 0) {
-				// request master data list using project id
-				foreach ($client_details->listeners->data as $data_point) {
-					// push data point
-					// TOCOMPLETE: init send data to uncontrolled client
+				// request master data list using project id, boolean for a non exiting return
+				$project = app('project')->load($client_details->project_uid, true);
+				if ($project !== false) {
+					$project = app('dataPathing')->convertAll($project);
+					foreach ($client_details->listeners->data as $data_point) {
+						$init_data['data']->{$data_point} = app('dataPathing')->getRealValue($project, '$var$'.$data_point.'$/var$');
+					}
 				}
 			}
 			
@@ -269,22 +274,36 @@ class websocket {
 			
 				if ($this->client_details[$index]->type == 'controller') {
 					
-					// TOCOMPLETE: notify clients listening to specific data points not just overlays
-					// controller notifying clients of overlay update
-					if ($json->action == 'overlay_update') {
+					// controller notifying clients of overlay and data updates
+					if ($json->action == 'overlay_data_updates') {
+						
 						foreach ($this->clients as $sub_index => $client) {
 							if ($sub_index > 0 && $sub_index != $index) {
+								
+								// intersecting overlay changes
 								$overlay_changes = array_intersect($json->overlays, $this->client_details[$sub_index]->listeners->overlays);
-								if (!empty($overlay_changes)) {
+								
+								// intersecting data changes on key value pair structure
+								$data_changes = (object)[];
+								foreach ($json->data as $source => $value) {
+									if (in_array($source, $this->client_details[$sub_index]->listeners->data)) {
+										$data_changes->{$source} = $value;
+									}
+								}
+								
+								if (!empty($overlay_changes) && !empty((array)$data_changes)) {
 									socket_write($this->clients[$sub_index], $this->package(json_encode((object)[
 										'update' => (object)[
-											'overlays' => array_values($overlay_changes)
+											'overlays' => array_values($overlay_changes),
+											'data' => $data_changes
 										]
 									])));
 								}
 							}
 						}
+						
 					} else if ($json->action == 'client_reinit') {
+						
 						// re-init controlled client overlay
 						foreach ($this->clients as $sub_index => $client) {
 							if ($sub_index > 0 && $sub_index != $index && $this->client_details[$sub_index]->uid == $json->client_uid) {
@@ -294,6 +313,7 @@ class websocket {
 								break;
 							}
 						}
+						
 					}
 
 				}

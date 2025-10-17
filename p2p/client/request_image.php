@@ -4,8 +4,31 @@ function sanitize($v) {
 	return str_replace(['/','\\','.'],'',$v);
 }
 
-if (isset($_GET['uid']) && isset($_GET['overlay_slug'])) {
-	$path = '../../overlay_output/'.sanitize($_GET['uid']).'/'.sanitize($_GET['overlay_slug']).'.png';
+if (isset($_GET['uid'])) {
+	if (isset($_GET['overlay_slug'])) {
+		
+		// request overlay by slug
+		$path = '../../overlay_output/'.sanitize($_GET['uid']).'/'.sanitize($_GET['overlay_slug']).'.png';
+		
+	} else if (isset($_GET['asset_slug'])) {
+		
+		// request asset by slug
+		if (file_exists('../../data/'.sanitize($_GET['uid']).'/asset_registry.json')) {
+			$asset_registry = json_decode(file_get_contents('../../data/'.sanitize($_GET['uid']).'/asset_registry.json'));
+			if (isset($asset_registry->{sanitize($_GET['asset_slug'])})) {
+				$path = '../../data/'.sanitize($_GET['uid']).'/sources/'.$asset_registry->{sanitize($_GET['asset_slug'])}->file;
+			}
+		}
+		
+	} else if (isset($_GET['asset_filename'])) {
+		
+		// request asset by direct filename
+		$path = '../../data/'.sanitize($_GET['uid']).'/sources/'.sanitize($_GET['asset_filename']);
+		
+	} else {
+		http_response_code(404);
+		exit;
+	}
 	if (file_exists($path)) {
 		session_cache_limiter('public');
 		header('Cache-Control: max-age=0, public');

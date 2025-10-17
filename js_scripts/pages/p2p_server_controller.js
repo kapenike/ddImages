@@ -46,7 +46,7 @@ function generateConnectionList() {
 		Select('#connection_list', {
 			innerHTML: '',
 			children: P2P_SERVER.clients.map((client, index) => {
-				if (client == null || client.type == 'controller') {
+				if (client == null || client.type != 'controlled_client') {
 					return Create('div');
 				}
 				return Create('div', {

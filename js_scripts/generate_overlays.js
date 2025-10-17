@@ -70,6 +70,21 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	if (GLOBAL.generate_sources == true) {
 		GLOBAL.generate_sources = false;
 	}
+	
+	// if any data point or overlay changes, notify P2P server
+	if (P2P_SERVER.status && output_overlays.changed.length > 0 || (Array.isArray(sources) && sources.length > 0)) {
+		let send_overlays = output_overlays.changed.length > 0 ? output_overlays.changed : [];
+		let send_data_points = {};
+		(Array.isArray(sources) && sources.length > 0 ? sources : []).forEach(source => {
+			send_data_points[getRealVariableParts(source)[0].variable] = getRealValue(source);
+		});
+		// if P2P server running, notify clients of overlay and data changes
+		P2P_SERVER.connection.send(JSON.stringify({
+			action: 'overlay_data_updates',
+			overlays: send_overlays,
+			data: send_data_points
+		}));
+	}
 
 	// if nothing to change, remove loader
 	if (output_overlays.changed.length == 0) {
@@ -79,18 +94,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	} else {
 		
 		// pass output_overlays object to PHP for file write
-		ajax('POST', '/requestor.php', output_overlays, () => {
-			callback();
-			
-			// if P2P server running, notify clients of overlay updates
-			if (P2P_SERVER.status) {
-				P2P_SERVER.connection.send(JSON.stringify({
-					action: 'overlay_update',
-					overlays: output_overlays.changed
-				}));
-			}
-			
-		}, 'body');
+		ajax('POST', '/requestor.php', output_overlays, callback, 'body');
 		
 	}
 	

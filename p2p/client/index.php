@@ -1,5 +1,10 @@
 <?php
+// this file is a system file that is expected to run alongside the P2P server controller
+// if you would like to make a more complex P2P client, create one similar to 'example_controlled_client.php'
 
+
+
+// function to request server details
 require('../server_details.php');
 
 // load server configuration
@@ -28,8 +33,8 @@ if (isset($_GET['uid'])) {
 const socket = new WebSocket('ws://<?php echo $config->host; ?>:<?php echo $config->ws_port; ?>');
 var GLOBAL = {};
 
-// request image from server using project uid and overlay slug
-function requestImageFromServer(uid, overlay_slug) {
+// request overlay from server
+function requestOverlay(uid, overlay_slug) {
 	return 'http://<?php echo $config->host.':'.$config->host_port; ?>/request_image.php?uid='+uid+'&overlay_slug='+overlay_slug+'&time='+Date.now();
 }
 
@@ -54,13 +59,13 @@ socket.addEventListener('message', (event) => {
 		
 		// global init from initial declaration, can change from controller
 		GLOBAL = data;
-		document.getElementById('main').innerHTML = '<img src="'+requestImageFromServer(GLOBAL.project_uid, GLOBAL.overlays[0])+'" />';
+		document.getElementById('main').innerHTML = '<img src="'+requestOverlay(GLOBAL.project_uid, GLOBAL.overlays[0])+'" />';
 		
 	} else if (data.update) {
 
 		// update of data within current state
 		if (data.update.overlays.length > 0) {
-			document.getElementById('main').innerHTML = '<img src="'+requestImageFromServer(GLOBAL.project_uid, GLOBAL.overlays[0])+'" />';
+			document.getElementById('main').innerHTML = '<img src="'+requestOverlay(GLOBAL.project_uid, GLOBAL.overlays[0])+'" />';
 		}
 	}
 	

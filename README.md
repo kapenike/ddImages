@@ -46,8 +46,15 @@
 FEATURES:
 
 - Switchboard
-	- Create section app that highjacks the regions and auto creates a bracket system from a select dataset
 	- allow multiple pages
+	
+- Datasets and Assets
+	- probably pretty complex, but an updated asset and/or dataset needs to traverse current data state to determine if it will require an overlay update
+		this then needs to notify P2P server of the updated data point containing the asset and/or dataset update
+		
+- Dataset
+	- allow sorting
+	- on create, scroll new insert into view and highlight
 
 - Overlay editor features
 	- ctrl + z, ctrl + y: undo and redo
@@ -62,8 +69,10 @@ FEATURES:
 - variable input
 	- needs to allow window anchor selection to change specific concatted variables rather than just appending the new variable selection
 	- offer search option for lists containing more than 10 values
-	- needs jesus tbh
+	- needs complete rewrite with new variable storage on HTMLElements using JSUI
 
+- P2P
+	- allow viewing of uncontrolled clients as well as allowing force disconnect of any client
 
 BUGS:
 
@@ -72,7 +81,3 @@ BUGS:
 OUTSTANDING WORK:
 
 - QOL: drag move of group layers has old logic to handle the dragged contents of the direct drag object, it needs to be updated to merge with the new logic for dragging all infinite sub groups of a parent container
-
-- P2P server only handles the update of overlays, it needs to allow for a custom "uncontrolled client" to listen for the changes of datapoints made on the switchboard, also allow controller to disconnect a client
-
-- Create example project that showcases everything as well as a custom P2P server uncontrolled client
