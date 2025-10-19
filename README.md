@@ -5,7 +5,6 @@
 
 > [!IMPORTANT]  
 > The primary directory **ddImages** cannot be renamed. ddImages does not use Apache and therefore has no hierarchical method to manage data paths. The directory named ddImages is used for relative pathing.
-> -
 > When the application is chosen to run on external IPv4, all incoming requests will be subject to whitelisted IP address checks. This list can be modified from the local machine application `file > Whitelisted IP Addresses`
 
 ## Windows Download
@@ -58,6 +57,7 @@ FEATURES:
 
 - Switchboard
 	- allow multiple pages
+	- offer search option for select list dropdowns
 	
 - Datasets and Assets
 	- probably pretty complex, but an updated asset and/or dataset needs to traverse current data state to determine if it will require an overlay update
