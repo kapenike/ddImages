@@ -35,7 +35,9 @@
 - Clone or Download and extract the repository
 - Rename the primary directory to `ddImages` NOT `ddImages-main`
 - Navigate to the **ddImages** primary directory and launch the application using:
-	> php -S localhost:8000
+	> php start.php
+- Close the application with
+	> php stop.php
 	
 - Visit `localhost:8000` in your web browser to start using the application!
 

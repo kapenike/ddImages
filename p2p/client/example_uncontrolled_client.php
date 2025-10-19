@@ -1,9 +1,12 @@
 <?php
 
-require('../server_details.php');
+require('../../app.php');
 
-// load server configuration
-$config = requestServerDetails();
+$config = (object)[
+	'host' => app('server')->ipv4,
+	'ws_port' => app('server')->websocket_port,
+	'host_port' => app('server')->client_port
+];
 
 ?>
 <html>
@@ -13,7 +16,7 @@ $config = requestServerDetails();
 const socket = new WebSocket('ws://<?php echo $config->host; ?>:<?php echo $config->ws_port; ?>');
 
 const GLOBAL = {
-	project_uid: 'uid_40657b63',
+	project_uid: 'uid_40657b63', // example project UID
 };
 
 // request images from server

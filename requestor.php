@@ -13,6 +13,24 @@ if (isset($_GET['download_export'])) {
 // application switch, defined by string value in $_POST['application']
 switch($_POST['application']) {
 	
+	case 'P2P_is_running':
+		if (app('server')->isWebsocketServerRunning()) {
+			app('respond')->json(true, '', app('server')->requestConnectionDetails());
+		}
+		break;
+		
+	case 'P2P_start':
+		if (app('server')->launchWebsocketServer()) {
+			app('respond')->json(true, '', app('server')->requestConnectionDetails());
+		} else {
+			app('respond')->json(false, 'Unable to start web socket server :/');
+		}
+		break;
+		
+	case 'P2P_kill':
+		app('server')->stopWebsocketServer();
+		break;
+	
 	case 'request_project_overlay_pairs':
 		$projects = app('project')->readRegistry();
 		foreach ($projects as $key => $value) {

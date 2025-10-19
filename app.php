@@ -8,6 +8,7 @@ function getBasePath() {
 	$cwd = getcwd();
 	if (!str_contains($cwd, 'ddImages')) {
 		http_response_code(400);
+		exit;
 	}
 	$pos = strrpos($cwd, 'ddImages');
 	return substr($cwd, 0, $pos).'ddImages/';
@@ -25,4 +26,5 @@ function app($app, ...$params) {
 	}
 	return $APP->$app;
 }
+
 ?>

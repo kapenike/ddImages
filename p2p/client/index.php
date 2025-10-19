@@ -1,14 +1,15 @@
 <?php
 // this file is a system file that is expected to run alongside the P2P server controller
-// if you would like to make a more complex P2P client, create one similar to 'example_controlled_client.php'
+// if you would like to make a more complex P2P client, create one similar to 'example_uncontrolled_client.php'
 
 
+require('../../app.php');
 
-// function to request server details
-require('../server_details.php');
-
-// load server configuration
-$config = requestServerDetails();
+$config = (object)[
+	'host' => app('server')->ipv4,
+	'ws_port' => app('server')->websocket_port,
+	'host_port' => app('server')->client_port
+];
 
 // parse init variables
 $init = ['state' => 'connect'];

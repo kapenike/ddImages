@@ -1,6 +1,7 @@
 <?php
 
-require('../app.php');
+// although not in the same directory as app.php, this script is called only via shell_exec from requestor.php or start.php which both are located in the main directory where this application is located
+require('app.php');
 
 class websocket {
 	
@@ -15,7 +16,7 @@ class websocket {
 	public function __construct() {
 		
 		// load configuration
-		$config = json_decode(file_get_contents('web_socket_server_details.json'));
+		$config = app('server')->requestConnectionDetails();
 		
 		// stash controller key
 		$this->controller_key = $config->controller_key;
@@ -23,7 +24,7 @@ class websocket {
 		// setup server
 		$this->server = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 		socket_set_option($this->server, SOL_SOCKET, SO_REUSEADDR, 1);
-		socket_bind($this->server, $config->host, $config->ws_port);
+		socket_bind($this->server, $config->ipv4, $config->ws_port);
 		socket_listen($this->server);
 		
 		// add server to client process list

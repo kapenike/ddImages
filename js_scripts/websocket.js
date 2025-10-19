@@ -11,7 +11,7 @@ class wsct {
 	constructor() {
 		
 		// detect if server is already running, then stash data and connect websocket
-		ajax('POST', '/p2p/server_details.php', { request_server_details: true }, (v, data) => {
+		ajax('POST', '/requestor.php', { application: 'P2P_is_running' }, (v, data) => {
 			if (v && data) {
 				this.details = data;
 				this.status = true;
@@ -23,7 +23,7 @@ class wsct {
 	
 	// start public web socket and http server
 	start() {
-		ajax('POST', '/p2p/init.php', {}, (v, data) => {
+		ajax('POST', '/requestor.php', { application: 'P2P_start' }, (v, data) => {
 			if (v && data) {
 				this.details = data;
 				this.status = true;
@@ -35,7 +35,7 @@ class wsct {
 	
 	// stop public web socket and http server
 	stop() {
-		ajax('POST', '/p2p/kill.php', {}, (v, data) => {
+		ajax('POST', '/requestor.php', { application: 'P2P_kill' }, (v, data) => {
 			this.connection = null;
 			this.status = false;
 			this.details = null;
@@ -49,7 +49,7 @@ class wsct {
 	connect() {
 		
 		// controller connection init
-		this.connection = new WebSocket('ws://'+this.details.host+':'+this.details.ws_port);
+		this.connection = new WebSocket('ws://'+this.details.ipv4+':'+this.details.ws_port);
 		
 		// validate controller status
 		this.connection.addEventListener('open', (event) => {
