@@ -5,12 +5,15 @@
 
 > [!IMPORTANT]  
 > The primary directory **ddImages** cannot be renamed. ddImages does not use Apache and therefore has no hierarchical method to manage data paths. The directory named ddImages is used for relative pathing.
+> -
+> When the application is chosen to run on external IPv4, all incoming requests will be subject to whitelisted IP address checks. This list can be modified from the local machine application `file > Whitelisted IP Addresses`
 
 ## Windows Download
 - Download and extract from: [https://firststepdesign.co/file/ddImages.zip](https://firststepdesign.co/file/ddImages.zip) (35.9 MB)
 - Launch `LaunchFSDddImages.bat`
 
 *The windows download includes an example project by default. Check it out to learn how the application works!*
+
 
 ## Linux / MacOS install
 *The base code does not include an example project by default, download and import it from: [https://firststepdesign.co/file/Example.fsdi](https://firststepdesign.co/file/Example.fsdi) (220.3 KB)*
@@ -29,17 +32,23 @@
 		- `memory_limit=128M` -> `memory_limit=2G`
 		- `max_input_vars=1000` -> `max_input_vars=10000`
 		- ensure the php_zip extension is enabled `extension=zip`, no `;` preceding it
-		- ensure the php_curl extension is enabled `extension=curl`, no `;` preceding it
 		- ensure the php_curl extension is enabled `extension=sockets`, no `;` preceding it
 		
 - Clone or Download and extract the repository
 - Rename the primary directory to `ddImages` NOT `ddImages-main`
 - Navigate to the **ddImages** primary directory and launch the application using:
 	> php start.php
+	or
+	> php start.php external all
+	to start the websocket search during launch using `all` and start the application on your external ipv4 rather than localhost using `external`
 - Close the application with
 	> php stop.php
+	or
+	> php stop.php all
+	to stop the application and websocket server
 	
-- Visit `localhost:8000` in your web browser to start using the application!
+	
+- Visit `localhost:8000` (or external IPv4:8000) in your web browser to start using the application!
 
 - Websockets works for Linux and Windows ... no test case for Mac available so either donate one to me or commit a change for all files under  `/p2p/`
 

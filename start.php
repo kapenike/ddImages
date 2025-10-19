@@ -2,7 +2,7 @@
 
 require('app.php');
 
-// e.g. php start.php external ALL (launches on external ipv4 ('external') and launches websocket server ('ALL'))
+// e.g. php start.php external all (launches on external ipv4 ('external') and launches websocket server ('all'))
 app('ddImages')->start($argv);
 
 ?>

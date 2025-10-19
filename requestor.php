@@ -13,6 +13,21 @@ if (isset($_GET['download_export'])) {
 // application switch, defined by string value in $_POST['application']
 switch($_POST['application']) {
 	
+	case 'request_whitelisted_ips':
+		if (app('security')->isLocalMachine()) {
+			app('respond')->json(true, 'Whitelisted IPv4 Addresses', (object)['ipv4' => app('security')->requestAcceptsIPs()]);
+		}
+		app('respond')->json(false, 'Unauthorized.');
+		break;
+		
+	case 'update_whitelisted_ips':
+		if (app('security')->isLocalMachine()) {
+			app('security')->updateIPs((isset($_POST['ipv4_addr']) ? $_POST['ipv4_addr'] : []));
+			app('respond')->json(true, 'IPv4 whitelist updated.');
+		}
+		app('respond')->json(false, 'Unauthorized.');
+		break;
+	
 	case 'P2P_is_running':
 		if (app('server')->isWebsocketServerRunning()) {
 			app('respond')->json(true, '', app('server')->requestConnectionDetails());

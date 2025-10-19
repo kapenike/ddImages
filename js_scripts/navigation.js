@@ -225,6 +225,14 @@ function openFileDropdown() {
 									GLOBAL.navigation.on_save = ()=>{},
 									setNavigationP2PServer();
 								}
+							}),
+							Create('div', {
+								className: 'dropdown_action',
+								innerHTML: 'Whitelisted IP Addresses',
+								onclick: function () {
+									GLOBAL.navigation.on_save = updateWhitelistedIPs,
+									alterWhitelistedIPs();
+								}
 							})
 						]
 					})

@@ -3,8 +3,7 @@
 class ddImages {
 	
 	// location of locally served application
-	private $local_host = 'localhost';
-	
+	public $local_host = 'localhost';
 	public $application_port = '8000';
 	public $application_ip = null;
 	
@@ -16,8 +15,8 @@ class ddImages {
 		// start client
 		app('server')->launchApplication($this->application_ip);
 		
-		// if CLI includes 'ALL', start websocket server and client server as well
-		if (in_array('ALL', $args)) {
+		// if CLI includes 'all', start websocket server and client server as well
+		if (in_array('all', $args)) {
 			app('server')->launchWebsocketServer();
 		}
 		
@@ -28,8 +27,8 @@ class ddImages {
 		// kill application process
 		app('server')->stopApplication();
 		
-		// if CLI includes reference to 'ALL', kill websocket server and client too
-		if (in_array('ALL', $args)) {
+		// if CLI includes reference to 'all', kill websocket server and client too
+		if (in_array('all', $args)) {
 			
 			app('server')->stopWebsocketServer();
 			

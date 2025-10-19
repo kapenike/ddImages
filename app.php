@@ -27,4 +27,7 @@ function app($app, ...$params) {
 	return $APP->$app;
 }
 
+// ensure external launched application is only accessed from self or whitelisted ips
+app('security')->test();
+
 ?>
