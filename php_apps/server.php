@@ -172,7 +172,7 @@ class server {
 			if ($this->OS == 'Windows') {
 				
 				// query for client process and kill
-				$client_pid = $this->windowsRequestPID('-t '.getBasePath().'\p2p\client');
+				$client_pid = $this->windowsRequestPID($this->ipv4.':'.$this->client_port.' -t');
 				if ($client_pid) {
 					shell_exec('taskkill /F /PID '.$client_pid);
 				}
