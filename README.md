@@ -31,21 +31,27 @@
 		- `memory_limit=128M` -> `memory_limit=2G`
 		- `max_input_vars=1000` -> `max_input_vars=10000`
 		- ensure the php_zip extension is enabled `extension=zip`, no `;` preceding it
-		- ensure the php_curl extension is enabled `extension=sockets`, no `;` preceding it
+		- ensure the php_sockets extension is enabled `extension=sockets`, no `;` preceding it
 		
 - Clone or Download and extract the repository
 - Rename the primary directory to `ddImages` NOT `ddImages-main`
 - Navigate to the **ddImages** primary directory and launch the application using:
 	> php start.php
-	or
+	
+	- or
+	
 	> php start.php external all
-	to start the websocket search during launch using `all` and start the application on your external ipv4 rather than localhost using `external`
+	
+	- to start the websocket search during launch using `all` and start the application on your external ipv4 rather than localhost using `external`
+	
 - Close the application with
 	> php stop.php
-	or
-	> php stop.php all
-	to stop the application and websocket server
 	
+	- or
+	
+	> php stop.php all
+	
+	- to stop the application and websocket server
 	
 - Visit `localhost:8000` (or external IPv4:8000) in your web browser to start using the application!
 

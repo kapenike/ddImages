@@ -37,6 +37,7 @@ class security {
 		
 		// unauthorized access to external application
 		echo '<h1>Unauthorized</h1><p>If this is a mistake, please whitelist this IP from the servers local application: <strong>'.$_SERVER['REMOTE_ADDR'].'</strong></p>';
+		exit;
 	}
 	
 	function requestAcceptsIPs() {
