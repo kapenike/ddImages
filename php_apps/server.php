@@ -2,10 +2,10 @@
 
 class server {
 	
-	private $OS = null;
 	private $win_php = '';
 	private $host_used_ip = null;
 	
+	public $OS = null;
 	public $ipv4 = null;
 	public $websocket_port = '8137';
 	public $client_port = '8136';

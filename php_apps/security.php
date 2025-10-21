@@ -26,10 +26,16 @@ class security {
 	}
 	
 	function isLocalMachine() {
-		return $this->host_launch_ip == app('ddImages')->local_host && $_SERVER['REMOTE_ADDR'] == '127.0.0.1' || $this->host_launch_ip != app('ddImages')->local_host && $this->host_launch_ip == $_SERVER['REMOTE_ADDR'];
+		return $this->host_launch_ip == app('ddImages')->local_host && in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']) || $this->host_launch_ip != app('ddImages')->local_host && $this->host_launch_ip == $_SERVER['REMOTE_ADDR'];
 	}
 	
 	function test() {
+		
+		// allow access to scripts under ddImages/p2p/client from any access point
+		if (str_contains(getcwd(), (app('server')->OS == 'Windows' ? 'ddImages\p2p\client' : 'ddImages/p2p/client'))) {
+			return true;
+		}
+		
 		// if local cli or if local machine or whitelisted ip
 		if (php_sapi_name() === 'cli' || $this->isLocalMachine() || in_array($_SERVER['REMOTE_ADDR'], $this->ip_accept_list)) {
 			return true;
