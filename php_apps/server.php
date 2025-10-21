@@ -99,7 +99,7 @@ class server {
 		
 		}
 		
-		return true;
+		return app('ddImages')->application_ip.':'.app('ddImages')->application_port;
 	}
 	
 	function stopApplication() {
@@ -161,7 +161,7 @@ class server {
 		
 		}
 		
-		return true;
+		return $this->ipv4.':'.$this->client_port;
 		
 	}
 	
