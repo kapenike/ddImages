@@ -12,12 +12,20 @@ class server {
 	
 	function __construct() {
 		$this->OS = (PHP_OS_FAMILY == 'Windows' ? 'Windows' : 'Superior');
-		$this->win_php = '"'.getBasePath().'\php\php.exe"';
+		$this->win_php = $this->cleanCLIPath(getBasePath().'\php\php.exe');
 		// get local machines ipv4
 		if ($this->OS == 'Windows') {
 			$this->ipv4 = trim(explode("\n", explode('IPv4 Address. . . . . . . . . . . :', shell_exec('ipconfig'))[1])[0]);
 		} else {
 			$this->ipv4 = trim(explode('/', explode(' brd', explode('inet ', shell_exec('ip -4 addr show'))[2])[0])[0]);
+		}
+	}
+	
+	function cleanCLIPath($v) {
+		if ($this->OS == 'Windows') {
+			return str_replace(' ','^ ',str_replace('/','\\',$v));
+		} else {
+			return str_replace(' ','\ ',$v);
 		}
 	}
 	
@@ -89,12 +97,12 @@ class server {
 			if ($this->OS == 'Windows') {
 				
 				// run non-returning command to start application on set IP
-				pclose(popen('start /B '.$this->win_php.' -S '.app('ddImages')->application_ip.':'.app('ddImages')->application_port.' -t "'.getBasePath().'/" > NUL 2>&1', 'r'));
+				pclose(popen('start /B '.$this->win_php.' -S '.app('ddImages')->application_ip.':'.app('ddImages')->application_port.' -t '.$this->cleanCLIPath(getBasePath().'/').' > NUL 2>&1', 'r'));
 		
 			} else {
 				
 				// run application and stash PID for shutdown
-				$host_pid = trim(shell_exec('php -S '.app('ddImages')->application_ip.':'.app('ddImages')->application_port.' -t "'.getBasePath().'/" > /dev/null 2>&1 & echo $!'));
+				$host_pid = trim(shell_exec('php -S '.app('ddImages')->application_ip.':'.app('ddImages')->application_port.' -t '.$this->cleanCLIPath(getBasePath().'/').' > /dev/null 2>&1 & echo $!'));
 				$this->updateServerData('host_pid', $host_pid);
 			
 			}
@@ -155,18 +163,18 @@ class server {
 			if ($this->OS == 'Windows') {
 				
 				// launch websocket server
-				pclose(popen('start /B '.$this->win_php.' "'.getBasePath().'\p2p\web_socket_server.php" > NUL 2>&1', 'r'));
+				pclose(popen('start /B '.$this->win_php.' '.$this->cleanCLIPath(getBasePath().'\p2p\web_socket_server.php').' > NUL 2>&1', 'r'));
 				
 				// launch client
-				pclose(popen('start /B '.$this->win_php.' -S '.$this->ipv4.':'.$this->client_port.' -t "'.getBasePath().'\p2p\client" > NUL 2>&1', 'r'));
+				pclose(popen('start /B '.$this->win_php.' -S '.$this->ipv4.':'.$this->client_port.' -t '.$this->cleanCLIPath(getBasePath().'\p2p\client').' > NUL 2>&1', 'r'));
 		
 			} else {
 				
 				// launch websocket server and save PID
-				$this->updateServerData('ws_pid', trim(shell_exec('php "'.getBasePath().'/p2p/web_socket_server.php" > /dev/null 2>&1 & echo $!')));
+				$this->updateServerData('ws_pid', trim(shell_exec('php '.$this->cleanCLIPath(getBasePath().'/p2p/web_socket_server.php').' > /dev/null 2>&1 & echo $!')));
 				
 				// launch client and save PID
-				$this->updateServerData('client_pid', trim(shell_exec('php -S '.$this->ipv4.':'.$this->client_port.' -t "'.getBasePath().'/p2p/client" > /dev/null 2>&1 & echo $!')));
+				$this->updateServerData('client_pid', trim(shell_exec('php -S '.$this->ipv4.':'.$this->client_port.' -t '.$this->cleanCLIPath(getBasePath().'/p2p/client').' > /dev/null 2>&1 & echo $!')));
 			
 			}
 			
