@@ -15,7 +15,7 @@ class ddImages {
 		// if websocket only start
 		if (in_array('websocket', $args)) {
 			
-			$cli_notif->websocket = app('server')->launchWebsocketServer();
+			$cli_notif->client = app('server')->launchWebsocketServer();
 			
 		} else {
 		
@@ -27,7 +27,7 @@ class ddImages {
 			
 			// if CLI includes 'all', start websocket server and client server as well
 			if (in_array('all', $args)) {
-				$cli_notif->websocket = app('server')->launchWebsocketServer();
+				$cli_notif->client = app('server')->launchWebsocketServer();
 			}
 		
 		}

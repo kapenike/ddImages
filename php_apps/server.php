@@ -46,7 +46,9 @@ class server {
 				'host_pid' => null,
 				'ws_pid' => null,
 				'client_pid' => null,
-				'controller_key' => null
+				'controller_key' => null,
+				'host_running_on' => null,
+				'client_running_on' => null
 			]));
 		}
 		// return server data
@@ -96,6 +98,10 @@ class server {
 				$this->updateServerData('host_pid', $host_pid);
 			
 			}
+			
+			// stash ip:port application is running on
+			$this->updateServerData('host_running_on', app('ddImages')->application_ip.':'.app('ddImages')->application_port);
+			
 		
 		}
 		
@@ -124,6 +130,11 @@ class server {
 				$this->updateServerData('host_pid', null);
 			}
 		}
+		
+		// null application running on
+		$this->updateServerData('host_running_on', null);
+		// null host launch on
+		$this->updateServerData('host_launch_ip', null);
 		
 		return true;
 	}
@@ -158,6 +169,9 @@ class server {
 				$this->updateServerData('client_pid', trim(shell_exec('php -S '.$this->ipv4.':'.$this->client_port.' -t '.getBasePath().'/p2p/client > /dev/null 2>&1 & echo $!')));
 			
 			}
+			
+			// stash ip:port client is running on
+			$this->updateServerData('client_running_on', $this->ipv4.':'.$this->client_port);
 		
 		}
 		
@@ -200,6 +214,9 @@ class server {
 				
 			}
 		}
+		
+		// null client running on
+		$this->updateServerData('client_running_on', null);
 		
 		return true;
 		
