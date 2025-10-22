@@ -72,7 +72,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	}
 	
 	// if any data point or overlay changes, notify P2P server
-	if (P2P_SERVER.status && output_overlays.changed.length > 0 || (Array.isArray(sources) && sources.length > 0)) {
+	if (P2P_SERVER.status && (output_overlays.changed.length > 0 || (Array.isArray(sources) && sources.length > 0))) {
 		let send_overlays = output_overlays.changed.length > 0 ? output_overlays.changed : [];
 		let send_data_points = {};
 		(Array.isArray(sources) && sources.length > 0 ? sources : []).forEach(source => {

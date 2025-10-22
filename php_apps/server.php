@@ -12,7 +12,7 @@ class server {
 	
 	function __construct() {
 		$this->OS = (PHP_OS_FAMILY == 'Windows' ? 'Windows' : 'Superior');
-		$this->win_php = getBasePath().'\php\php.exe';
+		$this->win_php = '"'.getBasePath().'\php\php.exe"';
 		// get local machines ipv4
 		if ($this->OS == 'Windows') {
 			$this->ipv4 = trim(explode("\n", explode('IPv4 Address. . . . . . . . . . . :', shell_exec('ipconfig'))[1])[0]);
@@ -46,9 +46,7 @@ class server {
 				'host_pid' => null,
 				'ws_pid' => null,
 				'client_pid' => null,
-				'controller_key' => null,
-				'host_running_on' => null,
-				'client_running_on' => null
+				'controller_key' => null
 			]));
 		}
 		// return server data
@@ -89,23 +87,19 @@ class server {
 			if ($this->OS == 'Windows') {
 				
 				// run non-returning command to start application on set IP
-				pclose(popen('start /B '.$this->win_php.' -S '.app('ddImages')->application_ip.':'.app('ddImages')->application_port.' -t '.getBasePath().'/ > NUL 2>&1', 'r'));
+				pclose(popen('start /B '.$this->win_php.' -S '.app('ddImages')->application_ip.':'.app('ddImages')->application_port.' -t "'.getBasePath().'"/ > NUL 2>&1', 'r'));
 		
 			} else {
 				
 				// run application and stash PID for shutdown
-				$host_pid = trim(shell_exec('php -S '.app('ddImages')->application_ip.':'.app('ddImages')->application_port.' -t '.getBasePath().'/ > /dev/null 2>&1 & echo $!'));
+				$host_pid = trim(shell_exec('php -S '.app('ddImages')->application_ip.':'.app('ddImages')->application_port.' -t "'.getBasePath().'"/ > /dev/null 2>&1 & echo $!'));
 				$this->updateServerData('host_pid', $host_pid);
 			
 			}
-			
-			// stash ip:port application is running on
-			$this->updateServerData('host_running_on', app('ddImages')->application_ip.':'.app('ddImages')->application_port);
-			
 		
 		}
 		
-		return app('ddImages')->application_ip.':'.app('ddImages')->application_port;
+		return true;
 	}
 	
 	function stopApplication() {
@@ -131,11 +125,6 @@ class server {
 			}
 		}
 		
-		// null application running on
-		$this->updateServerData('host_running_on', null);
-		// null host launch on
-		$this->updateServerData('host_launch_ip', null);
-		
 		return true;
 	}
 	
@@ -155,27 +144,24 @@ class server {
 			if ($this->OS == 'Windows') {
 				
 				// launch websocket server
-				pclose(popen('start /B '.$this->win_php.' '.getBasePath().'\p2p\web_socket_server.php > NUL 2>&1', 'r'));
+				pclose(popen('start /B '.$this->win_php.' "'.getBasePath().'\p2p\web_socket_server.php" > NUL 2>&1', 'r'));
 				
 				// launch client
-				pclose(popen('start /B '.$this->win_php.' -S '.$this->ipv4.':'.$this->client_port.' -t '.getBasePath().'\p2p\client > NUL 2>&1', 'r'));
+				pclose(popen('start /B '.$this->win_php.' -S '.$this->ipv4.':'.$this->client_port.' -t "'.getBasePath().'\p2p\client" > NUL 2>&1', 'r'));
 		
 			} else {
 				
 				// launch websocket server and save PID
-				$this->updateServerData('ws_pid', trim(shell_exec('php '.getBasePath().'/p2p/web_socket_server.php > /dev/null 2>&1 & echo $!')));
+				$this->updateServerData('ws_pid', trim(shell_exec('php "'.getBasePath().'/p2p/web_socket_server.php" > /dev/null 2>&1 & echo $!')));
 				
 				// launch client and save PID
-				$this->updateServerData('client_pid', trim(shell_exec('php -S '.$this->ipv4.':'.$this->client_port.' -t '.getBasePath().'/p2p/client > /dev/null 2>&1 & echo $!')));
+				$this->updateServerData('client_pid', trim(shell_exec('php -S '.$this->ipv4.':'.$this->client_port.' -t "'.getBasePath().'/p2p/client" > /dev/null 2>&1 & echo $!')));
 			
 			}
-			
-			// stash ip:port client is running on
-			$this->updateServerData('client_running_on', $this->ipv4.':'.$this->client_port);
 		
 		}
 		
-		return $this->ipv4.':'.$this->client_port;
+		return true;
 		
 	}
 	
@@ -214,9 +200,6 @@ class server {
 				
 			}
 		}
-		
-		// null client running on
-		$this->updateServerData('client_running_on', null);
 		
 		return true;
 		
