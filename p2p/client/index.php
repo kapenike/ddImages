@@ -36,7 +36,7 @@ var GLOBAL = {};
 
 // request overlay from server
 function requestOverlay(uid, overlay_slug) {
-	return 'http://<?php echo $config->host.':'.$config->host_port; ?>/request_image.php?uid='+uid+'&overlay_slug='+overlay_slug+'&time='+Date.now();
+	return 'http://<?php echo $config->host.':'.$config->host_port; ?>/request_image.php?uid='+uid+'&overlay_slug='+overlay_slug+'&'+Date.now();
 }
 
 socket.addEventListener('open', (event) => {
@@ -60,13 +60,13 @@ socket.addEventListener('message', (event) => {
 		
 		// global init from initial declaration, can change from controller
 		GLOBAL = data;
-		document.getElementById('main').innerHTML = '<img src="'+requestOverlay(GLOBAL.project_uid, GLOBAL.overlays[0])+'" />';
+		document.getElementById('main').innerHTML = '<img id="overlay_image" src="'+requestOverlay(GLOBAL.project_uid, GLOBAL.overlays[0])+'" />';
 		
 	} else if (data.update) {
 
 		// update of data within current state
 		if (data.update.overlays.length > 0) {
-			document.getElementById('main').innerHTML = '<img src="'+requestOverlay(GLOBAL.project_uid, GLOBAL.overlays[0])+'" />';
+			document.getElementById('overlay_image').src = requestOverlay(GLOBAL.project_uid, GLOBAL.overlays[0]);
 		}
 	}
 	
