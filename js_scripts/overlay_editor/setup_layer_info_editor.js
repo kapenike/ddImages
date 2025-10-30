@@ -67,6 +67,7 @@ function setupLayerInfoEditor() {
 			(layer.type == 'text' ? featureTextRotation(layer) : Create('div')), // text rotation UI
 			(layer.type != 'clip_path' ? featureDimensionsAndPosition(layer) : Create('div')), // dimensions and position UI for non group layers
 			(layer.type == 'clip_path' ? featureGroupLayerClipPath(layer) : Create('div')), // UI for selecting clip path type and clip region
+			(layer.type == 'image' ? featureImageEffects(layer) : Create('div')), // UI for grayscaling an image
 			Create('div', {
 				className: 'editor_section_block',
 				children: [

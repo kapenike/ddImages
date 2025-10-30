@@ -328,6 +328,11 @@ function printImage(ctx, layer) {
 			}
 		}
 		
+		// image effects
+		if (layer.effects.grayscale) {
+			ctx.filter = 'grayscale(100%)';
+		}
+		
 		ctx.drawImage(
 			value.source,
 			layer.offset.x + parseInt(value.offset_x),
@@ -335,6 +340,9 @@ function printImage(ctx, layer) {
 			output_width,
 			output_height
 		);
+		
+		ctx.filter = 'none';
+		
 	}
 }
 

@@ -6,7 +6,7 @@ function setActiveLayer(index) {
 	}
 	
 	// set active layer index
-	GLOBAL.overlay_editor.active_layer = index;
+	GLOBAL.overlay_editor.active_layer = index.replace('layer_', '');
 	
 	// print new canvas to use selection region on the new active layer
 	printCurrentCanvas();

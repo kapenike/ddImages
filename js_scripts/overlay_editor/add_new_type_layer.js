@@ -44,6 +44,9 @@ function requestNewLayer(type = 'text') {
 			toggle: '',
 			title: 'Untitled Image Layer',
 			value: '',
+			effects: {
+				grayscale: false
+			},
 			offset: {
 				x: x,
 				y: y
@@ -111,6 +114,9 @@ function addNewTypeLayer(type, index, duplicate = false) {
 		
 		// if no index is specified, insert at the start of the layer list
 		GLOBAL.overlay_editor.current.layers.unshift(new_layer);
+		
+		// scroll to new insert
+		Select('#lower_editor').scrollTop = 0;
 		
 		// set first layer (this) to be active
 		setActiveLayer(0);

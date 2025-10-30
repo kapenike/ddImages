@@ -13,11 +13,21 @@ class server {
 	function __construct() {
 		$this->OS = (PHP_OS_FAMILY == 'Windows' ? 'Windows' : 'Superior');
 		$this->win_php = $this->cleanCLIPath(getBasePath().'\php\php.exe');
-		// get local machines ipv4
+		// get local machines ipv4, default to 127.0.0.1 if no network connected
 		if ($this->OS == 'Windows') {
-			$this->ipv4 = trim(explode("\n", explode('IPv4 Address. . . . . . . . . . . :', shell_exec('ipconfig'))[1])[0]);
+			$lookup = shell_exec('ipconfig');
+			if (str_contains($lookup, 'IPv4 Address. . . . . . . . . . . :')) {
+				$this->ipv4 = trim(explode("\n", explode('IPv4 Address. . . . . . . . . . . :', $lookup)[1])[0]);
+			} else {
+				$this->ipv4 = '127.0.0.1';
+			}
 		} else {
-			$this->ipv4 = trim(explode('/', explode(' brd', explode('inet ', shell_exec('ip -4 addr show'))[2])[0])[0]);
+			$lookup = shell_exec('ip -4 addr show');
+			if (str_contains($lookup, 'inet ') && str_contains($lookup, ' brd')) {
+				$this->ipv4 = trim(explode('/', explode(' brd', explode('inet ', $lookup)[2])[0])[0]);
+			} else {
+				$this->ipv4 = '127.0.0.1';
+			}
 		}
 	}
 	

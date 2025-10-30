@@ -83,6 +83,9 @@ function getLayerOutputDimensions(layer) {
 				// expand bounding rect by children if just a layer group without clip path
 				layer.layers.forEach(sub_layer => {
 					let sub_dim = getLayerOutputDimensions(sub_layer);
+					if (sub_dim == null) {
+						return;
+					}
 					if (output.x == null || sub_dim.x < output.x) {
 						output.x = sub_dim.x;
 					}

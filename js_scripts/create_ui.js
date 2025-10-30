@@ -258,7 +258,11 @@ function createUIFromData(container, data, submit_to_application, editor = false
 function resetUISection(section) {
 	section.fields.forEach(field => {
 		let elem = Select('[name="'+field.source+'"]');
+		if (field.type == 'display') {
+			return;
+		}
 		switch (field.type) {
+			case 'dataset':
 			case 'select':
 				Array.from(elem.children).forEach(child => {
 					child.selected = false;
