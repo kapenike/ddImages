@@ -3,12 +3,6 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 
 	// stash overlay keys for itteration use
 	let overlay_keys = Object.keys(GLOBAL.active_project.overlays);
-
-	// if no overlays, straight to callback
-	if (overlay_keys.length == 0) {
-		callback();
-		return;
-	}
 	
 	// if sources is null, or an object, set GLOBAL flag to regenerate sources
 	if (sources == null || isObject(sources)) {
@@ -75,6 +69,7 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 	if (output_overlays.changed.length == 0) {
 		
 		sendP2P(output_overlays, sources);
+		callback();
 		ajaxRemoveLoader('body');
 		
 	} else {

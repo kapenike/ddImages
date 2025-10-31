@@ -1,7 +1,7 @@
 <?php
 
 function sanitize($v) {
-	return str_replace(['/','\\','.'],'',$v);
+	return str_replace(['/','\\','..'],'',$v);
 }
 
 if (isset($_GET['uid'])) {
