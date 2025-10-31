@@ -102,6 +102,24 @@ function getRealValueHeadList(value, base_path = GLOBAL.active_project.data, hea
 	return head;
 }
 
+function flattenDataObject(value) {
+	
+	let real_value = getRealValue(value);
+	
+	if (isObject(real_value)) {
+		
+		Object.keys(real_value).forEach(key => {
+			
+			real_value[key] = getRealValue(real_value[key]);
+			
+		});
+		
+	}
+	
+	return real_value;
+	
+}
+
 function getRealValue(value, depth = null, base_path = GLOBAL.active_project.data, head = null) {
 	
 	// create head that tracks sources and prevents infinite loop

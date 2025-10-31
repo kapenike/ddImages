@@ -90,7 +90,7 @@ function sendP2P(output_overlays, sources) {
 		let send_overlays = output_overlays.changed.length > 0 ? output_overlays.changed : [];
 		let send_data_points = {};
 		(Array.isArray(sources) && sources.length > 0 ? sources : []).forEach(source => {
-			send_data_points[getRealVariableParts(source)[0].variable] = getRealValue(source);
+			send_data_points[getRealVariableParts(source)[0].variable] = flattenDataObject(source);
 		});
 		// if P2P server running, notify clients of overlay and data changes
 		P2P_SERVER.connection.send(JSON.stringify({
