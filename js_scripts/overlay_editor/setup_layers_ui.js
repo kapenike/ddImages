@@ -4,9 +4,10 @@ function createLayersUI(layers, parent_index = '') {
 	}
 	return layers.map((layer, index) => {
 		let full_index = parent_index+index;
+		let active_layer_index = GLOBAL.overlay_editor.active_layer != null ? GLOBAL.overlay_editor.active_layer.replace('layer_', '') : null;
 		return Create('div', {
 			id: 'layer_'+full_index,
-			className: 'editor_layer'+(full_index == GLOBAL.overlay_editor.active_layer ? ' active_editor_layer' : ''),
+			className: 'editor_layer'+(full_index == active_layer_index ? ' active_editor_layer' : ''),
 			innerHTML: '<span id="layer_'+full_index+'_title">'+layer.title+'</span>',
 			children: (layer.type == 'clip_path'
 				?	[Create('div', {
