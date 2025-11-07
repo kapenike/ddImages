@@ -180,8 +180,10 @@ function onSaveAction() {
 	if (Select('#popup_save_action')) {
 		Select('#popup_save_action').click();
 	} else {
-		// else, run current app save
-		GLOBAL.navigation.on_save();
+		// else, run current app save if loader is not present within the app
+		if (!Select('#ajax_loader')) {
+			GLOBAL.navigation.on_save();
+		}
 	}
 }
 
