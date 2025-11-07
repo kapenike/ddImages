@@ -76,6 +76,7 @@ FEATURES:
 	- on create, scroll new insert into view and highlight
 
 - Overlay editor features
+	- during grid placement UI, display vertical and horizontal red lines to mimic the placement coordinates, also display menu within top editor panel
 	- ctrl + z, ctrl + y: undo and redo
 	- position image from different origins, then allow image rotations, update flipLayer function with new positioning possibilities
 	- allow text to overflow when prompted and provide a new height dimension, with that allow vertical positioning, default top but allow center and bottom, update flipLayer function with new positioning possibilities

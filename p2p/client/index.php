@@ -88,7 +88,6 @@ html, body, #main {
 	padding: 0;
 	margin: 0;
 	font-family: Verdana;
-	background-color: #dddddd;
 }
 
 h1 {
