@@ -183,8 +183,18 @@ function featureTextStyle(layer) {
 											})
 										}),
 										onchange: function () {
-											getLayerById(GLOBAL.overlay_editor.active_layer).style.align = this.value;
+											let current = getLayerById(GLOBAL.overlay_editor.active_layer);
+											let current_align = current.style.align;
+											if (current_align == 'left') {
+												current.offset.x += this.value == 'right' ? current.dimensions.width : current.dimensions.width/2;
+											} else if (current_align == 'center') {
+												current.offset.x += (this.value == 'right' ? 1 : -1)*current.dimensions.width/2;
+											} else if (current_align == 'right') {
+												current.offset.x -= (this.value == 'left' ? current.dimensions.width : current.dimensions.width/2);
+											}
+											current.style.align = this.value;
 											printCurrentCanvas();
+											setupLayerInfoEditor();
 										}
 									})
 								]

@@ -77,6 +77,8 @@ FEATURES:
 
 - Overlay editor features
 	- during grid placement UI, display vertical and horizontal red lines to mimic the placement coordinates, also display menu within top editor panel
+	- stash start drag point of clip path individual point as to allow x / y lock drag during move event
+	- when adding a new layer during the active selection of a group layer, add new layer within the group layer rather than adjacent
 	- ctrl + z, ctrl + y: undo and redo
 	- position image from different origins, then allow image rotations, update flipLayer function with new positioning possibilities
 	- allow text to overflow when prompted and provide a new height dimension, with that allow vertical positioning, default top but allow center and bottom, update flipLayer function with new positioning possibilities
