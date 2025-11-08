@@ -24,12 +24,15 @@ function printCurrentCanvas() {
 	// print layers recursively
 	printLayers(ctx, overlay.layers);
 	
+	// define radius draw size for custom clip path points
+	let clip_path_point_radius = definePolygonPointSize();
+	
 	// active layer indicator
 	if (GLOBAL.overlay_editor.active_layer != null) {
 		
 		let selection_layer = getLayerById(GLOBAL.overlay_editor.active_layer);
 		
-		ctx.lineWidth = 2;
+		ctx.lineWidth = 2/GLOBAL.overlay_editor.scale;
 		ctx.setLineDash([6, 8]);
 		ctx.strokeStyle = '#0051ff';
 		
@@ -61,7 +64,7 @@ function printCurrentCanvas() {
 					ctx.setLineDash([]);
 					selection_layer.clip_path.clip_points.forEach(point => {
 						ctx.beginPath();
-						ctx.arc(point.x, point.y, 10, 0, 2 * Math.PI);
+						ctx.arc(point.x, point.y, clip_path_point_radius, 0, 2 * Math.PI);
 						ctx.stroke();
 					});
 				}

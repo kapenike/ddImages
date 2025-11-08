@@ -1,5 +1,86 @@
 function imageEditorMouseCTX(event) {
 	
+	let output_menu = {
+		position: {
+			x: event.clientX,
+			y: event.clientY
+		},
+		items: {
+			create: true,
+			select: true,
+			select_parent: false,
+			remove: false
+		},
+		append_items: null
+	};
+	
+	// translate window cursor position to canvas position
+	let translate_cursor = translateWindowToCanvas(event.clientX, event.clientY);
+	
+	// precise
+	translate_cursor = {
+		x: preciseAndTrim(translate_cursor.x),
+		y: preciseAndTrim(translate_cursor.y)
+	}
+	
+	GLOBAL.overlay_editor.context_menu_location = translate_cursor;
+	
+	
+	// if within workspace
+	if (event.target.id == 'workspace') {
+	
+		// context menu output changes if within an active selection
+		if (eventWithinActiveSelection(translate_cursor)) {
+			output_menu.items.select = false;
+			// if sub layer, it has a parent
+			if (GLOBAL.overlay_editor.active_layer.toString().indexOf('_') > -1) {
+				output_menu.items.select_parent = true;
+			}
+			output_menu.items.remove = true;
+		}
+		
+		output_menu.append_items = [
+			{
+				title: '+ New Layer',
+				click: function () {
+					addNewLayer(event, GLOBAL.overlay_editor.active_layer, GLOBAL.overlay_editor.context_menu_location);
+				}
+			},
+			(output_menu.items.select
+				? {
+						title: 'Select Layer',
+						click: function () {
+							clickWithinAnyLayer(GLOBAL.overlay_editor.context_menu_location);
+							removeUIEditMenu();
+						}
+					}
+				: undefined
+			),
+			(output_menu.items.select_parent
+				? {
+						title: 'Select Parent',
+						click: function () {
+							setActiveLayer(GLOBAL.overlay_editor.active_layer.split('_').slice(0,-1).join('_'));
+							removeUIEditMenu();
+						}
+					}
+				: undefined
+			),
+			(output_menu.items.remove
+				? {
+						title: 'Remove',
+						remove: 'true',
+						click: function () {
+							removeLayer(GLOBAL.overlay_editor.active_layer);
+						}
+					}
+				: undefined
+			)
+		]
+	
+	}
+	
+	
 	if (GLOBAL.overlay_editor.active_layer != null) {
 		
 		// active layer
@@ -7,16 +88,7 @@ function imageEditorMouseCTX(event) {
 		
 		// if active layer is a custom clip path and target is the editor window
 		if (layer.type == 'clip_path' && layer.clip_path.type == 'custom' && event.target.id == 'workspace') {
-			
-			// translate window cursor position to canvas position
-			let translate_cursor = translateWindowToCanvas(event.clientX, event.clientY);
-			
-			// precise
-			translate_cursor = {
-				x: preciseAndTrim(translate_cursor.x),
-				y: preciseAndTrim(translate_cursor.y)
-			}
-			
+
 			// stash canvas position of mouse event
 			GLOBAL.overlay_editor.custom_clip_path.event_position = translate_cursor;
 			
@@ -171,13 +243,31 @@ function imageEditorMouseCTX(event) {
 							]
 						}),
 						click: () => {}
-					}
+					},
+					{
+						title: Create('div', {
+							className: 'ui_edit_menu_title',
+							style: {
+								margin: '-8px -12px'
+							},
+							innerHTML: 'Layer Manager'
+						}),
+						click: () => {}
+					},
+					...output_menu.append_items
 				]
 			});
 			
 			event.preventDefault();
+			return;
 		}
 	}
+	
+	// if not appended to clip path dialog, create standalone layer manager
+	setImageEditorDialog(event, {
+		title: 'Layer Manager',
+		items: output_menu.append_items
+	});
 	
 	// if not a layer element, prevent context menu click
 	if (!targetIsLayerElem(event.target)) {

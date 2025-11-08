@@ -1,12 +1,20 @@
 // new layer structure
-function requestNewLayer(type = 'text') {
+function requestNewLayer(type = 'text', pass_starting_location = false) {
 	
 	// default x and y will not be defined during application legacy check init
 	let x = 0;
 	let y = 0;
+	
+	// if overlay is not new and undefined, center new layer created from layers UI in the current canvas window
 	if (GLOBAL.overlay_editor.current) {
-		x = GLOBAL.overlay_editor.current.dimensions.width/2;
-		y = GLOBAL.overlay_editor.current.dimensions.height/2;
+		x = GLOBAL.overlay_editor.current.dimensions.width/2+GLOBAL.overlay_editor.canvas_window.x;
+		y = GLOBAL.overlay_editor.current.dimensions.height/2+GLOBAL.overlay_editor.canvas_window.y;
+	}
+	
+	// if passing start location, override
+	if (pass_starting_location != false) {
+		x = pass_starting_location.x;
+		y = pass_starting_location.y;
 	}
 	
 	if (type == 'text') {
@@ -91,7 +99,7 @@ function requestNewLayer(type = 'text') {
 
 // create a new layer of the given type, index passed from addNewLayer will determine its insert location
 // boolian determines if the new layer will be duplcated from the layer at the specified index
-function addNewTypeLayer(type, index, duplicate = false) {
+function addNewTypeLayer(type, index, pass_starting_location = false, duplicate = false) {
 	
 	// new layer object container
 	let new_layer = null;
@@ -99,7 +107,7 @@ function addNewTypeLayer(type, index, duplicate = false) {
 	// if not a duplicate, generate a new layer object
 	if (duplicate == false) {
 	
-		new_layer = requestNewLayer(type);
+		new_layer = requestNewLayer(type, pass_starting_location);
 		
 	} else {
 		

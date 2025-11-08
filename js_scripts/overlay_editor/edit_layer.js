@@ -6,7 +6,7 @@ function editLayer(elem) {
 		items: [
 			{
 				title: 'Duplicate',
-				click: () => { addNewTypeLayer('text', elem.id, true); }
+				click: () => { addNewTypeLayer('text', elem.id, false, true); }
 			},
 			{
 				title: 'Remove',

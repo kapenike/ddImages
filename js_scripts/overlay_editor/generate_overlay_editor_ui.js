@@ -51,7 +51,7 @@ function generateOverlayEditorUI() {
 									className: 'layer_manager_add',
 									innerHTML: '+ New Layer',
 									onclick: function () {
-										addNewLayer(GLOBAL.overlay_editor.active_layer);
+										addNewLayer(event, GLOBAL.overlay_editor.active_layer);
 									}
 								})
 							]

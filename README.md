@@ -97,7 +97,3 @@ FEATURES:
 BUGS:
 
 - head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line
-
-OUTSTANDING WORK:
-
-- QOL: drag move of group layers has old logic to handle the dragged contents of the direct drag object, it needs to be updated to merge with the new logic for dragging all infinite sub groups of a parent container
