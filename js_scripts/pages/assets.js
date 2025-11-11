@@ -151,15 +151,24 @@ function updateAssetData(use_from_quick_upload = false) {
 				}
 				let image = new Image();
 				image.src = '/data/'+GLOBAL.active_project.uid+'/sources/'+data.msg.file;
+				GLOBAL.active_project.data.assets[form_details.asset_slug].source = null;
 				image.onload = () => {
 					if (GLOBAL.use_vram) {
 						createImageBitmap(image).then(bitmap => {
 							GLOBAL.active_project.data.assets[form_details.asset_slug].source = bitmap;
-							generateStreamOverlays(['$assets/'+form_details.asset_slug+'$']);
 						});
 					} else {
 						GLOBAL.active_project.data.assets[form_details.asset_slug].source = image;
-						generateStreamOverlays(['$assets/'+form_details.asset_slug+'$']);
+					}
+					
+					// request sources associated with the current asset upload
+					let asset_associated_sources = checkDataForPathReference('assets/'+form_details.asset_slug);
+					
+					// if any associated sources, proc overlay generation update
+					if (asset_associated_sources.length > 0) {
+						// convert sources to variable path
+						asset_associated_sources = asset_associated_sources.map(x => { return '$var$'+x+'$/var$'; });
+						setTimeout(() => { generateStreamOverlays(asset_associated_sources) }, 1);
 					}
 					
 					// if quick upload, call back to finish popup close and print actions

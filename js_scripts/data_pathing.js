@@ -102,22 +102,32 @@ function getRealValueHeadList(value, base_path = GLOBAL.active_project.data, hea
 	return head;
 }
 
-function flattenDataObject(value) {
-	
-	let real_value = getRealValue(value);
-	
-	if (isObject(real_value)) {
-		
-		Object.keys(real_value).forEach(key => {
-			
-			real_value[key] = getRealValue(real_value[key]);
-			
-		});
-		
+// recurse data structure looking for any save path reference that contains the current path lookup and return the matching setter paths as an array
+function checkDataForPathReference(path, data = GLOBAL.active_project.data, app_path = '', source_list = []) {
+	let keys = Object.keys(data);
+	for (let i=0; i<keys.length; i++) {
+		let current = data[keys[i]];
+		let temp_app_path = (app_path == '' ? keys[i] : app_path+'/'+keys[i]);
+		if (isObject(current)) {
+			source_list.push(...checkDataForPathReference(path, current, temp_app_path));
+		} else if (typeof current === 'string' && current.indexOf(path) > -1) {
+			source_list.push(temp_app_path);
+		} else if (typeof current === 'string' && isPathOnlyVariable(current)) {
+			source_list.push(...checkDataForPathReference(path, getRealValue(current), temp_app_path));
+		}
 	}
-	
+	return source_list;
+}
+
+// completely flatten an object by pulling in all real values from variable paths
+function flattenDataObject(value) {
+	let real_value = getRealValue(value);
+	if (isObject(real_value)) {
+		Object.keys(real_value).forEach(key => {
+			real_value[key] = getRealValue(real_value[key]);
+		});
+	}
 	return real_value;
-	
 }
 
 function getRealValue(value, depth = null, base_path = GLOBAL.active_project.data, head = null) {
@@ -290,8 +300,8 @@ function requestSourceList(overlay) {
 	for (let i=0; i<sources.length; i++) {
 		let source = sources[i];
 		for (let i2=i+1; i2<sources.length; i2++) {
-			if (sources == sources[i2]) {
-				sources = sources.splice(i2, 1);
+			if (source == sources[i2]) {
+				sources.splice(i2, 1);
 				i2--;
 			}
 		}

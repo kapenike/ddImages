@@ -122,6 +122,16 @@ function updateDataset() {
 			// re-create dataset selection list
 			generateDatasetSelectionList();
 			
+			// request sources associated with the current dataset list
+			let dataset_associated_sources = checkDataForPathReference('sets/'+form_details.dataset_title+'/');
+			
+			// if any associated sources, proc overlay generation update
+			if (dataset_associated_sources.length > 0) {
+				// convert sources to variable path
+				dataset_associated_sources = dataset_associated_sources.map(x => { return '$var$'+x+'$/var$'; });
+				generateStreamOverlays(dataset_associated_sources);
+			}
+			
 		}
 		
 	}, 'dataset_management_form_block');
