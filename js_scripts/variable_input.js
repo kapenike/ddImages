@@ -223,6 +223,27 @@ function createPathListForEditor(path = null, base_path = null) {
 				})
 			: Create('div')
 		),
+		(
+			list.length > 10
+				?	Create('div', {
+					children: [
+						Create('input', {
+							type: 'text',
+							style: {
+								padding: '6px 16px',
+								margin: '0'
+							},
+							placeholder: 'Search...',
+							onkeyup: function () {
+								MSelect('.path_selection_element_search').forEach(search_elem => {
+									search_elem.style.display = search_elem.innerHTML.toLowerCase().indexOf(this.value.toLowerCase()) > -1 ? 'block' : 'none'
+								});
+							}
+						})
+					]
+				})
+				: Create('div')
+		),
 		...list.map(key => {
 			let is_value = typeof curr_path[key] === 'string';
 			let print_key = key;
@@ -252,7 +273,7 @@ function createPathListForEditor(path = null, base_path = null) {
 			}
 
 			return Create('div', {
-				className: 'path_selection_element_'+(is_value ? 'set' : 'extend'),
+				className: 'path_selection_element_search path_selection_element_'+(is_value ? 'set' : 'extend'),
 				innerHTML: (is_value ? '&nbsp;&nbsp;&#9900;' : '&#8594; ')+print_key,
 				onclick: (
 					is_value

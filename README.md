@@ -66,14 +66,9 @@ FEATURES:
 - Switchboard
 	- allow multiple pages
 	- offer search option for select list dropdowns
-	
-- Datasets and Assets
-	- probably pretty complex, but an updated asset and/or dataset needs to traverse current data state to determine if it will require an overlay update
-		this then needs to notify P2P server of the updated data point containing the asset and/or dataset update
 		
 - Dataset
 	- allow sorting
-	- on create, scroll new insert into view and highlight
 
 - Overlay editor features
 	- during grid placement UI, display vertical and horizontal red lines to mimic the placement coordinates, also display menu within top editor panel
@@ -90,7 +85,6 @@ FEATURES:
 
 - variable input
 	- needs to allow window anchor selection to change specific concatted variables rather than just appending the new variable selection
-	- offer search option for lists containing more than 10 values
 	- needs complete rewrite with new variable storage on HTMLElements using JSUI
 
 - P2P
