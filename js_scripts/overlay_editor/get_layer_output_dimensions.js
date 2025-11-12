@@ -60,6 +60,18 @@ function getLayerOutputDimensions(layer) {
 			}
 		}
 		
+		// change origins of position, do not change output.layer_x/y as those coordinates are used by the overlay editor drag as a true position of origin
+		if (layer.origins.vertical == 'center') {
+			output.y -= output.height/2;
+		} else if (layer.origins.vertical == 'bottom') {
+			output.y -= output.height;
+		}
+		if (layer.origins.horizontal == 'center') {
+			output.x -= output.width/2;
+		} else if (layer.origins.horizontal == 'right') {
+			output.x -= output.width;
+		}
+		
 	} else if (layer.type == 'clip_path') {
 		
 		// no children or clip path, exit

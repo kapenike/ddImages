@@ -26,6 +26,19 @@ function featureTextRotation(layer) {
 									}
 									getLayerById(GLOBAL.overlay_editor.active_layer).style.rotation = rotation;
 									printCurrentCanvas();
+								},
+								onchange: function () {
+									let rotation = parseInt(this.value);
+									if (rotation > 360) {
+										rotation = 0;
+										this.value = rotation;
+									}
+									if (rotation < -360) {
+										rotation = 0;
+										this.value = rotation;
+									}
+									getLayerById(GLOBAL.overlay_editor.active_layer).style.rotation = rotation;
+									printCurrentCanvas();
 								}
 							})
 						]

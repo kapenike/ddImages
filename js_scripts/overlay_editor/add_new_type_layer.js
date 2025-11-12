@@ -33,7 +33,8 @@ function requestNewLayer(type = 'text', pass_starting_location = false) {
 				fontMeasure: 'px',
 				color: '#000000',
 				align: 'left',
-				caps: false
+				caps: false,
+				rotation: 0
 			},
 			offset: {
 				x: x,
@@ -62,6 +63,10 @@ function requestNewLayer(type = 'text', pass_starting_location = false) {
 			dimensions: {
 				width: '',
 				height: ''
+			},
+			origins: {
+				vertical: 'top',
+				horizontal: 'left'
 			}
 		};
 		

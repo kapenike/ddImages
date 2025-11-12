@@ -263,36 +263,6 @@ function toggleTrue(layer) {
 	
 }
 
-function printRect(ctx, layer) {
-	
-	if (toggleTrue(layer)) {
-		
-		// use path for fillRect so a border can be applied
-		ctx.beginPath();
-		ctx.moveTo(layer.offset.x, layer.offset.y);
-		ctx.lineTo(layer.offset.x, layer.offset.y + layer.dimensions.height);
-		ctx.lineTo(layer.offset.x + layer.dimensions.width, layer.offset.y + layer.dimensions.height);
-		ctx.lineTo(layer.offset.x + layer.dimensions.width, layer.offset.y);
-		ctx.lineTo(layer.offset.x, layer.offset.y);
-		ctx.closePath();
-		
-		// fill
-		if (layer.style.fill) {
-			ctx.fillStyle = getRealValue(layer.style.fill);
-			ctx.fill();
-		}
-		
-		// border
-		if (layer.style.border) {
-			ctx.strokeStyle = getRealValue(layer.style.border);
-			ctx.lineWidth = layer.style.border_width ?? 1;
-			ctx.stroke();
-		}
-		
-	}
-	
-}
-
 function printImage(ctx, layer) {
 
 	// get real source
@@ -323,6 +293,20 @@ function printImage(ctx, layer) {
 			}
 		}
 		
+		// origins position offset
+		let origins_offset_x = 0;
+		let origins_offset_y = 0;
+		if (layer.origins.vertical == 'center') {
+			origins_offset_y -= output_height/2;
+		} else if (layer.origins.vertical == 'bottom') {
+			origins_offset_y -= output_height;
+		}
+		if (layer.origins.horizontal == 'center') {
+			origins_offset_x -= output_width/2;
+		} else if (layer.origins.horizontal == 'right') {
+			origins_offset_x -= output_width;
+		}
+		
 		// image effects
 		if (layer.effects.grayscale) {
 			ctx.filter = 'grayscale(100%)';
@@ -330,8 +314,8 @@ function printImage(ctx, layer) {
 		
 		ctx.drawImage(
 			value.source,
-			layer.offset.x + parseInt(value.offset_x),
-			layer.offset.y + parseInt(value.offset_y),
+			layer.offset.x + parseInt(value.offset_x) + origins_offset_x,
+			layer.offset.y + parseInt(value.offset_y) + origins_offset_y,
 			output_width,
 			output_height
 		);

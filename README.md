@@ -75,10 +75,9 @@ FEATURES:
 	- stash start drag point of clip path individual point as to allow x / y lock drag during move event
 	- when adding a new layer during the active selection of a group layer, add new layer within the group layer rather than adjacent
 	- ctrl + z, ctrl + y: undo and redo
-	- position image from different origins, then allow image rotations, update flipLayer function with new positioning possibilities
+	- allow image rotation
 	- allow text to overflow when prompted and provide a new height dimension, with that allow vertical positioning, default top but allow center and bottom, update flipLayer function with new positioning possibilities
-	- right click tool on overlay editor to:
-		- ctrl + t for a new UI to control rotation and dimensions of layer object
+	- ctrl + t for a new UI to control rotation and dimensions of layer object
 
 - variable input
 	- needs to allow window anchor selection to change specific concatted variables rather than just appending the new variable selection
@@ -86,7 +85,3 @@ FEATURES:
 
 - P2P
 	- allow viewing of uncontrolled clients as well as allowing force disconnect of any client
-
-BUGS:
-
-- head feature to prevent infinite loops in getRealValue will also prevent the same variable path from being printed twice within the same line

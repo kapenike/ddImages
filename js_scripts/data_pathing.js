@@ -143,6 +143,9 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_project.dat
 		// identify real and variable path parts
 		let var_real_parts = getRealVariableParts(value);
 		
+		// temporary buffer of head variable sources to allow duplicate sources inline rather than nested (does not create infinite loop)
+		let temp_head = [];
+		
 		// loop variable parts
 		var_real_parts.forEach(split_part => {
 			if (split_part.variable) {
@@ -152,11 +155,14 @@ function getRealValue(value, depth = null, base_path = GLOBAL.active_project.dat
 					return '';
 				} else {
 					// otherwise, log current source
-					head.push(split_part.variable);
+					temp_head.push(split_part.variable);
 				}
 				
 			}
 		});
+		
+		// push temp head into head
+		head.push(...temp_head);
 		
 		let return_value = '';
 		

@@ -67,6 +67,7 @@ function setupLayerInfoEditor() {
 			(layer.type == 'text' ? featureTextRotation(layer) : Create('div')), // text rotation UI
 			(layer.type != 'clip_path' ? featureDimensionsAndPosition(layer) : Create('div')), // dimensions and position UI for non group layers
 			(layer.type == 'clip_path' ? featureGroupLayerClipPath(layer) : Create('div')), // UI for selecting clip path type and clip region
+			(layer.type == 'image' ? featureImageOrigins(layer) : Create('div')), // UI for changing position origins of image
 			(layer.type == 'image' ? featureImageEffects(layer) : Create('div')), // UI for grayscaling an image
 			Create('div', {
 				className: 'editor_section_block',
@@ -132,9 +133,21 @@ function flipLayer(layer, direction) {
 		// image can have null dimensions for aspect scaling, determine output dimensions then flip
 		let output_dimensions = getLayerOutputDimensions(layer);
 		if (d) {
-			layer.offset.x = (GLOBAL.overlay_editor.current.dimensions.width - output_dimensions.width) - layer.offset.x;
+			if (layer.origins.horizontal == 'left') {
+				layer.offset.x = (GLOBAL.overlay_editor.current.dimensions.width - output_dimensions.width) - layer.offset.x;
+			} else if (layer.origins.horizontal == 'right') {
+				layer.offset.x = (GLOBAL.overlay_editor.current.dimensions.width + output_dimensions.width) - layer.offset.x;
+			} else if (layer.origins.horizontal == 'center') {
+				layer.offset.x = GLOBAL.overlay_editor.current.dimensions.width - layer.offset.x;
+			}
 		} else {
-			layer.offset.y = (GLOBAL.overlay_editor.current.dimensions.height - output_dimensions.height) - layer.offset.y;
+			if (layer.origins.vertical == 'top') {
+				layer.offset.y = (GLOBAL.overlay_editor.current.dimensions.height - output_dimensions.height) - layer.offset.y;
+			} else if (layer.origins.vertical == 'bottom') {
+				layer.offset.y = (GLOBAL.overlay_editor.current.dimensions.height + output_dimensions.height) - layer.offset.y;
+			} else if (layer.origins.vertical == 'center') {
+				layer.offset.y = (GLOBAL.overlay_editor.current.dimensions.height) - layer.offset.y;
+			}
 		}
 	} else if (layer.type == 'text') {
 		if (layer.style.rotation != 0) {
