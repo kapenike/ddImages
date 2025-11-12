@@ -9,7 +9,8 @@ function imageEditorMouseCTX(event) {
 			create: true,
 			select: true,
 			select_parent: false,
-			remove: false
+			remove: false,
+			deselect: false
 		},
 		append_items: null
 	};
@@ -36,6 +37,7 @@ function imageEditorMouseCTX(event) {
 				output_menu.items.select_parent = true;
 			}
 			output_menu.items.remove = true;
+			output_menu.items.deselect = true;
 		}
 		
 		output_menu.append_items = [
@@ -60,6 +62,16 @@ function imageEditorMouseCTX(event) {
 						title: 'Select Parent',
 						click: function () {
 							setActiveLayer(GLOBAL.overlay_editor.active_layer.split('_').slice(0,-1).join('_'));
+							removeUIEditMenu();
+						}
+					}
+				: undefined
+			),
+			(output_menu.items.deselect
+				? {
+						title: 'Deselect',
+						click: function () {
+							setActiveLayer(null);
 							removeUIEditMenu();
 						}
 					}

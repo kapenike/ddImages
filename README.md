@@ -78,9 +78,6 @@ FEATURES:
 	- position image from different origins, then allow image rotations, update flipLayer function with new positioning possibilities
 	- allow text to overflow when prompted and provide a new height dimension, with that allow vertical positioning, default top but allow center and bottom, update flipLayer function with new positioning possibilities
 	- right click tool on overlay editor to:
-		- create new layer
-		- remove layer if selection is within active layer bounds
-		- select layer, behind layer, layer container
 		- ctrl + t for a new UI to control rotation and dimensions of layer object
 
 - variable input

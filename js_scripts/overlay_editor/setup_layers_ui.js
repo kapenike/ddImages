@@ -27,4 +27,11 @@ function setupLayersUI() {
 		innerHTML: '',
 		children: createLayersUI(GLOBAL.overlay_editor.current.layers)
 	});
+	// scroll active selection into view if it isn't already
+	setTimeout(function () {
+		let active_layer = Select('.active_editor_layer');
+		if (active_layer) {
+			active_layer.scrollIntoView();
+		}
+	}, 1);
 }

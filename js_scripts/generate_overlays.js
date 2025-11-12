@@ -44,8 +44,6 @@ function generateStreamOverlays(sources = null, callback = () => {}) {
 			if (GLOBAL.generate_sources == true) {
 				GLOBAL.active_project.overlays[slug].sources = requestSourceList(GLOBAL.active_project.overlays[slug]);
 			}
-			
-			console.log('generating '+overlay.slug);
 		
 			// log overlay slug for capture with PHP
 			output_overlays.changed.push(overlay.slug);

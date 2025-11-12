@@ -124,7 +124,7 @@ function flattenDataObject(value) {
 	let real_value = getRealValue(value);
 	if (isObject(real_value)) {
 		Object.keys(real_value).forEach(key => {
-			real_value[key] = getRealValue(real_value[key]);
+			real_value[key] = flattenDataObject(real_value[key]);
 		});
 	}
 	return real_value;
